@@ -1,10 +1,12 @@
+import { Mic, Store, Church, GraduationCap, PartyPopper, Wrench } from "lucide-react";
+
 export const featuredEvents = [
   {
     id: "1",
     title: "Lagos Tech Summit 2026",
-    date: "Apr 15 – 17, 2026",
+    date: "Apr 15 -- 17, 2026",
     venue: "Eko Convention Centre, Lagos",
-    price: "₦15,000",
+    price: "\u20A615,000",
     category: "Conference",
     image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop",
     attendees: 2400,
@@ -22,7 +24,7 @@ export const featuredEvents = [
   {
     id: "3",
     title: "Nairobi Startup Expo",
-    date: "Jun 10 – 12, 2026",
+    date: "Jun 10 -- 12, 2026",
     venue: "KICC, Nairobi",
     price: "KSh 2,500",
     category: "Trade Show",
@@ -34,7 +36,7 @@ export const featuredEvents = [
     title: "UNILAG Freshers' Ball",
     date: "Sep 20, 2026",
     venue: "Multipurpose Hall, UNILAG",
-    price: "₦3,000",
+    price: "\u20A63,000",
     category: "Campus Event",
     image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&h=400&fit=crop",
     attendees: 800,
@@ -42,7 +44,7 @@ export const featuredEvents = [
   {
     id: "5",
     title: "Kigali Design Week",
-    date: "Jul 7 – 9, 2026",
+    date: "Jul 7 -- 9, 2026",
     venue: "Kigali Convention Centre",
     price: "$50",
     category: "Conference",
@@ -54,7 +56,7 @@ export const featuredEvents = [
     title: "Abuja Food Festival",
     date: "Aug 14, 2026",
     venue: "Millennium Park, Abuja",
-    price: "₦5,000",
+    price: "\u20A65,000",
     category: "Festival",
     image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=400&fit=crop",
     attendees: 3500,
@@ -62,12 +64,12 @@ export const featuredEvents = [
 ];
 
 export const eventCategories = [
-  { name: "Conferences", icon: "🎤", count: 240 },
-  { name: "Trade Shows", icon: "🏪", count: 180 },
-  { name: "Church Events", icon: "⛪", count: 320 },
-  { name: "Campus Events", icon: "🎓", count: 450 },
-  { name: "Festivals", icon: "🎉", count: 160 },
-  { name: "Workshops", icon: "🛠️", count: 290 },
+  { name: "Conferences", icon: Mic, count: 240 },
+  { name: "Trade Shows", icon: Store, count: 180 },
+  { name: "Church Events", icon: Church, count: 320 },
+  { name: "Campus Events", icon: GraduationCap, count: 450 },
+  { name: "Festivals", icon: PartyPopper, count: 160 },
+  { name: "Workshops", icon: Wrench, count: 290 },
 ];
 
 export const features = [
@@ -84,7 +86,7 @@ export const features = [
 export const organiserStats = {
   totalEvents: 12,
   totalAttendees: 8420,
-  totalRevenue: "₦4,250,000",
+  totalRevenue: "\u20A64,250,000",
   totalCheckins: 6890,
   recentRegistrations: [
     { name: "Adaeze Okonkwo", event: "Lagos Tech Summit", time: "2 min ago" },
@@ -103,14 +105,14 @@ export const organiserStats = {
 export const adminStats = {
   totalOrganisers: 342,
   totalEvents: 1280,
-  totalRevenue: "₦128,500,000",
+  totalRevenue: "\u20A6128,500,000",
   activeToday: 45,
-  pendingPayouts: "₦12,300,000",
+  pendingPayouts: "\u20A612,300,000",
   organisers: [
-    { name: "TechCabal Events", events: 24, revenue: "₦18,200,000", status: "active" },
-    { name: "Grace Chapel", events: 52, revenue: "₦2,100,000", status: "active" },
-    { name: "UniLag SUG", events: 18, revenue: "₦890,000", status: "active" },
-    { name: "Kigali Hub", events: 8, revenue: "₦5,400,000", status: "suspended" },
-    { name: "Abuja Foodies", events: 12, revenue: "₦3,200,000", status: "active" },
+    { name: "TechCabal Events", events: 24, revenue: "\u20A618,200,000", status: "active" },
+    { name: "Grace Chapel", events: 52, revenue: "\u20A62,100,000", status: "active" },
+    { name: "UniLag SUG", events: 18, revenue: "\u20A6890,000", status: "active" },
+    { name: "Kigali Hub", events: 8, revenue: "\u20A65,400,000", status: "suspended" },
+    { name: "Abuja Foodies", events: 12, revenue: "\u20A63,200,000", status: "active" },
   ],
 };

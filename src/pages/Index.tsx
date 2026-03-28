@@ -82,8 +82,8 @@ const Index = () => {
             {/* Category pills */}
             <div className="flex flex-wrap justify-center gap-2">
               {eventCategories.slice(0, 4).map((cat) => (
-                <span key={cat.name} className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-ivory/60 text-xs font-body">
-                  {cat.icon} {cat.name}
+                <span key={cat.name} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-ivory/60 text-xs font-body">
+                  <cat.icon className="w-3 h-3" /> {cat.name}
                 </span>
               ))}
             </div>
@@ -222,7 +222,7 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {eventCategories.map((cat) => (
               <button key={cat.name} className="group p-4 rounded-xl bg-white border border-border hover:border-amber/30 text-center transition-all duration-200 hover:shadow-md">
-                <div className="text-2xl mb-2">{cat.icon}</div>
+                <cat.icon className="w-6 h-6 mx-auto mb-2 text-amber" />
                 <div className="font-heading text-xs font-700 text-ink mb-0.5">{cat.name}</div>
                 <div className="text-muted-foreground text-[10px] font-body">{cat.count} events</div>
               </button>

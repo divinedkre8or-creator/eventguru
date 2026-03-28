@@ -1,13 +1,40 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, CalendarDays, Megaphone } from "lucide-react";
+import { Eye, EyeOff, CalendarDays, Megaphone, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState<"attendee" | "organiser" | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const { signUp } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!role) {
+      toast({ variant: "destructive", title: "Select a role", description: "Choose whether you want to attend or organise events." });
+      return;
+    }
+    if (!fullName || !email || !password) return;
+    setSubmitting(true);
+    const { error } = await signUp(email, password, fullName, role);
+    setSubmitting(false);
+    if (error) {
+      toast({ variant: "destructive", title: "Signup failed", description: error });
+    } else {
+      toast({ title: "Account created", description: "Check your email to verify your account." });
+      navigate("/login");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-ink flex flex-col">
@@ -26,13 +53,16 @@ const Signup = () => {
             <p className="text-ivory/50 text-sm font-body">Join Africa's leading event platform</p>
           </div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label className="text-ivory/70 text-xs font-body">Full Name</Label>
               <Input
                 type="text"
                 placeholder="Amaka Okonkwo"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 className="bg-white/5 border-white/10 text-ivory placeholder:text-ivory/30 focus-visible:ring-amber h-11"
+                required
               />
             </div>
 
@@ -41,7 +71,10 @@ const Signup = () => {
               <Input
                 type="email"
                 placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="bg-white/5 border-white/10 text-ivory placeholder:text-ivory/30 focus-visible:ring-amber h-11"
+                required
               />
             </div>
 
@@ -50,8 +83,12 @@ const Signup = () => {
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="--------"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="bg-white/5 border-white/10 text-ivory placeholder:text-ivory/30 focus-visible:ring-amber h-11 pr-10"
+                  required
+                  minLength={6}
                 />
                 <button
                   type="button"
@@ -63,7 +100,6 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* Role Selection */}
             <div className="space-y-2">
               <Label className="text-ivory/70 text-xs font-body">I want to</Label>
               <div className="grid grid-cols-2 gap-3">
@@ -94,8 +130,12 @@ const Signup = () => {
               </div>
             </div>
 
-            <Button type="submit" className="w-full bg-amber text-ink hover:bg-amber/90 font-heading font-700 h-11">
-              Create Account
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-amber text-ink hover:bg-amber/90 font-heading font-700 h-11"
+            >
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Account"}
             </Button>
           </form>
 

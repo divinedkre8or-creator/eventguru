@@ -1,10 +1,11 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, CalendarDays, Users, Ticket, ScanLine, Image,
-  Megaphone, BarChart3, Wallet, Settings, Bell, Menu, X,
+  Megaphone, BarChart3, Wallet, Settings, Bell, Menu, X, LogOut,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
   { title: "Overview", path: "/dashboard", icon: LayoutDashboard },
@@ -23,7 +24,11 @@ const bottomNavItems = navItems.slice(0, 5);
 
 const DashboardLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { profile, signOut } = useAuth();
+
+  const firstName = profile?.full_name?.split(" ")[0] || "there";
 
   const isActive = (path: string) =>
     path === "/dashboard" ? location.pathname === path : location.pathname.startsWith(path);
@@ -100,15 +105,23 @@ const DashboardLayout = () => {
               </button>
               <div>
                 <span className="text-ivory text-sm font-body">Good morning,</span>{" "}
-                <span className="text-amber text-sm font-heading font-700">Amaka</span>
+                <span className="text-amber text-sm font-heading font-700">{firstName}</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" className="text-ivory/50 hover:text-ivory hover:bg-white/5 h-9 w-9">
                 <Bell className="w-4 h-4" />
               </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-ivory/50 hover:text-coral hover:bg-white/5 h-9 w-9"
+                onClick={async () => { await signOut(); navigate("/"); }}
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
               <div className="w-8 h-8 rounded-full bg-amber/20 flex items-center justify-center">
-                <span className="text-amber text-xs font-heading font-700">AO</span>
+                <span className="text-amber text-xs font-heading font-700">{firstName.slice(0, 2).toUpperCase()}</span>
               </div>
             </div>
           </div>

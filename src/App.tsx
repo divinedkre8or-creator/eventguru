@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -25,38 +27,48 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+        <AuthProvider>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
 
-          {/* Organiser Dashboard */}
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardOverview />} />
-            <Route path="events" element={<Placeholder />} />
-            <Route path="attendees" element={<Placeholder />} />
-            <Route path="tickets" element={<Placeholder />} />
-            <Route path="checkin" element={<Placeholder />} />
-            <Route path="dp" element={<Placeholder />} />
-            <Route path="campaigns" element={<Placeholder />} />
-            <Route path="analytics" element={<Placeholder />} />
-            <Route path="payments" element={<Placeholder />} />
-            <Route path="settings" element={<Placeholder />} />
-          </Route>
+            {/* Organiser Dashboard */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute requiredRole="organiser">
+                <DashboardLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<DashboardOverview />} />
+              <Route path="events" element={<Placeholder />} />
+              <Route path="attendees" element={<Placeholder />} />
+              <Route path="tickets" element={<Placeholder />} />
+              <Route path="checkin" element={<Placeholder />} />
+              <Route path="dp" element={<Placeholder />} />
+              <Route path="campaigns" element={<Placeholder />} />
+              <Route path="analytics" element={<Placeholder />} />
+              <Route path="payments" element={<Placeholder />} />
+              <Route path="settings" element={<Placeholder />} />
+            </Route>
 
-          {/* Super Admin */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminOverview />} />
-            <Route path="events" element={<Placeholder />} />
-            <Route path="organisers" element={<Placeholder />} />
-            <Route path="transactions" element={<Placeholder />} />
-            <Route path="disputes" element={<Placeholder />} />
-            <Route path="settings" element={<Placeholder />} />
-          </Route>
+            {/* Super Admin */}
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<AdminOverview />} />
+              <Route path="events" element={<Placeholder />} />
+              <Route path="organisers" element={<Placeholder />} />
+              <Route path="transactions" element={<Placeholder />} />
+              <Route path="disputes" element={<Placeholder />} />
+              <Route path="settings" element={<Placeholder />} />
+            </Route>
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
