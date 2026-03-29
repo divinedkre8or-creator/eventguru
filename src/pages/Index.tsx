@@ -67,13 +67,13 @@ const Index = () => {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
               <Link to="/signup">
-                <Button className="bg-amber text-ink hover:bg-amber/90 font-heading font-700 h-12 px-6 text-base w-full sm:w-auto">
+                <Button className="bg-amber text-ink hover:bg-amber/90 font-heading font-700 h-12 px-6 text-base w-full sm:w-auto min-w-[180px]">
                   Create Your Event
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </Link>
               <a href="#events">
-                <Button variant="outline" className="border-white/20 text-ivory hover:bg-white/5 font-heading font-700 h-12 px-6 text-base w-full sm:w-auto">
+                <Button variant="ghost" className="border border-ivory/20 bg-transparent text-ivory hover:bg-ivory/10 font-heading font-700 h-12 px-6 text-base w-full sm:w-auto min-w-[180px]">
                   Explore Events
                 </Button>
               </a>
