@@ -14,6 +14,10 @@ import NotFound from "./pages/NotFound";
 
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardOverview from "./pages/dashboard/Overview";
+import Events from "./pages/dashboard/Events";
+import CreateEvent from "./pages/dashboard/CreateEvent";
+import Tickets from "./pages/dashboard/Tickets";
+import Attendees from "./pages/dashboard/Attendees";
 import Placeholder from "./pages/dashboard/Placeholder";
 
 import AdminLayout from "./layouts/AdminLayout";
@@ -41,9 +45,10 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route index element={<DashboardOverview />} />
-              <Route path="events" element={<Placeholder />} />
-              <Route path="attendees" element={<Placeholder />} />
-              <Route path="tickets" element={<Placeholder />} />
+              <Route path="events" element={<Events />} />
+              <Route path="events/create" element={<CreateEvent />} />
+              <Route path="attendees" element={<Attendees />} />
+              <Route path="tickets" element={<Tickets />} />
               <Route path="checkin" element={<Placeholder />} />
               <Route path="dp" element={<Placeholder />} />
               <Route path="campaigns" element={<Placeholder />} />
