@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const statusColor: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -127,17 +128,26 @@ const Events = () => {
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <h3 className="font-heading text-sm font-700 text-foreground truncate">{event.title}</h3>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-heading font-700 uppercase tracking-wider shrink-0 ${statusColor[event.status] || statusColor.draft}`}>
+                      <div className="flex items-center gap-1">
+                        <span className={`px-2 py-0.5 mr-1 rounded-full text-[10px] font-heading font-700 uppercase tracking-wider shrink-0 ${statusColor[event.status] || statusColor.draft}`}>
                           {event.status}
                         </span>
+                        <Link
+                          to={`/dashboard/events/${event.id}/edit`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-1.5 hover:bg-muted rounded text-muted-foreground hover:text-foreground shrink-0 transition-colors"
+                          title="Edit Event"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                        </Link>
                         <button
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             navigator.clipboard.writeText(`${window.location.origin}/events/${event.id}`);
+                            toast.success("Event link copied to clipboard!"); 
                           }}
-                          className="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground shrink-0"
+                          className="p-1.5 hover:bg-muted rounded text-muted-foreground hover:text-foreground shrink-0 transition-colors"
                           title="Copy Event Link"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>

@@ -1,6 +1,6 @@
-import { useState, useRef, ChangeEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Calendar, MapPin, Tag, Ticket, Plus, Trash2, Loader2, ImagePlus, X } from "lucide-react";
+import { useState, useRef, ChangeEvent, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, ArrowRight, Calendar, MapPin, Tag, Ticket, Plus, Trash2, Loader2, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,10 +18,12 @@ const categories = [
 ];
 
 interface TicketDraft {
+  id?: string;
   name: string;
   price: string;
   quantity: string;
   description: string;
+  sold?: number;
 }
 
 interface ScheduleDay {
@@ -33,17 +35,23 @@ interface ScheduleDay {
 const emptyTicket: TicketDraft = { name: "", price: "0", quantity: "100", description: "" };
 
 const CreateEvent = () => {
+  const { id } = useParams<{ id: string }>();
+  const isEditMode = !!id;
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const [isLoadingEvent, setIsLoadingEvent] = useState(isEditMode);
+  
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [publishedEventId, setPublishedEventId] = useState("");
 
   // Step 1: Details
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [additionalInfo, setAdditionalInfo] = useState("");
   const [venue, setVenue] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("Nigeria");
@@ -62,6 +70,93 @@ const CreateEvent = () => {
 
   // Step 2: Tickets
   const [tickets, setTickets] = useState<TicketDraft[]>([{ ...emptyTicket, name: "General Admission" }]);
+
+  // Load Event Data if Edit Mode
+  useEffect(() => {
+    if (!isEditMode || !user) return;
+    
+    const fetchEvent = async () => {
+      try {
+        const { data: event, error } = await supabase
+          .from("events")
+          .select("*, ticket_types(*)")
+          .eq("id", id!)
+          .single();
+        
+        if (error) throw error;
+        if (event.organiser_id !== user.id) {
+          toast({ title: "Unauthorized", description: "You cannot edit this event", variant: "destructive" });
+          navigate("/dashboard/events");
+          return;
+        }
+
+        setTitle(event.title || "");
+        setVenue(event.venue || "");
+        setCity(event.city || "");
+        setCountry(event.country || "Nigeria");
+        setCategory(event.category || "conference");
+        setIsFree(event.is_free || false);
+        setMaxAttendees(event.max_attendees ? event.max_attendees.toString() : "");
+        setBannerDataUrl(event.image_url || null);
+        
+        // Parse custom delimited string
+        let rawDesc = event.description || "";
+        let parsedDesc = rawDesc;
+        let parsedSchedule: ScheduleDay[] = [];
+        let parsedAdditional = "";
+
+        if (rawDesc.includes("|||ADDITIONAL_INFO|||")) {
+          const parts = rawDesc.split("|||ADDITIONAL_INFO|||");
+          parsedDesc = parts[0];
+          parsedAdditional = parts[1] || "";
+        }
+
+        if (parsedDesc.includes("|||SCHEDULE|||")) {
+          const parts = parsedDesc.split("|||SCHEDULE|||");
+          parsedDesc = parts[0];
+          try {
+            parsedSchedule = JSON.parse(parts[1]);
+          } catch (e) {
+            console.error("Failed to parse schedule JSON", e);
+          }
+        }
+
+        setDescription(parsedDesc.trim());
+        setAdditionalInfo(parsedAdditional.trim());
+        if (parsedSchedule.length > 0) {
+          setSchedule(parsedSchedule);
+        } else if (event.date) {
+           // fallback for older events without schedule JSON
+           const d = new Date(event.date);
+           setSchedule([{ 
+             date: d.toISOString().split('T')[0], 
+             startTime: d.toISOString().split('T')[1].substring(0,5), 
+             endTime: "" 
+           }]);
+        }
+
+        if (event.ticket_types && event.ticket_types.length > 0) {
+          if (!event.is_free) {
+            setTickets(event.ticket_types.map((t: any) => ({
+              id: t.id,
+              name: t.name,
+              price: t.price.toString(),
+              quantity: t.quantity.toString(),
+              description: t.description || "",
+              sold: t.sold || 0,
+            })));
+          }
+        }
+      } catch (err: any) {
+        toast({ title: "Error", description: err.message, variant: "destructive" });
+        navigate("/dashboard/events");
+      } finally {
+        setIsLoadingEvent(false);
+      }
+    };
+
+    fetchEvent();
+  }, [isEditMode, id, user, navigate, toast]);
 
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -111,67 +206,92 @@ const CreateEvent = () => {
       const endItem = sortedSchedule[sortedSchedule.length - 1];
       const endDate = endItem.endTime ? new Date(`${endItem.date}T${endItem.endTime}`).toISOString() : null;
 
-      let finalDescription = description.trim();
-      if (sortedSchedule.length > 0) {
-        finalDescription += "\n\n### Event Schedule\n";
-        sortedSchedule.forEach((s, idx) => {
-          finalDescription += `- **Day ${idx + 1} (${new Date(s.date).toLocaleDateString()}):** ${s.startTime} ${s.endTime ? `- ${s.endTime}` : ''}\n`;
-        });
-      }
+      // Pack it all into description
+      const finalDescription = `${description.trim()}\n\n|||SCHEDULE|||${JSON.stringify(sortedSchedule)}\n\n|||ADDITIONAL_INFO|||${additionalInfo.trim()}`;
 
-      const { data: event, error: eventError } = await supabase
-        .from("events")
-        .insert({
-          organiser_id: user.id,
-          title: title.trim(),
-          description: finalDescription || null,
-          date: startDate,
-          end_date: endDate,
-          venue: venue.trim() || null,
-          city: city.trim() || null,
-          country,
-          category,
-          is_free: isFree,
-          max_attendees: maxAttendees ? parseInt(maxAttendees) : null,
-          status,
-          image_url: bannerDataUrl,
-        })
-        .select("id")
-        .single();
+      const eventPayload = {
+        organiser_id: user.id,
+        title: title.trim(),
+        description: finalDescription,
+        date: startDate,
+        end_date: endDate,
+        venue: venue.trim() || null,
+        city: city.trim() || null,
+        country,
+        category,
+        is_free: isFree,
+        max_attendees: maxAttendees ? parseInt(maxAttendees) : null,
+        status,
+        image_url: bannerDataUrl,
+      };
 
-      if (eventError) throw eventError;
+      let eventIdResult = id;
 
-      if (!isFree && tickets.length > 0) {
-        const ticketRows = tickets
-          .filter((t) => t.name.trim())
-          .map((t) => ({
-            event_id: event.id,
-            name: t.name.trim(),
-            description: t.description.trim() || null,
-            price: parseFloat(t.price) || 0,
-            quantity: parseInt(t.quantity) || 100,
+      if (isEditMode) {
+        const { error: eventError } = await supabase
+          .from("events")
+          .update(eventPayload)
+          .eq("id", id!);
+        if (eventError) throw eventError;
+
+        // For simplicity on MVP edit, we can delete all non-sold tickets and recreate them,
+        // or just recreate if we don't have sold constraints.
+        // Actually, to avoid breaking constraints, we will just upsert.
+        if (!isFree && tickets.length > 0) {
+          const ticketRows = tickets.filter(t => t.name.trim()).map((t) => ({
+             ...(t.id ? { id: t.id } : {}),
+             event_id: id!,
+             name: t.name.trim(),
+             description: t.description.trim() || null,
+             price: parseFloat(t.price) || 0,
+             quantity: parseInt(t.quantity) || 100,
           }));
-
-        if (ticketRows.length > 0) {
-          const { error: ticketError } = await supabase.from("ticket_types").insert(ticketRows);
+          const { error: ticketError } = await supabase.from("ticket_types").upsert(ticketRows);
           if (ticketError) throw ticketError;
         }
-      } else if (isFree) {
-        await supabase.from("ticket_types").insert({
-          event_id: event.id,
-          name: "Free Admission",
-          price: 0,
-          quantity: maxAttendees ? parseInt(maxAttendees) : 1000,
-        });
+
+      } else {
+        const { data: event, error: eventError } = await supabase
+          .from("events")
+          .insert(eventPayload)
+          .select("id")
+          .single();
+
+        if (eventError) throw eventError;
+        eventIdResult = event.id;
+
+        if (!isFree && tickets.length > 0) {
+          const ticketRows = tickets
+            .filter((t) => t.name.trim())
+            .map((t) => ({
+              event_id: event.id,
+              name: t.name.trim(),
+              description: t.description.trim() || null,
+              price: parseFloat(t.price) || 0,
+              quantity: parseInt(t.quantity) || 100,
+            }));
+
+          if (ticketRows.length > 0) {
+            const { error: ticketError } = await supabase.from("ticket_types").insert(ticketRows);
+            if (ticketError) throw ticketError;
+          }
+        } else if (isFree) {
+          await supabase.from("ticket_types").insert({
+            event_id: event.id,
+            name: "Free Admission",
+            price: 0,
+            quantity: maxAttendees ? parseInt(maxAttendees) : 1000,
+          });
+        }
       }
 
       toast({
-        title: status === "published" ? "Event published" : "Event saved as draft",
-        description: `"${title}" has been ${status === "published" ? "published" : "saved"}.`,
+        title: isEditMode ? "Event updated" : (status === "published" ? "Event published" : "Event saved as draft"),
+        description: `"${title}" has been successfully ${isEditMode ? "updated" : (status === "published" ? "published" : "saved")}.`,
       });
 
-      if (status === "published") {
-        setPublishedEventId(event.id);
+      if (!isEditMode && status === "published") {
+        setPublishedEventId(eventIdResult!);
         setShareModalOpen(true);
       } else {
         navigate("/dashboard/events");
@@ -185,6 +305,10 @@ const CreateEvent = () => {
 
   const domain = window.location.origin;
 
+  if (isLoadingEvent) {
+    return <div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-amber" /></div>;
+  }
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
@@ -193,7 +317,7 @@ const CreateEvent = () => {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="font-heading text-xl font-800 text-foreground">Create Event</h1>
+          <h1 className="font-heading text-xl font-800 text-foreground">{isEditMode ? "Edit Event" : "Create Event"}</h1>
           <p className="text-muted-foreground text-sm font-body">Step {step} of 3</p>
         </div>
       </div>
@@ -261,15 +385,15 @@ const CreateEvent = () => {
               <div key={i} className="flex flex-col sm:flex-row gap-3 items-start sm:items-end bg-background p-3 rounded-lg border border-border">
                 <div className="space-y-1 flex-1 w-full">
                   <Label className="text-xs text-muted-foreground">Date *</Label>
-                  <Input type="date" value={day.date} onChange={(e) => updateScheduleDay(i, "date", e.target.value)} className="bg-background" />
+                  <Input type="date" value={day.date} onChange={(e) => updateScheduleDay(i, "date", e.target.value)} className="bg-background border-border" />
                 </div>
                 <div className="space-y-1 flex-1 w-full">
                   <Label className="text-xs text-muted-foreground">Start Time *</Label>
-                  <Input type="time" value={day.startTime} onChange={(e) => updateScheduleDay(i, "startTime", e.target.value)} className="bg-background" />
+                  <Input type="time" value={day.startTime} onChange={(e) => updateScheduleDay(i, "startTime", e.target.value)} className="bg-background border-border" />
                 </div>
                 <div className="space-y-1 flex-1 w-full">
                   <Label className="text-xs text-muted-foreground">End Time</Label>
-                  <Input type="time" value={day.endTime} onChange={(e) => updateScheduleDay(i, "endTime", e.target.value)} className="bg-background" />
+                  <Input type="time" value={day.endTime} onChange={(e) => updateScheduleDay(i, "endTime", e.target.value)} className="bg-background border-border" />
                 </div>
                 {schedule.length > 1 && (
                   <Button variant="ghost" size="icon" onClick={() => removeScheduleDay(i)} className="shrink-0 text-muted-foreground hover:text-coral mb-[2px]">
@@ -284,7 +408,7 @@ const CreateEvent = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="font-heading text-sm font-700">Description</Label>
+            <Label className="font-heading text-sm font-700">About the Event</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Tell people what your event is about..." rows={4} className="bg-background border-border resize-none" />
           </div>
 
@@ -330,52 +454,70 @@ const CreateEvent = () => {
         </div>
       )}
 
-      {/* Step 2: Tickets */}
+      {/* Step 2: Tickets & Info */}
       {step === 2 && (
         <div className="space-y-4">
-          {isFree ? (
-            <div className="bg-card rounded-xl border border-border p-5 text-center">
-              <Ticket className="w-10 h-10 mx-auto mb-3 text-teal" />
-              <h3 className="font-heading text-sm font-700 text-foreground mb-1">Free Event</h3>
-              <p className="text-muted-foreground text-xs font-body mb-4">Attendees can register without payment</p>
-              <div className="space-y-2 max-w-xs mx-auto">
-                <Label className="font-heading text-sm font-700">Max Attendees (optional)</Label>
-                <Input type="number" value={maxAttendees} onChange={(e) => setMaxAttendees(e.target.value)} placeholder="Unlimited" className="bg-background border-border text-center" />
-              </div>
-            </div>
-          ) : (
-            <>
-              {tickets.map((ticket, i) => (
-                <div key={i} className="bg-card rounded-xl border border-border p-5 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-heading text-sm font-700 text-foreground">Ticket {i + 1}</h3>
-                    {tickets.length > 1 && (
-                      <button onClick={() => removeTicket(i)} className="p-1.5 rounded-lg hover:bg-coral/10 text-muted-foreground hover:text-coral transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="space-y-1">
-                      <Label className="text-xs font-body text-muted-foreground">Name *</Label>
-                      <Input value={ticket.name} onChange={(e) => updateTicket(i, "name", e.target.value)} placeholder="e.g. VIP" className="bg-background border-border" />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs font-body text-muted-foreground">Price (NGN)</Label>
-                      <Input type="number" value={ticket.price} onChange={(e) => updateTicket(i, "price", e.target.value)} placeholder="0" className="bg-background border-border" />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs font-body text-muted-foreground">Quantity</Label>
-                      <Input type="number" value={ticket.quantity} onChange={(e) => updateTicket(i, "quantity", e.target.value)} placeholder="100" className="bg-background border-border" />
-                    </div>
-                  </div>
+          <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+            <h2 className="font-heading text-lg font-700">Ticketing Requirements</h2>
+            {isFree ? (
+              <div className="text-center p-6 border border-dashed border-border rounded-xl bg-background/50">
+                <Ticket className="w-10 h-10 mx-auto mb-3 text-teal" />
+                <h3 className="font-heading text-sm font-700 text-foreground mb-1">Free Event</h3>
+                <p className="text-muted-foreground text-xs font-body mb-4">Attendees can register without payment</p>
+                <div className="space-y-2 max-w-xs mx-auto text-left">
+                  <Label className="font-heading text-sm font-700">Max Attendees (optional)</Label>
+                  <Input type="number" value={maxAttendees} onChange={(e) => setMaxAttendees(e.target.value)} placeholder="Unlimited" className="bg-background border-border text-center" />
                 </div>
-              ))}
-              <button onClick={addTicket} className="w-full py-3 rounded-xl border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-amber/30 transition-colors flex items-center justify-center gap-2 text-sm font-heading font-700">
-                <Plus className="w-4 h-4" /> Add Ticket Type
-              </button>
-            </>
-          )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {tickets.map((ticket, i) => (
+                  <div key={i} className="bg-background rounded-xl border border-border p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-heading text-sm font-700 text-foreground">Ticket {i + 1}</h3>
+                      {tickets.length > 1 && (
+                        <button onClick={() => removeTicket(i)} className="p-1.5 rounded-lg hover:bg-coral/10 text-muted-foreground hover:text-coral transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs font-body text-muted-foreground">Name *</Label>
+                        <Input value={ticket.name} onChange={(e) => updateTicket(i, "name", e.target.value)} placeholder="e.g. VIP" className="bg-background border-border" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-body text-muted-foreground">Price (NGN)</Label>
+                        <Input type="number" value={ticket.price} onChange={(e) => updateTicket(i, "price", e.target.value)} placeholder="0" className="bg-background border-border" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-body text-muted-foreground">Quantity</Label>
+                        <Input type="number" value={ticket.quantity} onChange={(e) => updateTicket(i, "quantity", e.target.value)} placeholder="100" className="bg-background border-border" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button onClick={addTicket} className="w-full py-3 rounded-xl border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-amber/30 transition-colors flex items-center justify-center gap-2 text-sm font-heading font-700">
+                  <Plus className="w-4 h-4" /> Add Ticket Type
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+             <div className="space-y-2">
+                <Label className="font-heading text-base font-700">Additional Information</Label>
+                <p className="text-xs text-muted-foreground -mt-1 mb-2">Include contact details, specific instructions, or event rules here. This will display below your tickets on the event page.</p>
+                <Textarea 
+                  value={additionalInfo} 
+                  onChange={(e) => setAdditionalInfo(e.target.value)} 
+                  placeholder="e.g. For inquiries contact us at hello@example.com..." 
+                  rows={4} 
+                  className="bg-background border-border resize-none" 
+                />
+            </div>
+          </div>
+
           <Button onClick={() => setStep(3)} disabled={!canProceedStep2} className="w-full bg-amber text-ink hover:bg-amber/90 font-heading font-700">
             Next: Review <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
@@ -431,14 +573,16 @@ const CreateEvent = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button onClick={() => handleSubmit("draft")} disabled={submitting} variant="ghost" className="flex-1 border border-border text-foreground hover:bg-card font-heading font-700">
+            <Button onClick={() => handleSubmit(isEditMode ? "published" : "draft")} disabled={submitting} variant="ghost" className="flex-1 border border-border text-foreground hover:bg-card font-heading font-700">
               {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
-              Save as Draft
+              {isEditMode ? "Update Event" : "Save as Draft"}
             </Button>
-            <Button onClick={() => handleSubmit("published")} disabled={submitting} className="flex-1 bg-amber text-ink hover:bg-amber/90 font-heading font-700">
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
-              Publish Event
-            </Button>
+            {!isEditMode && (
+               <Button onClick={() => handleSubmit("published")} disabled={submitting} className="flex-1 bg-amber text-ink hover:bg-amber/90 font-heading font-700">
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+                Publish Event
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -450,7 +594,7 @@ const CreateEvent = () => {
           setShareModalOpen(false);
           navigate("/dashboard/events");
         }} 
-        eventUrl={`${domain}/events/${publishedEventId}`}
+        eventUrl={`${domain}/events/${publishedEventId || id}`}
         eventTitle={title}
       />
     </div>
