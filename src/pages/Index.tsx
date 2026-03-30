@@ -9,7 +9,7 @@ import { featuredEvents } from "@/data/mock";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-[var(--ivory)] font-[DM_Sans]">
+    <div className="min-h-screen bg-[var(--ivory-hex)] font-[DM_Sans]">
       
       {/* KenteStripe at very top */}
       <KenteStripe />
@@ -18,7 +18,7 @@ const Index = () => {
       <nav className="bg-[rgba(10,13,18,0.95)] backdrop-blur-[12px] sticky top-0 z-50 border-b border-white/5">
         <div className="container max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="font-[Syne] font-bold text-[20px] text-white">
-            Event<span className="text-[var(--amber)]">stack</span>
+            Event<span className="text-[var(--amber-hex)]">stack</span>
           </Link>
 
           <div className="flex items-center gap-4">
@@ -26,7 +26,7 @@ const Index = () => {
               Log In
             </Link>
             <Link to="/signup">
-              <button className="bg-[var(--amber)] text-[var(--ink)] font-[Syne] font-bold text-[13px] rounded-[10px] px-[20px] py-[10px] hover:bg-[var(--amber2)] hover:-translate-y-[1px] transition-transform">
+              <button className="bg-[var(--amber-hex)] text-[var(--ink-hex)] font-[Syne] font-bold text-[13px] rounded-[10px] px-[20px] py-[10px] hover:bg-[var(--amber2-hex)] hover:-translate-y-[1px] transition-transform">
                 Get Started
               </button>
             </Link>
@@ -35,21 +35,21 @@ const Index = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative bg-[var(--ink)] noise-overlay overflow-hidden pt-20 pb-16">
-        <div className="absolute top-[-80px] right-[-120px] w-[520px] h-[520px] rounded-full opacity-15" style={{ background: 'radial-gradient(circle, var(--amber) 0%, transparent 70%)' }} />
-        <div className="absolute bottom-[60px] left-[-100px] w-[380px] h-[380px] rounded-full opacity-10" style={{ background: 'radial-gradient(circle, var(--coral) 0%, transparent 70%)' }} />
-        <div className="absolute top-[40%] left-[40%] w-[260px] h-[260px] rounded-full opacity-[0.08]" style={{ background: 'radial-gradient(circle, var(--electric) 0%, transparent 70%)' }} />
+      <section className="relative bg-[var(--ink-hex)] noise-overlay overflow-hidden pt-20 pb-16">
+        <div className="absolute top-[-80px] right-[-120px] w-[520px] h-[520px] rounded-full opacity-15" style={{ background: 'radial-gradient(circle, var(--amber-hex) 0%, transparent 70%)' }} />
+        <div className="absolute bottom-[60px] left-[-100px] w-[380px] h-[380px] rounded-full opacity-10" style={{ background: 'radial-gradient(circle, var(--coral-hex) 0%, transparent 70%)' }} />
+        <div className="absolute top-[40%] left-[40%] w-[260px] h-[260px] rounded-full opacity-[0.08]" style={{ background: 'radial-gradient(circle, var(--electric-hex) 0%, transparent 70%)' }} />
 
         <div className="max-w-[680px] mx-auto text-center relative z-10 px-4">
           <div className="inline-block text-[13px] text-white/55 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-6">
-            <span className="text-[var(--teal)] mr-2">●</span>
+            <span className="text-[var(--teal-hex)] mr-2">●</span>
             Now live across 12 African countries
           </div>
           
           <h1 className="font-[Syne] font-[800] text-[38px] md:text-[64px] text-white tracking-[-2px] leading-[1] mb-2">
             Create, Promote and Sell Out
           </h1>
-          <h2 className="font-[Syne] font-[800] text-[38px] md:text-[64px] text-[var(--amber)] tracking-[-2px] leading-[1.1] mb-6">
+          <h2 className="font-[Syne] font-[800] text-[38px] md:text-[64px] text-[var(--amber-hex)] tracking-[-2px] leading-[1.1] mb-6">
             Your Next Event.
           </h2>
 
@@ -59,7 +59,7 @@ const Index = () => {
 
           <div className="flex justify-center gap-4 flex-col sm:flex-row">
             <Link to="/signup">
-              <button className="bg-[var(--amber)] text-[var(--ink)] font-[Syne] font-bold text-[14px] px-[28px] py-[14px] rounded-[10px] hover:bg-[var(--amber2)] hover:-translate-y-[2px] transition-transform w-full sm:w-auto">
+              <button className="bg-[var(--amber-hex)] text-[var(--ink-hex)] font-[Syne] font-bold text-[14px] px-[28px] py-[14px] rounded-[10px] hover:bg-[var(--amber2-hex)] hover:-translate-y-[2px] transition-transform w-full sm:w-auto">
                 Create Your Event →
               </button>
             </Link>
@@ -76,7 +76,7 @@ const Index = () => {
 
           <div className="flex justify-center flex-wrap gap-3 mt-8">
             {["Conferences", "Trade Shows", "Church Events", "Campus Events"].map(pill => (
-              <span key={pill} className="bg-white/5 border border-white/10 text-white/65 font-[Syne] font-bold text-[11px] tracking-[0.5px] px-[16px] py-[7px] rounded-full hover:bg-[rgba(245,166,35,0.12)] hover:border-[rgba(245,166,35,0.3)] hover:text-[var(--amber)] transition-colors cursor-default">
+              <span key={pill} className="bg-white/5 border border-white/10 text-white/65 font-[Syne] font-bold text-[11px] tracking-[0.5px] px-[16px] py-[7px] rounded-full hover:bg-[rgba(245,166,35,0.12)] hover:border-[rgba(245,166,35,0.3)] hover:text-[var(--amber-hex)] transition-colors cursor-default">
                 {pill}
               </span>
             ))}
@@ -84,17 +84,17 @@ const Index = () => {
 
           <div className="mt-14 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-center items-center max-w-[500px] mx-auto gap-6 md:gap-0">
             <div className="flex-1 text-center">
-              <div className="font-[Syne] font-[800] text-[36px] text-[var(--amber)]">₦500M+</div>
+              <div className="font-[Syne] font-[800] text-[36px] text-[var(--amber-hex)]">₦500M+</div>
               <div className="text-[13px] text-white/40">in ticket sales processed</div>
             </div>
             <div className="w-[1px] h-10 bg-white/10 hidden md:block mx-4" />
             <div className="flex-1 text-center">
-              <div className="font-[Syne] font-[800] text-[36px] text-[var(--amber)]">500+</div>
+              <div className="font-[Syne] font-[800] text-[36px] text-[var(--amber-hex)]">500+</div>
               <div className="text-[13px] text-white/40">events hosted across Africa</div>
             </div>
             <div className="w-[1px] h-10 bg-white/10 hidden md:block mx-4" />
             <div className="flex-1 text-center">
-              <div className="font-[Syne] font-[800] text-[36px] text-[var(--amber)]">12</div>
+              <div className="font-[Syne] font-[800] text-[36px] text-[var(--amber-hex)]">12</div>
               <div className="text-[13px] text-white/40">countries and counting</div>
             </div>
           </div>
@@ -102,13 +102,13 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="bg-[var(--ivory)] py-20 px-4">
+      <section className="bg-[var(--ivory-hex)] py-20 px-4">
         <div className="container max-w-6xl mx-auto">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-[24px] h-[2px] bg-[var(--amber)]" />
-            <span className="font-[Syne] font-bold text-[11px] tracking-[3px] text-[var(--amber)] uppercase">What's Inside</span>
+            <div className="w-[24px] h-[2px] bg-[var(--amber-hex)]" />
+            <span className="font-[Syne] font-bold text-[11px] tracking-[3px] text-[var(--amber-hex)] uppercase">What's Inside</span>
           </div>
-          <h2 className="font-[Syne] font-[800] text-[28px] md:text-[40px] text-[var(--ink)] tracking-[-1px] mb-2">Built for Every African Event</h2>
+          <h2 className="font-[Syne] font-[800] text-[28px] md:text-[40px] text-[var(--ink-hex)] tracking-[-1px] mb-2">Built for Every African Event</h2>
           <p className="text-[15px] text-[#6B7280] mb-12">8 powerful modules. One platform. Zero chaos.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -122,11 +122,11 @@ const Index = () => {
               { icon: <CreditCard className="w-5 h-5"/>, title: "Payments", desc: "Paystack and Flutterwave integration with split payments and automated payouts." },
               { icon: <Users className="w-5 h-5"/>, title: "Attendee CRM", desc: "Full attendee management with tags, notes, communication history, and exports." },
             ].map((f, i) => (
-              <div key={i} className="bg-white border border-[rgba(10,13,18,0.07)] rounded-[16px] p-6 border-l-[3px] border-l-[var(--amber)] transition-all duration-200 hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:border-l-[var(--coral)] hover:-translate-y-[2px]">
-                <div className="bg-[#FFF3D4] w-[40px] h-[40px] rounded-[10px] flex items-center justify-center text-[var(--amber)] mb-[14px]">
+              <div key={i} className="bg-white border border-[rgba(10,13,18,0.07)] rounded-[16px] p-6 border-l-[3px] border-l-[var(--amber-hex)] transition-all duration-200 hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:border-l-[var(--coral-hex)] hover:-translate-y-[2px]">
+                <div className="bg-[#FFF3D4] w-[40px] h-[40px] rounded-[10px] flex items-center justify-center text-[var(--amber-hex)] mb-[14px]">
                   {f.icon}
                 </div>
-                <h3 className="font-[Syne] font-bold text-[14px] text-[var(--ink)] mb-[6px]">{f.title}</h3>
+                <h3 className="font-[Syne] font-bold text-[14px] text-[var(--ink-hex)] mb-[6px]">{f.title}</h3>
                 <p className="text-[#6B7280] text-[13px] leading-[1.6]">
                   {f.desc}
                 </p>
@@ -140,11 +140,11 @@ const Index = () => {
       <KenteStripe />
 
       {/* How It Works Section */}
-      <section className="bg-[var(--ink)] noise-overlay py-20 px-4">
+      <section className="bg-[var(--ink-hex)] noise-overlay py-20 px-4">
         <div className="container max-w-6xl mx-auto relative z-10">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-[24px] h-[2px] bg-[var(--amber)]" />
-            <span className="font-[Syne] font-bold text-[11px] tracking-[3px] text-[var(--amber)] uppercase">How It Works</span>
+            <div className="w-[24px] h-[2px] bg-[var(--amber-hex)]" />
+            <span className="font-[Syne] font-bold text-[11px] tracking-[3px] text-[var(--amber-hex)] uppercase">How It Works</span>
           </div>
           <h2 className="font-[Syne] font-[800] text-[40px] text-white mb-2">Live in Minutes. Paid by Morning.</h2>
           <p className="text-[15px] text-white/45 mb-12">Three steps between you and a sold-out event.</p>
@@ -159,7 +159,7 @@ const Index = () => {
             ].map((s) => (
               <div key={s.bg} className="flex-1 bg-[rgba(255,255,255,0.04)] border border-white/10 rounded-[20px] p-[36px_28px] relative overflow-hidden z-10">
                 <div className="absolute top-[-10px] right-[16px] font-[Syne] font-[800] text-[96px] text-[rgba(245,166,35,0.08)] pointer-events-none select-none">{s.bg}</div>
-                <div className="inline-block font-[Syne] font-[800] text-[13px] text-[var(--amber)] bg-[rgba(245,166,35,0.12)] rounded-full px-[12px] py-[4px] mb-5">{s.bg}</div>
+                <div className="inline-block font-[Syne] font-[800] text-[13px] text-[var(--amber-hex)] bg-[rgba(245,166,35,0.12)] rounded-full px-[12px] py-[4px] mb-5">{s.bg}</div>
                 <h3 className="font-[Syne] font-bold text-[18px] text-white mb-[10px]">{s.title}</h3>
                 <p className="text-[13px] text-white/45 leading-[1.7]">{s.desc}</p>
               </div>
@@ -169,15 +169,15 @@ const Index = () => {
       </section>
 
       {/* Featured Events Section */}
-      <section id="events" className="bg-[var(--ivory)] py-20 px-4">
+      <section id="events" className="bg-[var(--ivory-hex)] py-20 px-4">
         <div className="container max-w-6xl mx-auto">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-[24px] h-[2px] bg-[var(--amber)]" />
-            <span className="font-[Syne] font-bold text-[11px] tracking-[3px] text-[var(--amber)] uppercase">Happening Across Africa</span>
+            <div className="w-[24px] h-[2px] bg-[var(--amber-hex)]" />
+            <span className="font-[Syne] font-bold text-[11px] tracking-[3px] text-[var(--amber-hex)] uppercase">Happening Across Africa</span>
           </div>
           <div className="flex justify-between items-end mb-10">
-            <h2 className="font-[Syne] font-[800] text-[40px] text-[var(--ink)]">Featured Events</h2>
-            <a href="#" className="text-[var(--amber)] font-[Syne] font-bold text-[13px] hover:underline mb-2">View all →</a>
+            <h2 className="font-[Syne] font-[800] text-[40px] text-[var(--ink-hex)]">Featured Events</h2>
+            <a href="#" className="text-[var(--amber-hex)] font-[Syne] font-bold text-[13px] hover:underline mb-2">View all →</a>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -186,18 +186,18 @@ const Index = () => {
                 <div className="h-[180px] relative overflow-hidden group">
                   <img src={event.image} alt={event.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                   <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-[rgba(10,13,18,0.7)] to-transparent" />
-                  <span className="absolute top-[10px] left-[10px] bg-[var(--amber)] text-[var(--ink)] font-[Syne] font-bold text-[9px] uppercase tracking-[1px] px-[10px] py-[4px] rounded-full">
+                  <span className="absolute top-[10px] left-[10px] bg-[var(--amber-hex)] text-[var(--ink-hex)] font-[Syne] font-bold text-[9px] uppercase tracking-[1px] px-[10px] py-[4px] rounded-full">
                     {event.category}
                   </span>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-[Syne] font-bold text-[15px] text-[var(--ink)] mb-2 whitespace-nowrap overflow-hidden text-ellipsis">{event.title}</h3>
+                  <h3 className="font-[Syne] font-bold text-[15px] text-[var(--ink-hex)] mb-2 whitespace-nowrap overflow-hidden text-ellipsis">{event.title}</h3>
                   <div className="flex gap-3 text-[12px] text-[#6B7280] mb-[10px]">
                      <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3 text-[#6B7280]" /> {event.date}</span>
                      <span className="flex items-center gap-1.5 whitespace-nowrap overflow-hidden text-ellipsis"><MapPin className="w-3 h-3 text-[#6B7280]" /> {event.venue}</span>
                   </div>
                   <div className="flex justify-between items-center mt-3 pt-3 border-t border-[rgba(10,13,18,0.04)]">
-                    <span className="font-[Syne] font-bold text-[14px] text-[var(--amber)]">{event.price}</span>
+                    <span className="font-[Syne] font-bold text-[14px] text-[var(--amber-hex)]">{event.price}</span>
                     <span className="text-[11px] text-[#6B7280] flex items-center gap-1.5"><Users className="w-3 h-3" /> {event.attendees.toLocaleString()} attending</span>
                   </div>
                 </div>
@@ -208,11 +208,11 @@ const Index = () => {
       </section>
 
       {/* Browse By Category Section */}
-      <section className="bg-[var(--ink)] noise-overlay py-20 px-4">
+      <section className="bg-[var(--ink-hex)] noise-overlay py-20 px-4">
         <div className="container max-w-6xl mx-auto relative z-10">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-[24px] h-[2px] bg-[var(--amber)]" />
-            <span className="font-[Syne] font-bold text-[11px] tracking-[3px] text-[var(--amber)] uppercase">Explore By Category</span>
+            <div className="w-[24px] h-[2px] bg-[var(--amber-hex)]" />
+            <span className="font-[Syne] font-bold text-[11px] tracking-[3px] text-[var(--amber-hex)] uppercase">Explore By Category</span>
           </div>
           <h2 className="font-[Syne] font-[800] text-[40px] text-white mb-2">Find Your Kind of Event</h2>
           <p className="text-[15px] text-white/45 mb-10">From church concerts to tech summits — it's all on Eventstack.</p>
@@ -227,7 +227,7 @@ const Index = () => {
               { name: "Workshops", icon: <BookOpen className="w-8 h-8"/>, count: "100+ events" },
             ].map(cat => (
               <div key={cat.name} className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-[16px] p-[24px_16px] text-center cursor-pointer transition-all duration-200 hover:bg-[rgba(245,166,35,0.08)] hover:border-[rgba(245,166,35,0.25)] hover:-translate-y-[2px]">
-                <div className="text-[var(--amber)] flex justify-center mb-[10px] mx-auto">{cat.icon}</div>
+                <div className="text-[var(--amber-hex)] flex justify-center mb-[10px] mx-auto">{cat.icon}</div>
                 <div className="font-[Syne] font-bold text-[13px] text-white mb-1">{cat.name}</div>
                 <div className="text-[11px] text-white/35">{cat.count}</div>
               </div>
@@ -240,12 +240,12 @@ const Index = () => {
       <KenteStripe />
 
       {/* Footer CTA Section */}
-      <section className="bg-[var(--ink)] noise-overlay py-24 px-4 relative overflow-hidden">
-        <div className="absolute top-[-50px] right-[-50px] w-[300px] h-[300px] rounded-full opacity-12 bg-[radial-gradient(circle,var(--amber)_0%,transparent_70%)]" />
-        <div className="absolute bottom-[-50px] left-[-50px] w-[300px] h-[300px] rounded-full opacity-[0.08] bg-[radial-gradient(circle,var(--coral)_0%,transparent_70%)]" />
+      <section className="bg-[var(--ink-hex)] noise-overlay py-24 px-4 relative overflow-hidden">
+        <div className="absolute top-[-50px] right-[-50px] w-[300px] h-[300px] rounded-full opacity-12 bg-[radial-gradient(circle,var(--amber-hex)_0%,transparent_70%)]" />
+        <div className="absolute bottom-[-50px] left-[-50px] w-[300px] h-[300px] rounded-full opacity-[0.08] bg-[radial-gradient(circle,var(--coral-hex)_0%,transparent_70%)]" />
 
         <div className="max-w-[600px] mx-auto text-center relative z-10">
-          <div className="inline-block font-[Syne] font-bold text-[11px] tracking-[3px] text-[var(--amber)] bg-[rgba(245,166,35,0.1)] px-[16px] py-[6px] rounded-full mb-5 uppercase">
+          <div className="inline-block font-[Syne] font-bold text-[11px] tracking-[3px] text-[var(--amber-hex)] bg-[rgba(245,166,35,0.1)] px-[16px] py-[6px] rounded-full mb-5 uppercase">
             Join 500+ Organisers
           </div>
           
@@ -257,7 +257,7 @@ const Index = () => {
           </p>
 
           <Link to="/signup">
-            <button className="bg-[var(--amber)] text-[var(--ink)] font-[Syne] font-bold text-[15px] px-[36px] py-[16px] rounded-[10px] hover:bg-[var(--amber2)] hover:-translate-y-[2px] transition-transform">
+            <button className="bg-[var(--amber-hex)] text-[var(--ink-hex)] font-[Syne] font-bold text-[15px] px-[36px] py-[16px] rounded-[10px] hover:bg-[var(--amber2-hex)] hover:-translate-y-[2px] transition-transform">
               Get Started Free →
             </button>
           </Link>
@@ -268,10 +268,10 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[var(--ink)] border-t border-[rgba(255,255,255,0.06)] pt-12">
+      <footer className="bg-[var(--ink-hex)] border-t border-[rgba(255,255,255,0.06)] pt-12">
         <div className="container max-w-6xl mx-auto px-4 pb-12 flex flex-col items-center text-center">
           <Link to="/" className="font-[Syne] font-bold text-[18px] text-white mb-2 block">
-            Event<span className="text-[var(--amber)]">stack</span>
+            Event<span className="text-[var(--amber-hex)]">stack</span>
           </Link>
           <p className="text-[13px] text-white/35 max-w-[320px] mx-auto mb-8 leading-[1.6]">
             Africa's all-in-one event management platform. Built for organisers who demand excellence.

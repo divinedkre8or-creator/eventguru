@@ -28,22 +28,33 @@
     --destructive: 3 78% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: rgba(10, 13, 18, 0.10);
+    --border: 217 15% 12% / 0.10;
     --input: 40 20% 88%;
     --ring: 37 91% 55%;
 
     --radius: 0.75rem;
 
-    /* Global user specified variables */
-    --ink: #0A0D12;
-    --ink2: #1A1F2E;
-    --amber: #F5A623;
-    --amber2: #E8891A;
-    --coral: #E8473F;
-    --teal: #00B894;
-    --electric: #3B5BFF;
-    --ivory: #FDFAF4;
-    --surface: #F5F2EC;
+    /* Global user specified variables (HSL number format for tailwind hsl() wrapper) */
+    --ink: 217 29% 5.5%;
+    --ink2: 224 28% 14%;
+    --amber: 37 91% 55%;
+    --amber2: 32 83% 51%;
+    --coral: 3 78% 58%;
+    --teal: 168 100% 36%;
+    --electric: 231 100% 62%;
+    --ivory: 40 75% 97%;
+    --surface: 40 39% 94%;
+
+    /* Hex references for inline var() usage */
+    --ink-hex: #0A0D12;
+    --ink2-hex: #1A1F2E;
+    --amber-hex: #F5A623;
+    --amber2-hex: #E8891A;
+    --coral-hex: #E8473F;
+    --teal-hex: #00B894;
+    --electric-hex: #3B5BFF;
+    --ivory-hex: #FDFAF4;
+    --surface-hex: #F5F2EC;
   }
 }
 
@@ -58,8 +69,8 @@
 
   body {
     font-family: 'DM Sans', sans-serif;
-    background-color: var(--ivory);
-    color: var(--ink);
+    background-color: var(--ivory-hex);
+    color: var(--ink-hex);
   }
 
   /* Custom Scrollbar */
@@ -68,12 +79,12 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--ink);
+    background: var(--ink-hex);
     border-radius: 100px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--amber);
+    background: var(--amber-hex);
     border-radius: 100px;
   }
 }
@@ -90,7 +101,7 @@
   }
 
   .dark-section {
-    background-color: var(--ink);
+    background-color: var(--ink-hex);
     position: relative;
     overflow: hidden;
   }
