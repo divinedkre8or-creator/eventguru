@@ -101,7 +101,7 @@
   }
 
   .dark-section {
-    background-color: var(--ink);
+    background-color: var(--ink-hex);
     position: relative;
     overflow: hidden;
   }
