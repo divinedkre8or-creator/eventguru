@@ -7,14 +7,17 @@ import { Button } from "@/components/ui/button";
 import { KenteStripe } from "@/components/KenteStripe";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { CheckoutModal } from "@/components/events/CheckoutModal";
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  const { data: event, isLoading, error } = useQuery({
+  const { data: event, isLoading, error, refetch } = useQuery({
     queryKey: ["public-event", id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -254,8 +257,14 @@ const EventDetails = () => {
                       </div>
                       <div className="flex items-center justify-between mt-1">
                         <span className="text-[12px] text-[#6B7280]">Available</span>
-                        <button className="bg-[var(--amber-hex)] text-[var(--ink-hex)] px-3 py-1.5 rounded-[8px] text-[12px] font-heading font-bold hover:bg-[var(--amber2-hex)] transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
-                          {is_free ? "Register" : "Buy"}
+                        <button 
+                          onClick={() => {
+                            setSelectedTicket(ticket);
+                            setIsCheckoutOpen(true);
+                          }}
+                          className="bg-[var(--amber-hex)] text-[var(--ink-hex)] px-3 py-1.5 rounded-[8px] text-[12px] font-heading font-bold hover:bg-[var(--amber2-hex)] transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                        >
+                          {is_free || ticket.price === 0 ? "Register" : "Buy"}
                         </button>
                       </div>
                     </div>
@@ -292,6 +301,20 @@ const EventDetails = () => {
 
         </div>
       </main>
+
+      {/* Checkout Flow */}
+      {selectedTicket && (
+        <CheckoutModal 
+          isOpen={isCheckoutOpen} 
+          onClose={() => setIsCheckoutOpen(false)} 
+          event={event} 
+          ticket={selectedTicket} 
+          onSuccess={() => {
+            refetch(); // Reload to reflect ticket decrement
+          }}
+        />
+      )}
+
     </div>
   );
 };

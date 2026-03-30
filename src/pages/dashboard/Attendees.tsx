@@ -59,13 +59,15 @@ const Attendees = () => {
 
   const handleExport = () => {
     if (filtered.length === 0) return;
-    const headers = ["Name", "Email", "Phone", "Event", "Ticket", "Status", "Checked In", "Date"];
+    const headers = ["Name", "Email", "Phone", "Event", "Ticket", "Amount Paid", "Payment Ref", "Status", "Checked In", "Date"];
     const rows = filtered.map((r: any) => [
       r.full_name,
       r.email,
       r.phone || "",
       (r.events as any)?.title || "",
       (r.ticket_types as any)?.name || "",
+      r.amount_paid?.toString() || "0",
+      r.payment_reference || "",
       r.status,
       r.checked_in ? "Yes" : "No",
       new Date(r.created_at).toLocaleDateString(),
@@ -187,7 +189,10 @@ const Attendees = () => {
                 {/* Event & Ticket */}
                 <div className="hidden md:block text-right min-w-0">
                   <div className="text-xs text-muted-foreground font-body truncate max-w-[150px]">{(reg.events as any)?.title}</div>
-                  <div className="text-xs text-amber font-heading font-700">{(reg.ticket_types as any)?.name || "General"}</div>
+                  <div className="text-xs text-amber font-heading font-700">
+                    {(reg.ticket_types as any)?.name || "General"} 
+                    <span className="text-muted-foreground font-400"> • {reg.amount_paid > 0 ? `₦${reg.amount_paid.toLocaleString()}` : "Free"}</span>
+                  </div>
                 </div>
 
                 {/* Status */}

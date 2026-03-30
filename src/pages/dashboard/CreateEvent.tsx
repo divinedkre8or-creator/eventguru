@@ -220,7 +220,7 @@ const CreateEvent = () => {
         country,
         category,
         is_free: isFree,
-        max_attendees: maxAttendees ? parseInt(maxAttendees) : null,
+        max_attendees: Number(maxAttendees) || null,
         status,
         image_url: bannerDataUrl,
       };
@@ -232,11 +232,11 @@ const CreateEvent = () => {
           .from("events")
           .update(eventPayload)
           .eq("id", id!);
-        if (eventError) throw eventError;
+        if (eventError) {
+           console.error("Supabase Event Update Error:", eventError);
+           throw eventError;
+        }
 
-        // For simplicity on MVP edit, we can delete all non-sold tickets and recreate them,
-        // or just recreate if we don't have sold constraints.
-        // Actually, to avoid breaking constraints, we will just upsert.
         if (!isFree && tickets.length > 0) {
           const ticketRows = tickets.filter(t => t.name.trim()).map((t) => ({
              ...(t.id ? { id: t.id } : {}),
@@ -247,7 +247,10 @@ const CreateEvent = () => {
              quantity: parseInt(t.quantity) || 100,
           }));
           const { error: ticketError } = await supabase.from("ticket_types").upsert(ticketRows);
-          if (ticketError) throw ticketError;
+          if (ticketError) {
+            console.error("Supabase Ticket Update Error:", ticketError);
+            throw ticketError;
+          }
         }
 
       } else {
@@ -257,7 +260,10 @@ const CreateEvent = () => {
           .select("id")
           .single();
 
-        if (eventError) throw eventError;
+        if (eventError) {
+          console.error("Supabase Event Insert Error:", eventError);
+          throw eventError;
+        }
         eventIdResult = event.id;
 
         if (!isFree && tickets.length > 0) {
@@ -280,7 +286,7 @@ const CreateEvent = () => {
             event_id: event.id,
             name: "Free Admission",
             price: 0,
-            quantity: maxAttendees ? parseInt(maxAttendees) : 1000,
+            quantity: Number(maxAttendees) || 1000,
           });
         }
       }
@@ -297,7 +303,8 @@ const CreateEvent = () => {
         navigate("/dashboard/events");
       }
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      console.error("Submit Exception:", err);
+      toast({ title: "Error", description: err.message || "Failed to save event.", variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -310,7 +317,7 @@ const CreateEvent = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6 pb-20">
       {/* Header */}
       <div className="flex items-center gap-3">
         <button onClick={() => (step > 1 ? setStep(step - 1) : navigate("/dashboard/events"))} className="p-2 rounded-lg hover:bg-card text-muted-foreground hover:text-foreground transition-colors">
@@ -573,16 +580,23 @@ const CreateEvent = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button onClick={() => handleSubmit(isEditMode ? "published" : "draft")} disabled={submitting} variant="ghost" className="flex-1 border border-border text-foreground hover:bg-card font-heading font-700">
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
-              {isEditMode ? "Update Event" : "Save as Draft"}
-            </Button>
-            {!isEditMode && (
-               <Button onClick={() => handleSubmit("published")} disabled={submitting} className="flex-1 bg-amber text-ink hover:bg-amber/90 font-heading font-700">
-                {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
-                Publish Event
-              </Button>
-            )}
+             {isEditMode ? (
+               <Button onClick={() => handleSubmit("published")} disabled={submitting} className="flex-1 bg-amber text-ink hover:bg-amber/90 font-heading font-700 shadow-xl py-6 text-lg">
+                 {submitting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                 Save & Update Event
+               </Button>
+             ) : (
+               <>
+                  <Button onClick={() => handleSubmit("draft")} disabled={submitting} variant="ghost" className="flex-1 border border-border text-foreground hover:bg-card font-heading font-700">
+                    {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+                    Save as Draft
+                  </Button>
+                  <Button onClick={() => handleSubmit("published")} disabled={submitting} className="flex-1 bg-amber text-ink hover:bg-amber/90 font-heading font-700">
+                    {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+                    Publish Event
+                  </Button>
+               </>
+             )}
           </div>
         </div>
       )}
