@@ -12,10 +12,10 @@ const Overview = () => {
     queryFn: async () => {
       if (!user?.id) return null;
 
-      // Fetch all events by organizer
+      // Fetch all events by organizer (optimized payload)
       const { data: events, error: eventsError } = await supabase
         .from("events")
-        .select("*, ticket_types(quantity, sold)")
+        .select("id, title, date, ticket_types(quantity, sold)")
         .eq("organiser_id", user.id)
         .order("created_at", { ascending: false });
 

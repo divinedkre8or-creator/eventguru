@@ -25,7 +25,7 @@ const Events = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("events")
-        .select("*, ticket_types(id, price, quantity, sold)")
+        .select("id, title, status, date, venue, city, ticket_types(id, price, quantity, sold)")
         .eq("organiser_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;

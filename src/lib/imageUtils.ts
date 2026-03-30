@@ -6,9 +6,9 @@ import { ChangeEvent } from "react";
  */
 export const compressImageToBase64 = (
   file: File,
-  maxWidth = 1200,
-  maxHeight = 1200,
-  quality = 0.8
+  maxWidth = 800,
+  maxHeight = 800,
+  quality = 0.5
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
