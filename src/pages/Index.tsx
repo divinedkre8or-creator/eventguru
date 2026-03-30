@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { 
   Ticket, QrCode, Image, BarChart2, Mail, Layout, CreditCard, Users,
   Mic, ShoppingBag, Heart, GraduationCap, Music, BookOpen,
-  ArrowRight, MapPin, Calendar, ChevronRight 
+  ArrowRight, MapPin, Calendar, ChevronRight, Monitor
 } from "lucide-react";
 import { KenteStripe } from "@/components/KenteStripe";
 import { featuredEvents } from "@/data/mock";
@@ -46,10 +46,10 @@ const Index = () => {
             Now live across 12 African countries
           </div>
           
-          <h1 className="font-heading font-bold text-[38px] md:text-[64px] text-white tracking-[-2px] leading-[1] mb-2">
+          <h1 className="font-heading font-bold text-[36px] md:text-[58px] text-white tracking-[-1.5px] leading-[1.05] mb-2">
             Create, Promote and Sell Out
           </h1>
-          <h2 className="font-heading font-bold text-[38px] md:text-[64px] text-[var(--amber-hex)] tracking-[-2px] leading-[1.1] mb-6">
+          <h2 className="font-heading font-bold text-[36px] md:text-[58px] text-[var(--amber-hex)] tracking-[-1.5px] leading-[1.05] mb-6">
             Your Next Event.
           </h2>
 
@@ -75,7 +75,7 @@ const Index = () => {
           </div>
 
           <div className="flex justify-center flex-wrap gap-3 mt-8">
-            {["Conferences", "Trade Shows", "Church Events", "Campus Events"].map(pill => (
+            {["Conferences", "Trade Shows", "Church Events", "Concerts & Festivals", "Campus Events", "NGO Events"].map(pill => (
               <span key={pill} className="bg-white/5 border border-white/10 text-white/65 font-heading font-bold text-[11px] tracking-[0.5px] px-[16px] py-[7px] rounded-full hover:bg-[rgba(245,166,35,0.12)] hover:border-[rgba(245,166,35,0.3)] hover:text-[var(--amber-hex)] transition-colors cursor-default">
                 {pill}
               </span>
@@ -84,8 +84,8 @@ const Index = () => {
 
           <div className="mt-14 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-center items-center max-w-[500px] mx-auto gap-6 md:gap-0">
             <div className="flex-1 text-center">
-              <div className="font-heading font-bold text-[36px] text-[var(--amber-hex)]">₦500M+</div>
-              <div className="text-[13px] text-white/40">in ticket sales processed</div>
+              <div className="font-heading font-bold text-[36px] text-[var(--amber-hex)]">10 mins</div>
+              <div className="text-[13px] text-white/40">average time to go live</div>
             </div>
             <div className="w-[1px] h-10 bg-white/10 hidden md:block mx-4" />
             <div className="flex-1 text-center">
@@ -146,8 +146,8 @@ const Index = () => {
             <div className="w-[24px] h-[2px] bg-[var(--amber-hex)]" />
             <span className="font-heading font-bold text-[11px] tracking-[3px] text-[var(--amber-hex)] uppercase">How It Works</span>
           </div>
-          <h2 className="font-heading font-bold text-[40px] text-white mb-2">Live in Minutes. Paid by Morning.</h2>
-          <p className="text-[15px] text-white/45 mb-12">Three steps between you and a sold-out event.</p>
+          <h2 className="font-heading font-bold text-[40px] text-white mb-2">Everything in One Place.</h2>
+          <p className="text-[15px] text-white/45 mb-12">From first ticket to final check-in —<br/>Eventstack has every step covered.</p>
 
           <div className="flex flex-col md:flex-row gap-6 relative">
             <div className="hidden md:block absolute top-[40%] left-0 w-full h-[2px] border-t-[2px] border-dashed border-[rgba(245,166,35,0.2)] -translate-y-1/2 z-0"></div>
@@ -219,12 +219,12 @@ const Index = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {[
-              { name: "Conferences", icon: <Mic className="w-8 h-8"/>, count: "120+ events" },
+              { name: "Tech Events", icon: <Monitor className="w-8 h-8"/>, count: "120+ events" },
               { name: "Trade Shows", icon: <ShoppingBag className="w-8 h-8"/>, count: "80+ events" },
               { name: "Church Events", icon: <Heart className="w-8 h-8"/>, count: "150+ events" },
+              { name: "Concerts & Festivals", icon: <Music className="w-8 h-8"/>, count: "95+ events" },
               { name: "Campus Events", icon: <GraduationCap className="w-8 h-8"/>, count: "90+ events" },
-              { name: "Festivals", icon: <Music className="w-8 h-8"/>, count: "60+ events" },
-              { name: "Workshops", icon: <BookOpen className="w-8 h-8"/>, count: "100+ events" },
+              { name: "NGO & Community", icon: <Users className="w-8 h-8"/>, count: "70+ events" },
             ].map(cat => (
               <div key={cat.name} className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-[16px] p-[24px_16px] text-center cursor-pointer transition-all duration-200 hover:bg-[rgba(245,166,35,0.08)] hover:border-[rgba(245,166,35,0.25)] hover:-translate-y-[2px]">
                 <div className="text-[var(--amber-hex)] flex justify-center mb-[10px] mx-auto">{cat.icon}</div>
