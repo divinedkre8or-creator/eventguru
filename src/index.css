@@ -28,7 +28,7 @@
     --destructive: 3 78% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: rgba(10, 13, 18, 0.10);
+    --border: 217 15% 12% / 0.10;
     --input: 40 20% 88%;
     --ring: 37 91% 55%;
 
@@ -69,8 +69,8 @@
 
   body {
     font-family: 'DM Sans', sans-serif;
-    background-color: var(--ivory);
-    color: var(--ink);
+    background-color: var(--ivory-hex);
+    color: var(--ink-hex);
   }
 
   /* Custom Scrollbar */
@@ -79,12 +79,12 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--ink);
+    background: var(--ink-hex);
     border-radius: 100px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--amber);
+    background: var(--amber-hex);
     border-radius: 100px;
   }
 }
