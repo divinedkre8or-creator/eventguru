@@ -39,7 +39,7 @@ const FeedbackList = () => {
   const deleteFeedback = async (id: string) => {
     if (!window.confirm("Delete this feedback permanently?")) return;
     try {
-      const { error } = await supabase.from("feedback").delete().eq("id", id);
+      const { error } = await (supabase.from as any)("feedback").delete().eq("id", id);
       if (error) throw error;
       toast.success("Feedback deleted");
       refetch();
