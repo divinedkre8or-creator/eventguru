@@ -11,8 +11,7 @@ const FeedbackList = () => {
   const { data: feedbacks = [], isLoading, refetch } = useQuery({
     queryKey: ["admin-feedback"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("feedback")
+      const { data, error } = await (supabase.from as any)("feedback")
         .select("*")
         .order("created_at", { ascending: false });
       

@@ -26,7 +26,7 @@ export const FeedbackWidget = () => {
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("feedback").insert({
+      const { error } = await (supabase.from as any)("feedback").insert({
         user_id: user?.id || null,
         name: profile?.full_name || user?.email?.split('@')[0] || "Organizer",
         email: user?.email || "",
