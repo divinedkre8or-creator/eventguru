@@ -32,12 +32,12 @@ const Checkin = () => {
   const { data: attendees = [], isLoading: isLoadingAttendees } = useQuery({
     queryKey: ["checkin-attendees", selectedEventId, user?.id],
     queryFn: async () => {
-      let query = supabase
-        .from("registrations")
-        .select("*, events!inner(title, organiser_id), ticket_types(name)")
-        .eq("status", "confirmed")
-        .eq("events.organiser_id", user!.id)
-        .order("created_at", { ascending: false });
+        let query = supabase
+          .from("registrations")
+          .select("*, events!inner(title, organiser_id), ticket_types(name)")
+          .in("status", ["confirmed", "completed"]) /* Fixed bug: checkout modal saves as 'completed' */
+          .eq("events.organiser_id", user!.id)
+          .order("created_at", { ascending: false });
 
       if (selectedEventId !== "all") {
         query = query.eq("event_id", selectedEventId);
