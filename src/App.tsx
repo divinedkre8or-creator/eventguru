@@ -21,6 +21,9 @@ import CreateEvent from "./pages/dashboard/CreateEvent";
 import Tickets from "./pages/dashboard/Tickets";
 import Attendees from "./pages/dashboard/Attendees";
 import Placeholder from "./pages/dashboard/Placeholder";
+import Checkin from "./pages/dashboard/Checkin";
+import DPGenerator from "./pages/dashboard/DPGenerator";
+import DPAttendeeView from "./pages/DPAttendeeView";
 
 import AdminLayout from "./layouts/AdminLayout";
 import AdminOverview from "./pages/admin/Overview";
@@ -42,6 +45,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/events/:id" element={<EventDetails />} />
+            <Route path="/events/:id/dp" element={<DPAttendeeView />} />
 
             {/* Organiser Dashboard */}
             <Route path="/dashboard" element={
@@ -55,8 +59,8 @@ const App = () => (
               <Route path="events/:id/edit" element={<CreateEvent />} />
               <Route path="attendees" element={<Attendees />} />
               <Route path="tickets" element={<Tickets />} />
-              <Route path="checkin" element={<Placeholder />} />
-              <Route path="dp" element={<Placeholder />} />
+              <Route path="checkin" element={<Checkin />} />
+              <Route path="dp" element={<DPGenerator />} />
               <Route path="campaigns" element={<Placeholder />} />
               <Route path="analytics" element={<Placeholder />} />
               <Route path="payments" element={<Placeholder />} />

@@ -24,7 +24,7 @@ const EventDetails = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("events")
-        .select("*, ticket_types(*)")
+        .select("*, ticket_types(*), dp_templates(id)")
         .eq("id", id)
         .single();
       
@@ -304,6 +304,24 @@ const EventDetails = () => {
                   <p className="text-muted-foreground text-sm italic">No tickets available yet.</p>
                 )}
               </div>
+              
+              {/* DP Generator Link Block */}
+              {event.dp_templates && (Array.isArray(event.dp_templates) ? event.dp_templates.length > 0 : true) && (
+                <div className="border-t border-border pt-6 mt-6">
+                   <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 text-center">
+                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                       <ImageIcon className="w-6 h-6 text-primary" />
+                     </div>
+                     <h3 className="font-heading font-bold text-base text-foreground mb-1">Get Your Display Picture</h3>
+                     <p className="text-sm text-muted-foreground mb-4">Generate a custom DP flier for this event to let your network know you are attending!</p>
+                     <Link to={`/events/${id}/dp`}>
+                        <Button className="w-full bg-primary text-primary-foreground font-heading font-bold h-11 shadow-md hover:-translate-y-0.5 transition-transform">
+                           Create My DP
+                        </Button>
+                     </Link>
+                   </div>
+                </div>
+              )}
               
               {/* Additional Information rendered correctly AFTER tickets on the side, or full width */}
               {parsedAdditional && (
