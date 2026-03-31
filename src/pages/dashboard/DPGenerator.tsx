@@ -24,6 +24,9 @@ interface DpTemplate {
   name_y: number;
   name_color: string;
   name_font_size: number;
+  name_text_align: string;
+  name_font_family: string;
+  name_width: number;
 }
 
 const defaultTemplate: DpTemplate = {
@@ -38,6 +41,9 @@ const defaultTemplate: DpTemplate = {
   name_y: 320,
   name_color: "#000000",
   name_font_size: 28,
+  name_text_align: "center",
+  name_font_family: "sans-serif",
+  name_width: 300,
 };
 
 const DPGenerator = () => {
@@ -206,14 +212,22 @@ const DPGenerator = () => {
 
                  {/* Name Placeholder Bounding Box */}
                  <Rnd
-                    size={{ width: 300, height: template.name_font_size + 10 }} // Fixed width for name wrapper
+                    size={{ width: template.name_width, height: template.name_font_size + 10 }}
                     position={{ x: template.name_x, y: template.name_y }}
                     onDragStop={(e, d) => setTemplate({ ...template, name_x: d.x, name_y: d.y })}
-                    enableResizing={false}
+                    onResizeStop={(e, direction, ref, delta, position) => {
+                      setTemplate({
+                        ...template,
+                        name_width: parseInt(ref.style.width),
+                        name_x: position.x,
+                        name_y: position.y
+                      });
+                    }}
                     bounds="parent"
-                    className="border border-blue-500 border-dashed bg-blue-500/10 cursor-move flex items-center justify-center hover:bg-blue-500/20"
+                    enableResizing={{ top:false, right:true, bottom:false, left:true, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
+                    className="border border-blue-500 border-dashed bg-blue-500/10 cursor-move flex items-center hover:bg-blue-500/20"
                  >
-                   <div style={{ color: template.name_color, fontSize: template.name_font_size }} className="font-heading font-extrabold select-none whitespace-nowrap cursor-move pointer-events-none">
+                   <div style={{ color: template.name_color, fontSize: template.name_font_size, fontFamily: template.name_font_family, textAlign: template.name_text_align as any, width: "100%" }} className="font-bold select-none whitespace-nowrap cursor-move pointer-events-none">
                      Attendee Name
                    </div>
                  </Rnd>
@@ -245,15 +259,44 @@ const DPGenerator = () => {
                 <div className="space-y-3 pt-4">
                    <Label className="font-bold text-muted-foreground text-xs uppercase">Text Styling</Label>
                    <div className="space-y-2">
-                      <Label className="text-xs">Font Color</Label>
-                      <div className="flex gap-2">
-                        <Input type="color" className="w-12 h-10 p-1 cursor-pointer" value={template.name_color} onChange={(e) => setTemplate({ ...template, name_color: e.target.value })} />
-                        <Input className="flex-1 font-mono uppercase text-sm" value={template.name_color} onChange={(e) => setTemplate({ ...template, name_color: e.target.value })} />
-                      </div>
+                      <Label className="text-xs">Font Family</Label>
+                      <select 
+                        className="w-full h-10 px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        value={template.name_font_family}
+                        onChange={(e) => setTemplate({ ...template, name_font_family: e.target.value })}
+                      >
+                         <option value="sans-serif">System Sans-Serif</option>
+                         <option value="serif">System Serif</option>
+                         <option value="monospace">Monospace</option>
+                         <option value="'DM Sans', sans-serif">DM Sans</option>
+                         <option value="Impact, sans-serif">Impact / Bold</option>
+                         <option value="'Times New Roman', serif">Times New Roman</option>
+                      </select>
                    </div>
                    <div className="space-y-2">
-                      <Label className="text-xs">Font Size (px)</Label>
-                      <Input type="number" min="12" max="100" value={template.name_font_size} onChange={(e) => setTemplate({ ...template, name_font_size: Number(e.target.value) })} />
+                      <Label className="text-xs">Text Alignment</Label>
+                      <select 
+                        className="w-full h-10 px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        value={template.name_text_align}
+                        onChange={(e) => setTemplate({ ...template, name_text_align: e.target.value })}
+                      >
+                         <option value="left">Left</option>
+                         <option value="center">Center</option>
+                         <option value="right">Right</option>
+                      </select>
+                   </div>
+                   <div className="grid grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                        <Label className="text-xs">Font Size (px)</Label>
+                        <Input type="number" min="12" max="100" value={template.name_font_size} onChange={(e) => setTemplate({ ...template, name_font_size: Number(e.target.value) })} />
+                     </div>
+                     <div className="space-y-2">
+                        <Label className="text-xs">Color</Label>
+                        <div className="flex gap-2">
+                          <Input type="color" className="w-[40%] h-10 p-1 cursor-pointer" value={template.name_color} onChange={(e) => setTemplate({ ...template, name_color: e.target.value })} />
+                          <Input className="flex-1 font-mono uppercase text-xs px-2" value={template.name_color} onChange={(e) => setTemplate({ ...template, name_color: e.target.value })} />
+                        </div>
+                     </div>
                    </div>
                 </div>
              </div>

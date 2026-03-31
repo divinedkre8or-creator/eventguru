@@ -211,12 +211,15 @@ const DPAttendeeView = () => {
 
                  {/* Placed Name */}
                  <div
-                   className="absolute font-heading leading-tight whitespace-nowrap"
+                   className="absolute leading-tight whitespace-nowrap"
                    style={{
                      left: template.name_x,
                      top: template.name_y,
+                     width: template.name_width || 300,
                      color: template.name_color,
                      fontSize: template.name_font_size,
+                     fontFamily: template.name_font_family || 'sans-serif',
+                     textAlign: (template.name_text_align || 'center') as any,
                      fontWeight: template.name_font_weight || 'bold'
                    }}
                  >
