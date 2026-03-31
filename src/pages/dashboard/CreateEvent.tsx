@@ -361,7 +361,7 @@ const CreateEvent = () => {
                   </div>
                   <div className="text-center">
                     <p className="text-sm font-body text-foreground font-medium">Click to upload banner</p>
-                    <p className="text-xs font-body text-muted-foreground mt-1">PNG, JPG up to 5MB</p>
+                    <p className="text-xs font-body text-muted-foreground mt-1">Recommended size: 1920x1080 (16:9). PNG, JPG up to 5MB.</p>
                   </div>
                   <Button variant="outline" size="sm" className="mt-2 text-foreground" onClick={() => fileInputRef.current?.click()}>
                     Select Image
