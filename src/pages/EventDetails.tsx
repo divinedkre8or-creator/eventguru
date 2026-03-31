@@ -8,6 +8,7 @@ import { KenteStripe } from "@/components/KenteStripe";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { CheckoutModal } from "@/components/events/CheckoutModal";
+import { ThemeToggle } from "@/components/ThemeToggle"; // Import ThemeToggle
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -61,19 +62,19 @@ const EventDetails = () => {
 
   if (isLoading || isDeleting) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[var(--ivory-hex)]">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--amber-hex)]" />
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (error || !event) {
     return (
-      <div className="flex flex-col h-screen items-center justify-center bg-[var(--ivory-hex)] p-6 text-center space-y-4 font-[DM_Sans]">
-        <h1 className="font-heading text-4xl font-bold text-[var(--ink-hex)]">Event not found</h1>
-        <p className="text-[#6B7280] text-[15px]">The event you are looking for does not exist or has been removed.</p>
+      <div className="flex flex-col h-screen items-center justify-center bg-background p-6 text-center space-y-4 font-[DM_Sans]">
+        <h1 className="font-heading text-4xl font-extrabold text-foreground">Event not found</h1>
+        <p className="text-muted-foreground text-base">The event you are looking for does not exist or has been removed.</p>
         <Link to="/">
-          <button className="bg-[var(--amber-hex)] text-[var(--ink-hex)] font-heading font-bold px-[20px] py-[10px] rounded-[10px]">Return Home</button>
+          <button className="bg-primary text-primary-foreground font-heading font-bold px-6 py-3 rounded-xl hover:brightness-110 transition-all">Return Home</button>
         </Link>
       </div>
     );
@@ -127,28 +128,29 @@ const EventDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--ivory-hex)] font-[DM_Sans]">
+    <div className="min-h-screen bg-background font-[DM_Sans] transition-colors duration-300">
       <KenteStripe />
 
-      {/* Navigation matching Index.tsx */}
-      <nav className="bg-[rgba(10,13,18,0.95)] backdrop-blur-[12px] sticky top-0 z-50 border-b border-white/5">
+      {/* Navigation */}
+      <nav className="bg-background/95 backdrop-blur-[12px] sticky top-0 z-50 border-b border-border transition-colors duration-300">
         <div className="container max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="font-heading font-bold text-[20px] text-white">
-            Event<span className="text-[var(--amber-hex)]">stack</span>
+          <Link to="/" className="font-heading font-bold text-xl text-foreground">
+            Event<span className="text-primary">stack</span>
           </Link>
 
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             {user ? (
-               <Link to="/dashboard" className="text-white text-[14px] bg-transparent hover:opacity-80 transition-opacity">
+               <Link to="/dashboard" className="text-foreground text-sm font-medium bg-transparent hover:opacity-80 transition-opacity">
                 Dashboard
                </Link>
             ) : (
               <>
-                <Link to="/login" className="text-white text-[14px] bg-transparent hover:opacity-80 transition-opacity hidden sm:block">
+                <Link to="/login" className="text-foreground text-sm font-medium bg-transparent hover:opacity-80 transition-opacity hidden sm:block">
                   Log In
                 </Link>
                 <Link to="/signup">
-                  <button className="bg-[var(--amber-hex)] text-[var(--ink-hex)] font-heading font-bold text-[13px] rounded-[10px] px-[20px] py-[10px] hover:bg-[var(--amber2-hex)] hover:-translate-y-[1px] transition-transform">
+                  <button className="bg-primary text-primary-foreground font-heading font-bold text-sm rounded-[10px] px-5 py-2.5 hover:brightness-110 hover:-translate-y-[1px] transition-all">
                     Get Started
                   </button>
                 </Link>
@@ -161,33 +163,33 @@ const EventDetails = () => {
       <main className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
         {/* Organizer Actions Floating Bar */}
         {isOrganizer && (
-           <div className="bg-[var(--ink-hex)] p-3 rounded-[12px] flex items-center justify-between shadow-lg mb-6 border border-[rgba(255,255,255,0.08)]">
+           <div className="bg-secondary text-secondary-foreground p-3 rounded-[12px] flex flex-wrap items-center justify-between gap-4 shadow-sm mb-6 border border-border">
              <div className="flex items-center gap-2">
-               <span className="inline-block w-2 h-2 rounded-full bg-[var(--teal-hex)] animate-pulse"></span>
-               <span className="text-white text-sm font-bold font-heading">You are managing this event</span>
+               <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+               <span className="text-sm font-bold font-heading">You are managing this event</span>
              </div>
              <div className="flex items-center gap-2">
-               <button onClick={handleCopyLink} className="p-2 rounded hover:bg-white/10 text-white transition-colors" title="Copy Link">
-                 <Share2 className="w-4 h-4" />
+               <button onClick={handleCopyLink} className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Copy Link">
+                 <Share2 className="w-5 h-5" />
                </button>
                <Link to={`/dashboard/events/${event.id}/edit`}>
-                 <button className="p-2 rounded hover:bg-white/10 text-white transition-colors" title="Edit Event">
-                   <Edit2 className="w-4 h-4" />
+                 <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Edit Event">
+                   <Edit2 className="w-5 h-5" />
                  </button>
                </Link>
-               <button onClick={handleDelete} className="p-2 rounded hover:bg-[var(--coral-hex)] text-white transition-colors" title="Delete Event">
-                 <Trash2 className="w-4 h-4" />
+               <button onClick={handleDelete} className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Delete Event">
+                 <Trash2 className="w-5 h-5" />
                </button>
              </div>
            </div>
         )}
 
         {/* Banner Section */}
-        <div className="w-full aspect-[21/9] sm:aspect-[3/1] bg-white rounded-[20px] border border-[rgba(10,13,18,0.07)] overflow-hidden relative shadow-sm">
+        <div className="w-full aspect-[21/9] sm:aspect-[3/1] bg-card rounded-2xl border border-border overflow-hidden relative shadow-sm">
           {image_url ? (
             <img src={image_url} alt={title} className="w-full h-full object-cover" />
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-[#6B7280]/30 bg-[#F3F4F6]">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground/30 bg-muted">
               <ImageIcon className="w-16 h-16" />
             </div>
           )}
@@ -196,41 +198,41 @@ const EventDetails = () => {
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-20">
           <div className="lg:col-span-2 space-y-8">
-            <div className="space-y-4 border-b border-[rgba(10,13,18,0.07)] pb-8">
-              <div className="inline-block px-3 py-1 rounded-full bg-[rgba(245,166,35,0.12)] text-[var(--amber-hex)] text-[11px] font-heading font-bold uppercase tracking-wider backdrop-blur-sm">
+            <div className="space-y-4 border-b border-border pb-8">
+              <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-heading font-bold uppercase tracking-wider backdrop-blur-sm">
                 {category?.replace("-", " ")}
               </div>
-              <h1 className="font-heading text-[36px] sm:text-[48px] font-bold text-[var(--ink-hex)] leading-[1.1] tracking-[-1px]">
+              <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-[1.1] tracking-[-1px]">
                 {title}
               </h1>
             </div>
 
-            <div className="prose prose-sm sm:prose-base max-w-none text-[#4B5563] font-[DM_Sans] leading-[1.8] whitespace-pre-wrap">
+            <div className="prose prose-sm sm:prose-base max-w-none text-muted-foreground font-[DM_Sans] leading-[1.8] whitespace-pre-wrap dark:prose-invert">
               {parsedDesc || "No description provided for this event."}
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <div className="bg-white rounded-[16px] border border-[rgba(10,13,18,0.07)] p-6 shadow-sm space-y-6 sticky top-24">
+            <div className="bg-card rounded-2xl border border-border p-6 shadow-sm space-y-6 sticky top-24">
               
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div className="flex items-start gap-4">
-                  <div className="bg-[#FFF3D4] w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
-                    <Calendar className="w-5 h-5 text-[var(--amber-hex)]" />
+                  <div className="bg-primary/10 w-11 h-11 rounded-xl flex items-center justify-center shrink-0">
+                    <Calendar className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-heading font-bold text-[14px] text-[var(--ink-hex)]">When</h3>
+                    <h3 className="font-heading font-bold text-base text-foreground">When</h3>
                     {parsedSchedule.length > 0 ? (
                       <div className="mt-1 space-y-1">
                         {parsedSchedule.map((s, idx) => (
-                           <div key={idx} className="text-[#6B7280] text-[13px] font-[DM_Sans]">
-                             <span className="font-bold text-[#4B5563]">{new Date(s.date).toLocaleDateString("en-US", { month: 'short', day: 'numeric' })}:</span> {s.startTime} {s.endTime ? `- ${s.endTime}` : ''}
+                           <div key={idx} className="text-muted-foreground text-sm font-[DM_Sans]">
+                             <span className="font-bold text-foreground">{new Date(s.date).toLocaleDateString("en-US", { month: 'short', day: 'numeric' })}:</span> {s.startTime} {s.endTime ? `- ${s.endTime}` : ''}
                            </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-[#6B7280] text-[13px] font-[DM_Sans] mt-1 pr-2">
+                      <p className="text-muted-foreground text-sm font-[DM_Sans] mt-1 pr-2">
                         {fallbackSchedule || "TBA"}
                       </p>
                     )}
@@ -238,12 +240,12 @@ const EventDetails = () => {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="bg-[rgba(242,100,81,0.1)] w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
-                    <MapPin className="w-5 h-5 text-[var(--coral-hex)]" />
+                  <div className="bg-destructive/10 w-11 h-11 rounded-xl flex items-center justify-center shrink-0">
+                    <MapPin className="w-5 h-5 text-destructive" />
                   </div>
                   <div>
-                    <h3 className="font-heading font-bold text-[14px] text-[var(--ink-hex)]">Where</h3>
-                    <p className="text-[#6B7280] text-[13px] font-[DM_Sans] mt-1 pr-2">
+                    <h3 className="font-heading font-bold text-base text-foreground">Where</h3>
+                    <p className="text-muted-foreground text-sm font-[DM_Sans] mt-1 pr-2">
                       {venue || "Online Event"}
                       {(city || country) && (
                         <span className="block mt-0.5">
@@ -255,11 +257,11 @@ const EventDetails = () => {
                 </div>
               </div>
 
-              <div className="border-t border-[rgba(10,13,18,0.07)] pt-6 space-y-4">
+              <div className="border-t border-border pt-6 space-y-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-heading font-bold text-[18px] text-[var(--ink-hex)]">Tickets</h3>
+                  <h3 className="font-heading font-extrabold text-lg text-foreground">Tickets</h3>
                   {discountPercentage > 0 && (
-                     <span className="text-[11px] font-bold bg-[var(--amber-hex)] text-[var(--ink-hex)] px-2 py-0.5 rounded-full inline-block">
+                     <span className="text-[10px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full inline-block">
                         {discountPercentage}% COUPON APPLIED
                      </span>
                   )}
@@ -270,28 +272,28 @@ const EventDetails = () => {
                     const discountedPrice = discountPercentage > 0 ? originalPrice * (1 - discountPercentage / 100) : originalPrice;
                     
                     return (
-                    <div key={ticket.id} className="flex flex-col gap-2 p-4 rounded-[12px] border border-[rgba(10,13,18,0.07)] bg-white hover:border-[var(--amber-hex)] transition-colors group">
+                    <div key={ticket.id} className="flex flex-col gap-2 p-4 rounded-[12px] border border-border bg-background hover:border-primary transition-colors group">
                       <div className="flex items-center justify-between">
-                        <span className="font-heading font-bold text-[14px] text-[var(--ink-hex)]">{ticket.name}</span>
+                        <span className="font-heading font-bold text-sm text-foreground">{ticket.name}</span>
                         <div className="flex items-center gap-2">
                           {discountPercentage > 0 && originalPrice > 0 && (
-                            <span className="text-[12px] text-[#6B7280] line-through">
+                            <span className="text-xs text-muted-foreground line-through">
                               NGN {originalPrice.toLocaleString()}
                             </span>
                           )}
-                          <span className="font-heading font-bold text-[var(--amber-hex)] text-[14px]">
+                          <span className="font-heading font-bold text-primary text-base">
                             {originalPrice === 0 ? "Free" : `NGN ${discountedPrice.toLocaleString()}`}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-[12px] text-[#6B7280]">Available</span>
+                        <span className="text-xs text-muted-foreground">Available</span>
                         <button 
                           onClick={() => {
                             setSelectedTicket(ticket);
                             setIsCheckoutOpen(true);
                           }}
-                          className="bg-[var(--amber-hex)] text-[var(--ink-hex)] px-3 py-1.5 rounded-[8px] text-[12px] font-heading font-bold hover:bg-[var(--amber2-hex)] transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-xs font-heading font-bold hover:brightness-110 transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
                         >
                           {is_free || discountedPrice === 0 ? "Register" : "Buy"}
                         </button>
@@ -299,15 +301,15 @@ const EventDetails = () => {
                     </div>
                   )})
                 ) : (
-                  <p className="text-[#6B7280] text-[13px] italic">No tickets available yet.</p>
+                  <p className="text-muted-foreground text-sm italic">No tickets available yet.</p>
                 )}
               </div>
               
               {/* Additional Information rendered correctly AFTER tickets on the side, or full width */}
               {parsedAdditional && (
-                <div className="border-t border-[rgba(10,13,18,0.07)] pt-6 lg:hidden">
-                  <h3 className="font-heading font-bold text-[16px] text-[var(--ink-hex)] mb-2">Organizer Note</h3>
-                  <div className="p-4 bg-[rgba(245,166,35,0.05)] rounded-[12px] border border-[rgba(245,166,35,0.2)] text-[13px] text-[#4B5563] leading-[1.6] whitespace-pre-wrap">
+                <div className="border-t border-border pt-6 lg:hidden">
+                  <h3 className="font-heading font-bold text-base text-foreground mb-3">Organizer Note</h3>
+                  <div className="p-4 bg-primary/5 rounded-xl border border-primary/20 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                     {parsedAdditional}
                   </div>
                 </div>
@@ -319,10 +321,10 @@ const EventDetails = () => {
           {/* Full width Additional Information for desktop so it shines distinctly */}
           {parsedAdditional && (
              <div className="lg:col-span-2 hidden lg:block">
-               <h3 className="font-heading font-bold text-[24px] text-[var(--ink-hex)] mb-4 border-t border-[rgba(10,13,18,0.07)] pt-8">
+               <h3 className="font-heading font-bold text-2xl text-foreground mb-4 border-t border-border pt-8">
                  Additional Information
                </h3>
-               <div className="p-6 bg-white rounded-[16px] border border-[rgba(10,13,18,0.07)] shadow-sm text-[15px] text-[#4B5563] leading-[1.8] whitespace-pre-wrap font-[DM_Sans]">
+               <div className="p-6 bg-card rounded-2xl border border-border shadow-sm text-base text-muted-foreground leading-relaxed whitespace-pre-wrap font-[DM_Sans]">
                  {parsedAdditional}
                </div>
              </div>

@@ -6,11 +6,11 @@ const Placeholder = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
-      <div className="w-12 h-12 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center mb-4">
-        <span className="text-ivory/30 text-xl">🚧</span>
+      <div className="w-12 h-12 rounded-xl bg-secondary border border-border flex items-center justify-center mb-4">
+        <span className="text-muted-foreground text-xl">🚧</span>
       </div>
-      <h2 className="font-heading text-lg font-700 text-ivory capitalize">{pageName}</h2>
-      <p className="text-ivory/40 text-xs font-body mt-1">Coming soon</p>
+      <h2 className="font-heading text-lg font-bold text-foreground capitalize">{pageName}</h2>
+      <p className="text-muted-foreground text-sm font-medium mt-1">Coming soon</p>
     </div>
   );
 };

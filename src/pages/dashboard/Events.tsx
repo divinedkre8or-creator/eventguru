@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Calendar, MapPin, Users, MoreVertical, Search, Filter } from "lucide-react";
+import { Plus, Calendar, MapPin, Users, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,9 +10,9 @@ import { toast } from "sonner";
 
 const statusColor: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
-  published: "bg-teal/10 text-teal",
-  cancelled: "bg-coral/10 text-coral",
-  completed: "bg-amber/10 text-amber",
+  published: "bg-emerald-500/10 text-emerald-500",
+  cancelled: "bg-destructive/10 text-destructive",
+  completed: "bg-primary/10 text-primary",
 };
 
 const Events = () => {
@@ -46,11 +46,11 @@ const Events = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-heading text-xl font-800 text-foreground">Events</h1>
+          <h1 className="font-heading text-xl font-extrabold text-foreground">Events</h1>
           <p className="text-muted-foreground text-sm font-body mt-1">Create and manage your events</p>
         </div>
         <Link to="/dashboard/events/create">
-          <Button className="bg-amber text-ink hover:bg-amber/90 font-heading font-700">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold">
             <Plus className="w-4 h-4 mr-1" /> Create Event
           </Button>
         </Link>
@@ -64,7 +64,7 @@ const Events = () => {
             placeholder="Search events..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 bg-card border-border"
+            className="pl-10 bg-card border-border text-foreground"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1">
@@ -72,9 +72,9 @@ const Events = () => {
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 rounded-full text-xs font-heading font-700 capitalize whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-xs font-heading font-bold capitalize whitespace-nowrap transition-colors ${
                 statusFilter === s
-                  ? "bg-amber text-ink"
+                  ? "bg-primary text-primary-foreground"
                   : "bg-card border border-border text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -96,12 +96,12 @@ const Events = () => {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16">
+        <div className="text-center py-16 bg-card border border-border rounded-xl">
           <Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground/40" />
-          <h3 className="font-heading text-lg font-700 text-foreground mb-1">No events yet</h3>
+          <h3 className="font-heading text-lg font-bold text-foreground mb-1">No events yet</h3>
           <p className="text-muted-foreground text-sm font-body mb-4">Create your first event to get started</p>
           <Link to="/dashboard/events/create">
-            <Button className="bg-amber text-ink hover:bg-amber/90 font-heading font-700">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold">
               <Plus className="w-4 h-4 mr-1" /> Create Event
             </Button>
           </Link>
@@ -115,7 +115,7 @@ const Events = () => {
             return (
               <div key={event.id} className="relative block">
                 <Link to={`/events/${event.id}`} className="block">
-                <div className="rounded-xl bg-card border border-border overflow-hidden hover:border-amber/30 hover:shadow-lg hover:shadow-amber/5 transition-all duration-300 group">
+                <div className="rounded-xl bg-card border border-border overflow-hidden hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group">
                   {event.image_url ? (
                     <div className="aspect-[16/9] overflow-hidden">
                       <img src={event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
@@ -127,9 +127,9 @@ const Events = () => {
                   )}
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-heading text-sm font-700 text-foreground truncate">{event.title}</h3>
+                      <h3 className="font-heading text-sm font-bold text-foreground truncate">{event.title}</h3>
                       <div className="flex items-center gap-1">
-                        <span className={`px-2 py-0.5 mr-1 rounded-full text-[10px] font-heading font-700 uppercase tracking-wider shrink-0 ${statusColor[event.status] || statusColor.draft}`}>
+                        <span className={`px-2 py-0.5 mr-1 rounded-full text-[10px] font-heading font-bold uppercase tracking-wider shrink-0 ${statusColor[event.status] || statusColor.draft}`}>
                           {event.status}
                         </span>
                         <Link
@@ -165,8 +165,8 @@ const Events = () => {
                       </div>
                     )}
                     <div className="flex items-center justify-between pt-2 border-t border-border">
-                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-body">
-                        <Users className="w-3 h-3" />
+                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-medium">
+                        <Users className="w-3 h-3 text-muted-foreground" />
                         <span>{totalSold}/{totalTickets} sold</span>
                       </div>
                     </div>

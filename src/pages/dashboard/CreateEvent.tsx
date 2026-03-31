@@ -313,7 +313,7 @@ const CreateEvent = () => {
   const domain = window.location.origin;
 
   if (isLoadingEvent) {
-    return <div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-amber" /></div>;
+    return <div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
 
   return (
@@ -324,7 +324,7 @@ const CreateEvent = () => {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="font-heading text-xl font-800 text-foreground">{isEditMode ? "Edit Event" : "Create Event"}</h1>
+          <h1 className="font-heading text-xl font-extrabold text-foreground">{isEditMode ? "Edit Event" : "Create Event"}</h1>
           <p className="text-muted-foreground text-sm font-body">Step {step} of 3</p>
         </div>
       </div>
@@ -332,7 +332,7 @@ const CreateEvent = () => {
       {/* Progress */}
       <div className="flex gap-2">
         {[1, 2, 3].map((s) => (
-          <div key={s} className={`h-1 flex-1 rounded-full transition-colors ${s <= step ? "bg-amber" : "bg-border"}`} />
+          <div key={s} className={`h-1 flex-1 rounded-full transition-colors ${s <= step ? "bg-primary" : "bg-border"}`} />
         ))}
       </div>
 
@@ -341,9 +341,9 @@ const CreateEvent = () => {
         <div className="space-y-5 bg-card rounded-xl border border-border p-5">
           {/* Banner Upload */}
           <div className="space-y-2">
-            <Label className="font-heading text-sm font-700">Event Banner</Label>
+            <Label className="font-heading text-sm font-bold">Event Banner</Label>
             <div 
-              className="border-2 border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center gap-3 relative overflow-hidden group hover:border-amber/50 transition-colors"
+              className="border-2 border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center gap-3 relative overflow-hidden group hover:border-primary/50 transition-colors bg-background/50"
               style={{ minHeight: "150px" }}
             >
               {bannerDataUrl ? (
@@ -356,14 +356,14 @@ const CreateEvent = () => {
                 </>
               ) : (
                 <>
-                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                  <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-muted-foreground">
                     <ImagePlus className="w-6 h-6" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-body text-foreground font-500">Click to upload banner</p>
+                    <p className="text-sm font-body text-foreground font-medium">Click to upload banner</p>
                     <p className="text-xs font-body text-muted-foreground mt-1">PNG, JPG up to 5MB</p>
                   </div>
-                  <Button variant="outline" size="sm" className="mt-2" onClick={() => fileInputRef.current?.click()}>
+                  <Button variant="outline" size="sm" className="mt-2 text-foreground" onClick={() => fileInputRef.current?.click()}>
                     Select Image
                   </Button>
                 </>
@@ -379,66 +379,66 @@ const CreateEvent = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="font-heading text-sm font-700">Event Title *</Label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Lagos Tech Summit 2026" className="bg-background border-border" />
+            <Label className="font-heading text-sm font-bold">Event Title *</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Lagos Tech Summit 2026" className="bg-background border-border text-foreground" />
           </div>
 
           {/* Dynamic Schedule */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="font-heading text-sm font-700">Event Schedule *</Label>
+              <Label className="font-heading text-sm font-bold">Event Schedule *</Label>
             </div>
             {schedule.map((day, i) => (
               <div key={i} className="flex flex-col sm:flex-row gap-3 items-start sm:items-end bg-background p-3 rounded-lg border border-border">
                 <div className="space-y-1 flex-1 w-full">
                   <Label className="text-xs text-muted-foreground">Date *</Label>
-                  <Input type="date" value={day.date} onChange={(e) => updateScheduleDay(i, "date", e.target.value)} className="bg-background border-border" />
+                  <Input type="date" value={day.date} onChange={(e) => updateScheduleDay(i, "date", e.target.value)} className="bg-background border-border text-foreground" />
                 </div>
                 <div className="space-y-1 flex-1 w-full">
                   <Label className="text-xs text-muted-foreground">Start Time *</Label>
-                  <Input type="time" value={day.startTime} onChange={(e) => updateScheduleDay(i, "startTime", e.target.value)} className="bg-background border-border" />
+                  <Input type="time" value={day.startTime} onChange={(e) => updateScheduleDay(i, "startTime", e.target.value)} className="bg-background border-border text-foreground" />
                 </div>
                 <div className="space-y-1 flex-1 w-full">
                   <Label className="text-xs text-muted-foreground">End Time</Label>
-                  <Input type="time" value={day.endTime} onChange={(e) => updateScheduleDay(i, "endTime", e.target.value)} className="bg-background border-border" />
+                  <Input type="time" value={day.endTime} onChange={(e) => updateScheduleDay(i, "endTime", e.target.value)} className="bg-background border-border text-foreground" />
                 </div>
                 {schedule.length > 1 && (
-                  <Button variant="ghost" size="icon" onClick={() => removeScheduleDay(i)} className="shrink-0 text-muted-foreground hover:text-coral mb-[2px]">
+                  <Button variant="ghost" size="icon" onClick={() => removeScheduleDay(i)} className="shrink-0 text-muted-foreground hover:text-destructive mb-[2px]">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 )}
               </div>
             ))}
-            <Button variant="outline" size="sm" onClick={addScheduleDay} className="w-full border-dashed">
+            <Button variant="outline" size="sm" onClick={addScheduleDay} className="w-full border-dashed text-foreground">
               <Plus className="w-4 h-4 mr-2" /> Add Another Day
             </Button>
           </div>
 
           <div className="space-y-2">
-            <Label className="font-heading text-sm font-700">About the Event</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Tell people what your event is about..." rows={4} className="bg-background border-border resize-none" />
+            <Label className="font-heading text-sm font-bold">About the Event</Label>
+            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Tell people what your event is about..." rows={4} className="bg-background border-border resize-none text-foreground" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="font-heading text-sm font-700">Venue</Label>
-              <Input value={venue} onChange={(e) => setVenue(e.target.value)} placeholder="e.g. Landmark Centre" className="bg-background border-border" />
+              <Label className="font-heading text-sm font-bold">Venue</Label>
+              <Input value={venue} onChange={(e) => setVenue(e.target.value)} placeholder="e.g. Landmark Centre" className="bg-background border-border text-foreground" />
             </div>
             <div className="space-y-2">
-              <Label className="font-heading text-sm font-700">City</Label>
-              <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Lagos" className="bg-background border-border" />
+              <Label className="font-heading text-sm font-bold">City</Label>
+              <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Lagos" className="bg-background border-border text-foreground" />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="font-heading text-sm font-700">Category *</Label>
+            <Label className="font-heading text-sm font-bold">Category *</Label>
             <div className="flex flex-wrap gap-2">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-heading font-700 capitalize transition-colors ${
-                    category === cat ? "bg-amber text-ink" : "bg-background border border-border text-muted-foreground hover:text-foreground"
+                  className={`px-3 py-1.5 rounded-full text-xs font-heading font-bold capitalize transition-colors ${
+                    category === cat ? "bg-primary text-primary-foreground" : "bg-background border border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
                   }`}
                 >
                   {cat.replace("-", " ")}
@@ -449,13 +449,13 @@ const CreateEvent = () => {
 
           <div className="flex items-center justify-between p-3 rounded-lg bg-background border border-border">
             <div>
-              <Label className="font-heading text-sm font-700">Free Event</Label>
-              <p className="text-muted-foreground text-xs font-body">No ticket purchase required</p>
+              <Label className="font-heading text-sm font-bold">Free Event</Label>
+              <p className="text-muted-foreground text-xs font-medium">No ticket purchase required</p>
             </div>
             <Switch checked={isFree} onCheckedChange={setIsFree} />
           </div>
 
-          <Button onClick={() => setStep(2)} disabled={!canProceedStep1} className="w-full bg-amber text-ink hover:bg-amber/90 font-heading font-700">
+          <Button onClick={() => setStep(2)} disabled={!canProceedStep1} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold">
             Next: {isFree ? "Review" : "Tickets"} <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
@@ -465,15 +465,15 @@ const CreateEvent = () => {
       {step === 2 && (
         <div className="space-y-4">
           <div className="bg-card rounded-xl border border-border p-5 space-y-4">
-            <h2 className="font-heading text-lg font-700">Ticketing Requirements</h2>
+            <h2 className="font-heading text-lg font-bold">Ticketing Requirements</h2>
             {isFree ? (
               <div className="text-center p-6 border border-dashed border-border rounded-xl bg-background/50">
-                <Ticket className="w-10 h-10 mx-auto mb-3 text-teal" />
-                <h3 className="font-heading text-sm font-700 text-foreground mb-1">Free Event</h3>
-                <p className="text-muted-foreground text-xs font-body mb-4">Attendees can register without payment</p>
+                <Ticket className="w-10 h-10 mx-auto mb-3 text-emerald-500" />
+                <h3 className="font-heading text-sm font-bold text-foreground mb-1">Free Event</h3>
+                <p className="text-muted-foreground text-xs font-medium mb-4">Attendees can register without payment</p>
                 <div className="space-y-2 max-w-xs mx-auto text-left">
-                  <Label className="font-heading text-sm font-700">Max Attendees (optional)</Label>
-                  <Input type="number" value={maxAttendees} onChange={(e) => setMaxAttendees(e.target.value)} placeholder="Unlimited" className="bg-background border-border text-center" />
+                  <Label className="font-heading text-sm font-bold">Max Attendees (optional)</Label>
+                  <Input type="number" value={maxAttendees} onChange={(e) => setMaxAttendees(e.target.value)} placeholder="Unlimited" className="bg-background border-border text-center text-foreground" />
                 </div>
               </div>
             ) : (
@@ -481,30 +481,30 @@ const CreateEvent = () => {
                 {tickets.map((ticket, i) => (
                   <div key={i} className="bg-background rounded-xl border border-border p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-heading text-sm font-700 text-foreground">Ticket {i + 1}</h3>
+                      <h3 className="font-heading text-sm font-bold text-foreground">Ticket {i + 1}</h3>
                       {tickets.length > 1 && (
-                        <button onClick={() => removeTicket(i)} className="p-1.5 rounded-lg hover:bg-coral/10 text-muted-foreground hover:text-coral transition-colors">
+                        <button onClick={() => removeTicket(i)} className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       )}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="space-y-1">
-                        <Label className="text-xs font-body text-muted-foreground">Name *</Label>
-                        <Input value={ticket.name} onChange={(e) => updateTicket(i, "name", e.target.value)} placeholder="e.g. VIP" className="bg-background border-border" />
+                        <Label className="text-xs font-medium text-muted-foreground">Name *</Label>
+                        <Input value={ticket.name} onChange={(e) => updateTicket(i, "name", e.target.value)} placeholder="e.g. VIP" className="bg-background border-border text-foreground" />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs font-body text-muted-foreground">Price (NGN)</Label>
-                        <Input type="number" value={ticket.price} onChange={(e) => updateTicket(i, "price", e.target.value)} placeholder="0" className="bg-background border-border" />
+                        <Label className="text-xs font-medium text-muted-foreground">Price (NGN)</Label>
+                        <Input type="number" value={ticket.price} onChange={(e) => updateTicket(i, "price", e.target.value)} placeholder="0" className="bg-background border-border text-foreground" />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs font-body text-muted-foreground">Quantity</Label>
-                        <Input type="number" value={ticket.quantity} onChange={(e) => updateTicket(i, "quantity", e.target.value)} placeholder="100" className="bg-background border-border" />
+                        <Label className="text-xs font-medium text-muted-foreground">Quantity</Label>
+                        <Input type="number" value={ticket.quantity} onChange={(e) => updateTicket(i, "quantity", e.target.value)} placeholder="100" className="bg-background border-border text-foreground" />
                       </div>
                     </div>
                   </div>
                 ))}
-                <button onClick={addTicket} className="w-full py-3 rounded-xl border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-amber/30 transition-colors flex items-center justify-center gap-2 text-sm font-heading font-700">
+                <button onClick={addTicket} className="w-full py-3 rounded-xl border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center gap-2 text-sm font-heading font-bold">
                   <Plus className="w-4 h-4" /> Add Ticket Type
                 </button>
               </div>
@@ -513,19 +513,19 @@ const CreateEvent = () => {
 
           <div className="bg-card rounded-xl border border-border p-5 space-y-4">
              <div className="space-y-2">
-                <Label className="font-heading text-base font-700">Additional Information</Label>
+                <Label className="font-heading text-base font-bold">Additional Information</Label>
                 <p className="text-xs text-muted-foreground -mt-1 mb-2">Include contact details, specific instructions, or event rules here. This will display below your tickets on the event page.</p>
                 <Textarea 
                   value={additionalInfo} 
                   onChange={(e) => setAdditionalInfo(e.target.value)} 
                   placeholder="e.g. For inquiries contact us at hello@example.com..." 
                   rows={4} 
-                  className="bg-background border-border resize-none" 
+                  className="bg-background border-border resize-none text-foreground" 
                 />
             </div>
           </div>
 
-          <Button onClick={() => setStep(3)} disabled={!canProceedStep2} className="w-full bg-amber text-ink hover:bg-amber/90 font-heading font-700">
+          <Button onClick={() => setStep(3)} disabled={!canProceedStep2} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold">
             Next: Review <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
@@ -540,25 +540,25 @@ const CreateEvent = () => {
                 <img src={bannerDataUrl} alt="Banner Preview" className="w-full h-full object-cover" />
               </div>
             )}
-            <h3 className="font-heading text-lg font-700 text-foreground">{title}</h3>
-            {description && <p className="text-muted-foreground text-sm font-body line-clamp-2">{description}</p>}
+            <h3 className="font-heading text-lg font-bold text-foreground">{title}</h3>
+            {description && <p className="text-muted-foreground text-sm font-medium line-clamp-2">{description}</p>}
 
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground font-body">
+              <div className="flex items-center gap-2 text-muted-foreground font-medium">
                 <Calendar className="w-4 h-4 shrink-0" />
                 <span className="truncate">{schedule[0].date ? `${new Date(schedule[0].date).toLocaleDateString()} ${schedule[0].startTime}` : "Not set"}</span>
               </div>
               {venue && (
-                <div className="flex items-center gap-2 text-muted-foreground font-body">
+                <div className="flex items-center gap-2 text-muted-foreground font-medium">
                   <MapPin className="w-4 h-4 shrink-0" />
                   <span className="truncate">{venue}{city ? `, ${city}` : ""}</span>
                 </div>
               )}
-              <div className="flex items-center gap-2 text-muted-foreground font-body">
+              <div className="flex items-center gap-2 text-muted-foreground font-medium">
                 <Tag className="w-4 h-4 shrink-0" />
                 <span className="capitalize">{category.replace("-", " ")}</span>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground font-body">
+              <div className="flex items-center gap-2 text-muted-foreground font-medium">
                 <Ticket className="w-4 h-4 shrink-0" />
                 <span>{isFree ? "Free" : `${tickets.filter(t => t.name.trim()).length} ticket type(s)`}</span>
               </div>
@@ -566,12 +566,12 @@ const CreateEvent = () => {
 
             {!isFree && tickets.filter(t => t.name.trim()).length > 0 && (
               <div className="border-t border-border pt-3 space-y-2">
-                <h4 className="font-heading text-xs font-700 text-muted-foreground uppercase tracking-wider">Tickets</h4>
+                <h4 className="font-heading text-xs font-bold text-muted-foreground uppercase tracking-wider">Tickets</h4>
                 {tickets.filter(t => t.name.trim()).map((t, i) => (
                   <div key={i} className="flex items-center justify-between text-sm">
-                    <span className="font-body text-foreground">{t.name}</span>
-                    <span className="font-heading font-700 text-amber">
-                      NGN {parseFloat(t.price || "0").toLocaleString()} <span className="text-muted-foreground font-body font-400">x {t.quantity}</span>
+                    <span className="font-medium text-foreground">{t.name}</span>
+                    <span className="font-heading font-bold text-primary">
+                      NGN {parseFloat(t.price || "0").toLocaleString()} <span className="text-muted-foreground font-medium font-normal">x {t.quantity}</span>
                     </span>
                   </div>
                 ))}
@@ -581,17 +581,17 @@ const CreateEvent = () => {
 
           <div className="flex flex-col sm:flex-row gap-3">
              {isEditMode ? (
-               <Button onClick={() => handleSubmit("published")} disabled={submitting} className="flex-1 bg-amber text-ink hover:bg-amber/90 font-heading font-700 shadow-xl py-6 text-lg">
+               <Button onClick={() => handleSubmit("published")} disabled={submitting} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold shadow-xl py-6 text-lg">
                  {submitting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
                  Save & Update Event
                </Button>
              ) : (
                <>
-                  <Button onClick={() => handleSubmit("draft")} disabled={submitting} variant="ghost" className="flex-1 border border-border text-foreground hover:bg-card font-heading font-700">
+                  <Button onClick={() => handleSubmit("draft")} disabled={submitting} variant="ghost" className="flex-1 border border-border text-foreground hover:bg-secondary font-heading font-bold">
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
                     Save as Draft
                   </Button>
-                  <Button onClick={() => handleSubmit("published")} disabled={submitting} className="flex-1 bg-amber text-ink hover:bg-amber/90 font-heading font-700">
+                  <Button onClick={() => handleSubmit("published")} disabled={submitting} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold">
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
                     Publish Event
                   </Button>
@@ -616,4 +616,3 @@ const CreateEvent = () => {
 };
 
 export default CreateEvent;
-

@@ -35,16 +35,16 @@ const Tickets = () => {
   const totalAvailable = allTickets.reduce((sum: number, t: any) => sum + t.quantity, 0);
 
   const stats = [
-    { label: "Total Revenue", value: `NGN ${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-amber" },
-    { label: "Tickets Sold", value: totalSold.toLocaleString(), icon: Ticket, color: "text-teal" },
-    { label: "Total Capacity", value: totalAvailable.toLocaleString(), icon: Users, color: "text-electric" },
-    { label: "Sell-through", value: totalAvailable > 0 ? `${Math.round((totalSold / totalAvailable) * 100)}%` : "0%", icon: TrendingUp, color: "text-coral" },
+    { label: "Total Revenue", value: `NGN ${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-primary" },
+    { label: "Tickets Sold", value: totalSold.toLocaleString(), icon: Ticket, color: "text-emerald-500" },
+    { label: "Total Capacity", value: totalAvailable.toLocaleString(), icon: Users, color: "text-blue-500" },
+    { label: "Sell-through", value: totalAvailable > 0 ? `${Math.round((totalSold / totalAvailable) * 100)}%` : "0%", icon: TrendingUp, color: "text-destructive" },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-heading text-xl font-800 text-foreground">Tickets</h1>
+        <h1 className="font-heading text-xl font-extrabold text-foreground">Tickets</h1>
         <p className="text-muted-foreground text-sm font-body mt-1">Manage ticket types across all your events</p>
       </div>
 
@@ -54,9 +54,9 @@ const Tickets = () => {
           <div key={s.label} className="bg-card rounded-xl border border-border p-4">
             <div className="flex items-center gap-2 mb-2">
               <s.icon className={`w-4 h-4 ${s.color}`} />
-              <span className="text-muted-foreground text-xs font-body">{s.label}</span>
+              <span className="text-muted-foreground text-xs font-medium">{s.label}</span>
             </div>
-            <div className={`font-heading text-xl font-800 ${s.color}`}>{s.value}</div>
+            <div className={`font-heading text-xl font-extrabold ${s.color}`}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -68,7 +68,7 @@ const Tickets = () => {
           placeholder="Search tickets or events..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 bg-card border-border"
+          className="pl-10 bg-card border-border text-foreground"
         />
       </div>
 
@@ -80,15 +80,15 @@ const Tickets = () => {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16">
+        <div className="text-center py-16 bg-card border border-border rounded-xl">
           <Ticket className="w-12 h-12 mx-auto mb-4 text-muted-foreground/40" />
-          <h3 className="font-heading text-lg font-700 text-foreground mb-1">No tickets found</h3>
+          <h3 className="font-heading text-lg font-bold text-foreground mb-1">No tickets found</h3>
           <p className="text-muted-foreground text-sm font-body">Create an event and add ticket types to get started</p>
         </div>
       ) : (
         <div className="space-y-2">
           {/* Header - desktop */}
-          <div className="hidden sm:grid grid-cols-12 gap-3 px-4 py-2 text-xs font-heading font-700 text-muted-foreground uppercase tracking-wider">
+          <div className="hidden sm:grid grid-cols-12 gap-3 px-4 py-2 text-xs font-heading font-bold text-muted-foreground uppercase tracking-wider">
             <div className="col-span-4">Ticket</div>
             <div className="col-span-3">Event</div>
             <div className="col-span-2 text-right">Price</div>
@@ -100,21 +100,21 @@ const Tickets = () => {
             return (
               <div key={ticket.id} className="bg-card rounded-xl border border-border p-4 sm:grid sm:grid-cols-12 sm:gap-3 sm:items-center">
                 <div className="col-span-4 mb-2 sm:mb-0">
-                  <div className="font-heading text-sm font-700 text-foreground">{ticket.name}</div>
+                  <div className="font-heading text-sm font-bold text-foreground">{ticket.name}</div>
                   <div className="sm:hidden text-xs text-muted-foreground font-body mt-0.5">{ticket.eventTitle}</div>
                 </div>
                 <div className="col-span-3 hidden sm:block text-sm text-muted-foreground font-body truncate">{ticket.eventTitle}</div>
-                <div className="col-span-2 text-right font-heading text-sm font-700 text-amber">
+                <div className="col-span-2 text-right font-heading text-sm font-bold text-primary">
                   {ticket.price > 0 ? `${ticket.currency} ${ticket.price.toLocaleString()}` : "Free"}
                 </div>
                 <div className="col-span-2 text-right">
                   <div className="text-sm font-body text-foreground">{ticket.sold}/{ticket.quantity}</div>
                   <div className="w-full h-1 bg-border rounded-full mt-1">
-                    <div className="h-full bg-teal rounded-full transition-all" style={{ width: `${Math.min(pct, 100)}%` }} />
+                    <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${Math.min(pct, 100)}%` }} />
                   </div>
                 </div>
                 <div className="col-span-1 text-right">
-                  <span className={`inline-block w-2 h-2 rounded-full ${ticket.is_active ? "bg-teal" : "bg-muted-foreground"}`} />
+                  <span className={`inline-block w-2 h-2 rounded-full ${ticket.is_active ? "bg-emerald-500" : "bg-muted-foreground"}`} />
                 </div>
               </div>
             );

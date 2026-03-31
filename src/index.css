@@ -5,36 +5,6 @@
 
 @layer base {
   :root {
-    --background: 40 75% 97%;
-    --foreground: 217 29% 5.5%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 217 29% 5.5%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 217 29% 5.5%;
-
-    --primary: 37 91% 55%;
-    --primary-foreground: 217 29% 5.5%;
-
-    --secondary: 40 39% 94%;
-    --secondary-foreground: 217 29% 5.5%;
-
-    --muted: 40 39% 94%;
-    --muted-foreground: 217 10% 46%;
-
-    --accent: 168 100% 36%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 3 78% 58%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 217 15% 12% / 0.10;
-    --input: 40 20% 88%;
-    --ring: 37 91% 55%;
-
-    --radius: 0.75rem;
-
     /* Global user specified variables (HSL number format for tailwind hsl() wrapper) */
     --ink: 217 29% 5.5%;
     --ink2: 224 28% 14%;
@@ -46,6 +16,37 @@
     --ivory: 40 75% 97%;
     --surface: 40 39% 94%;
 
+    /* Light Mode Variables */
+    --background: var(--ivory);
+    --foreground: var(--ink);
+
+    --card: var(--ivory);
+    --card-foreground: var(--ink);
+
+    --popover: var(--ivory);
+    --popover-foreground: var(--ink);
+
+    --primary: var(--amber);
+    --primary-foreground: var(--ink);
+
+    --secondary: var(--surface);
+    --secondary-foreground: var(--ink);
+
+    --muted: var(--surface);
+    --muted-foreground: 217 10% 46%;
+
+    --accent: var(--amber);
+    --accent-foreground: var(--ink);
+
+    --destructive: var(--coral);
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 15% 12% / 0.15;
+    --input: 40 20% 88%;
+    --ring: var(--amber);
+
+    --radius: 0.75rem;
+
     /* Hex references for inline var() usage */
     --ink-hex: #0A0D12;
     --ink2-hex: #1A1F2E;
@@ -56,6 +57,36 @@
     --electric-hex: #3B5BFF;
     --ivory-hex: #FDFAF4;
     --surface-hex: #F5F2EC;
+  }
+
+  .dark {
+    --background: var(--ink);
+    --foreground: var(--ivory);
+
+    --card: var(--ink2);
+    --card-foreground: var(--ivory);
+
+    --popover: var(--ink2);
+    --popover-foreground: var(--ivory);
+
+    --primary: var(--amber);
+    --primary-foreground: var(--ink);
+
+    --secondary: 224 28% 20%;
+    --secondary-foreground: var(--ivory);
+
+    --muted: 224 28% 20%;
+    --muted-foreground: 40 10% 55%;
+
+    --accent: var(--amber);
+    --accent-foreground: var(--ink);
+
+    --destructive: var(--coral);
+    --destructive-foreground: 0 0% 100%;
+
+    --border: var(--ivory) / 0.15;
+    --input: 224 28% 25%;
+    --ring: var(--amber);
   }
 }
 
@@ -70,8 +101,8 @@
 
   body {
     font-family: 'DM Sans', sans-serif;
-    background-color: var(--ivory-hex);
-    color: var(--ink-hex);
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 
   /* Custom Scrollbar */
@@ -80,12 +111,12 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--ink-hex);
+    background: hsl(var(--card));
     border-radius: 100px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--amber-hex);
+    background: hsl(var(--primary));
     border-radius: 100px;
   }
 }
