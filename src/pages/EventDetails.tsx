@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, MapPin, Tag, Users, ArrowLeft, Loader2, Image as ImageIcon, Edit2, Trash2, Share2 } from "lucide-react";
@@ -13,6 +13,7 @@ const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -112,6 +113,16 @@ const EventDetails = () => {
     fallbackSchedule = new Date(event.date).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     if (event.end_date) {
       fallbackSchedule += ` until ${new Date(event.end_date).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })}`;
+    }
+  }
+
+  // Parse coupon code from URL
+  const couponCode = searchParams.get("coupon_code");
+  let discountPercentage = 0;
+  if (couponCode) {
+    const match = String(couponCode).match(/(\d+)\s*(?:percent|%|off)/i);
+    if (match) {
+      discountPercentage = Math.min(parseInt(match[1], 10), 100);
     }
   }
 
@@ -245,15 +256,33 @@ const EventDetails = () => {
               </div>
 
               <div className="border-t border-[rgba(10,13,18,0.07)] pt-6 space-y-4">
-                <h3 className="font-heading font-bold text-[18px] text-[var(--ink-hex)] mb-4">Tickets</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-heading font-bold text-[18px] text-[var(--ink-hex)]">Tickets</h3>
+                  {discountPercentage > 0 && (
+                     <span className="text-[11px] font-bold bg-[var(--amber-hex)] text-[var(--ink-hex)] px-2 py-0.5 rounded-full inline-block">
+                        {discountPercentage}% COUPON APPLIED
+                     </span>
+                  )}
+                </div>
                 {ticket_types && ticket_types.length > 0 ? (
-                  ticket_types.map((ticket: any) => (
+                  ticket_types.map((ticket: any) => {
+                    const originalPrice = ticket.price || 0;
+                    const discountedPrice = discountPercentage > 0 ? originalPrice * (1 - discountPercentage / 100) : originalPrice;
+                    
+                    return (
                     <div key={ticket.id} className="flex flex-col gap-2 p-4 rounded-[12px] border border-[rgba(10,13,18,0.07)] bg-white hover:border-[var(--amber-hex)] transition-colors group">
                       <div className="flex items-center justify-between">
                         <span className="font-heading font-bold text-[14px] text-[var(--ink-hex)]">{ticket.name}</span>
-                        <span className="font-heading font-bold text-[var(--amber-hex)] text-[14px]">
-                          {ticket.price === 0 ? "Free" : `NGN ${ticket.price.toLocaleString()}`}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {discountPercentage > 0 && originalPrice > 0 && (
+                            <span className="text-[12px] text-[#6B7280] line-through">
+                              NGN {originalPrice.toLocaleString()}
+                            </span>
+                          )}
+                          <span className="font-heading font-bold text-[var(--amber-hex)] text-[14px]">
+                            {originalPrice === 0 ? "Free" : `NGN ${discountedPrice.toLocaleString()}`}
+                          </span>
+                        </div>
                       </div>
                       <div className="flex items-center justify-between mt-1">
                         <span className="text-[12px] text-[#6B7280]">Available</span>
@@ -264,11 +293,11 @@ const EventDetails = () => {
                           }}
                           className="bg-[var(--amber-hex)] text-[var(--ink-hex)] px-3 py-1.5 rounded-[8px] text-[12px] font-heading font-bold hover:bg-[var(--amber2-hex)] transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
                         >
-                          {is_free || ticket.price === 0 ? "Register" : "Buy"}
+                          {is_free || discountedPrice === 0 ? "Register" : "Buy"}
                         </button>
                       </div>
                     </div>
-                  ))
+                  )})
                 ) : (
                   <p className="text-[#6B7280] text-[13px] italic">No tickets available yet.</p>
                 )}
@@ -308,7 +337,8 @@ const EventDetails = () => {
           isOpen={isCheckoutOpen} 
           onClose={() => setIsCheckoutOpen(false)} 
           event={event} 
-          ticket={selectedTicket} 
+          ticket={selectedTicket}
+          discountPercentage={discountPercentage}
           onSuccess={() => {
             refetch(); // Reload to reflect ticket decrement
           }}

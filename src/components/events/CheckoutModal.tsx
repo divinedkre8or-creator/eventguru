@@ -13,10 +13,11 @@ interface CheckoutModalProps {
   onClose: () => void;
   event: any;
   ticket: any;
+  discountPercentage?: number;
   onSuccess: () => void;
 }
 
-export const CheckoutModal = ({ isOpen, onClose, event, ticket, onSuccess }: CheckoutModalProps) => {
+export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercentage = 0, onSuccess }: CheckoutModalProps) => {
   const { user } = useAuth();
   const [name, setName] = useState(user?.user_metadata?.full_name || "");
   const [email, setEmail] = useState(user?.email || "");
@@ -28,7 +29,10 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, onSuccess }: Che
   const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "pk_test_dummykey1234567890";
   const RESEND_KEY = import.meta.env.VITE_RESEND_API_KEY || "";
 
-  const totalAmount = (ticket?.price || 0) * quantity;
+  const originalAmount = (ticket?.price || 0) * quantity;
+  const totalAmount = discountPercentage > 0 
+    ? originalAmount * (1 - discountPercentage / 100) 
+    : originalAmount;
   const isFree = totalAmount === 0;
 
   const config = {
@@ -167,8 +171,22 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, onSuccess }: Che
           <div className="bg-[#F9FAFB] p-4 rounded-[12px] border border-[rgba(10,13,18,0.07)]">
             <div className="flex justify-between items-center text-[13px] text-[#4B5563] mb-2">
               <span>{ticket.name} Ticket</span>
-              <span>{isFree ? "Free" : `NGN ${ticket.price.toLocaleString()}`}</span>
+              <div className="flex items-center gap-2">
+                {discountPercentage > 0 && ticket.price > 0 && (
+                   <span className="line-through text-[11px] opacity-70">
+                     NGN {ticket.price.toLocaleString()}
+                   </span>
+                )}
+                <span>
+                  {ticket.price === 0 ? "Free" : `NGN ${discountPercentage > 0 ? (ticket.price * (1 - discountPercentage / 100)).toLocaleString() : ticket.price.toLocaleString()}`}
+                </span>
+              </div>
             </div>
+            {discountPercentage > 0 && (
+               <div className="flex justify-between items-center text-[11px] font-bold text-[var(--amber-hex)] mb-2 mt-1 py-1 px-2 bg-[rgba(245,166,35,0.1)] rounded w-max">
+                 {discountPercentage}% COUPON APPLIED
+               </div>
+            )}
             <div className="flex justify-between items-center border-t border-[rgba(10,13,18,0.05)] pt-2 mt-2">
               <span className="font-bold text-[14px] text-[var(--ink-hex)]">Total Amount</span>
               <span className="font-heading font-bold text-[18px] text-[var(--amber-hex)]">
