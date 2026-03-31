@@ -52,7 +52,7 @@ const DashboardLayout = () => {
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive(item.path)
                   ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  : "text-foreground/70 hover:text-foreground hover:bg-secondary"
               }`}
             >
               <item.icon className="w-5 h-5 shrink-0" />
@@ -84,7 +84,7 @@ const DashboardLayout = () => {
                   className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium transition-colors ${
                     isActive(item.path)
                       ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      : "text-foreground/70 hover:text-foreground hover:bg-secondary"
                   }`}
                 >
                   <item.icon className="w-5 h-5 shrink-0" />
@@ -144,7 +144,7 @@ const DashboardLayout = () => {
               key={item.path}
               to={item.path}
               className={`flex flex-col items-center justify-center gap-1 px-2 py-1 rounded-lg min-w-0 flex-1 ${
-                isActive(item.path) ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                isActive(item.path) ? "text-primary" : "text-foreground/70 hover:text-foreground"
               }`}
             >
               <item.icon className="w-5 h-5" />
