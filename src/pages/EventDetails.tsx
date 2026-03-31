@@ -24,12 +24,26 @@ const EventDetails = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("events")
-        .select("*, ticket_types(*), dp_templates(id)")
+        .select("*, ticket_types(*)")
         .eq("id", id)
         .single();
       
       if (error) throw error;
-      return data;
+      
+      // Attempt to fetch dp_templates separately so it doesn't hard-crash the event page if the table is missing
+      let dpTemplates = null;
+      try {
+        const { data: dpData } = await supabase
+          .from("dp_templates")
+          .select("id")
+          .eq("event_id", id)
+          .maybeSingle();
+        dpTemplates = dpData ? [dpData] : null; // Wrap in array as expected by the UI condition
+      } catch (e) {
+        console.warn("DP Templates table not ready yet");
+      }
+      
+      return { ...data, dp_templates: dpTemplates };
     },
     enabled: !!id,
   });
