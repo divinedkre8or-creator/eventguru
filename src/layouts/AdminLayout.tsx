@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, CalendarDays, Users, CreditCard,
-  AlertTriangle, Settings, Bell, Menu, X, Shield,
+  AlertTriangle, Settings, Bell, Menu, X, Shield, MessageSquarePlus,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ const navItems = [
   { title: "Organisers", path: "/admin/organisers", icon: Users },
   { title: "Transactions", path: "/admin/transactions", icon: CreditCard },
   { title: "Disputes", path: "/admin/disputes", icon: AlertTriangle },
+  { title: "Feedback & Support", path: "/admin/feedback", icon: MessageSquarePlus },
   { title: "Settings", path: "/admin/settings", icon: Settings },
 ];
 

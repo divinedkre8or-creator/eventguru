@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 const navItems = [
   { title: "Overview", path: "/dashboard", icon: LayoutDashboard },
@@ -152,6 +153,8 @@ const DashboardLayout = () => {
           ))}
         </div>
       </nav>
+
+      <FeedbackWidget />
     </div>
   );
 };

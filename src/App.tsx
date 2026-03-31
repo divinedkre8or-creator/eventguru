@@ -24,6 +24,7 @@ import Placeholder from "./pages/dashboard/Placeholder";
 
 import AdminLayout from "./layouts/AdminLayout";
 import AdminOverview from "./pages/admin/Overview";
+import AdminFeedback from "./pages/admin/FeedbackList";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="organisers" element={<Placeholder />} />
               <Route path="transactions" element={<Placeholder />} />
               <Route path="disputes" element={<Placeholder />} />
+              <Route path="feedback" element={<AdminFeedback />} />
               <Route path="settings" element={<Placeholder />} />
             </Route>
 
