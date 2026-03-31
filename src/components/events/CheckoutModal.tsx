@@ -91,18 +91,6 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
       // 2. Decrement ticket inventory
       if (ticket?.id) {
-        const { error: ticketError } = await supabase.rpc('increment_ticket_sold', {
-          ticket_id: ticket.id,
-          qty: quantity
-        }).catch(async () => {
-             // Fallback if RPC doesn't exist: manually fetch and update (Note: subject to race conditions)
-             const { data: tData } = await supabase.from('ticket_types').select('sold, quantity').eq('id', ticket.id).single();
-             if (tData) {
-                await supabase.from('ticket_types').update({ sold: tData.sold + quantity }).eq('id', ticket.id);
-             }
-        });
-        
-        // Let's just do a manual update for safety since RPC might not exist
         const { data: tData } = await supabase.from('ticket_types').select('sold').eq('id', ticket.id).single();
         if (tData) {
           await supabase.from('ticket_types').update({ sold: tData.sold + quantity }).eq('id', ticket.id);

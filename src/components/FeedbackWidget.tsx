@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { MessageSquarePlus, X, Send, Loader2 } from "lucide-react";
+import { MessageSquarePlus, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,7 +25,7 @@ export const FeedbackWidget = () => {
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("feedback").insert({
+      const { error } = await (supabase.from as any)("feedback").insert({
         user_id: user?.id || null,
         name: profile?.full_name || user?.email?.split('@')[0] || "Organizer",
         email: user?.email || "",

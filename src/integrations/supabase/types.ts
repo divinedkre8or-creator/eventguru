@@ -74,6 +74,39 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: Database["public"]["Enums"]["feedback_status"] | null
+          type: Database["public"]["Enums"]["feedback_type"]
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: Database["public"]["Enums"]["feedback_status"] | null
+          type: Database["public"]["Enums"]["feedback_type"]
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: Database["public"]["Enums"]["feedback_status"] | null
+          type?: Database["public"]["Enums"]["feedback_type"]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -253,6 +286,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "organiser" | "attendee"
+      feedback_status: "pending" | "reviewed" | "resolved"
+      feedback_type: "bug" | "suggestion" | "complaint" | "support"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -381,6 +416,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "organiser", "attendee"],
+      feedback_status: ["pending", "reviewed", "resolved"],
+      feedback_type: ["bug", "suggestion", "complaint", "support"],
     },
   },
 } as const
