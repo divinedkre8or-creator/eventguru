@@ -27,7 +27,7 @@ const FeedbackList = () => {
 
   const updateStatus = async (id: string, newStatus: string) => {
     try {
-      const { error } = await supabase.from("feedback").update({ status: newStatus }).eq("id", id);
+      const { error } = await (supabase.from as any)("feedback").update({ status: newStatus }).eq("id", id);
       if (error) throw error;
       toast.success("Feedback status updated");
       refetch();
