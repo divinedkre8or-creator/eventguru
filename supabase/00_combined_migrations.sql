@@ -73,7 +73,24 @@ CREATE POLICY "Users can update their own profile" ON public.profiles FOR UPDATE
 DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
--- 6. Smart First User = Super Admin Auto-Assignment Trigger
+-- 6. Auto-Confirm Email & Smart First User = Super Admin Auto-Assignment Triggers
+CREATE OR REPLACE FUNCTION public.auto_confirm_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  NEW.email_confirmed_at := COALESCE(NEW.email_confirmed_at, now());
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_before_created ON auth.users;
+CREATE TRIGGER on_auth_user_before_created
+  BEFORE INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.auto_confirm_new_user();
+
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -94,10 +111,12 @@ BEGIN
   END IF;
 
   INSERT INTO public.profiles (user_id, full_name)
-  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', 'User'));
+  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', 'User'))
+  ON CONFLICT (user_id) DO NOTHING;
   
   INSERT INTO public.user_roles (user_id, role)
-  VALUES (NEW.id, assigned_role);
+  VALUES (NEW.id, assigned_role)
+  ON CONFLICT (user_id, role) DO NOTHING;
   
   RETURN NEW;
 END;
@@ -249,3 +268,34 @@ CREATE POLICY "Admins can view feedback" ON public.feedback FOR SELECT TO authen
 
 DROP POLICY IF EXISTS "Admins can update feedback" ON public.feedback;
 CREATE POLICY "Admins can update feedback" ON public.feedback FOR UPDATE TO authenticated USING (EXISTS (SELECT 1 FROM user_roles WHERE user_roles.user_id = auth.uid() AND user_roles.role = 'admin'));
+
+-- 13. Auto-Confirm Any Existing Users & Sync Profiles/Roles for retro-created accounts
+UPDATE auth.users
+SET email_confirmed_at = now()
+WHERE email_confirmed_at IS NULL;
+
+-- Ensure profiles and roles exist for any accounts registered before trigger setup
+DO $$
+DECLARE
+    u RECORD;
+    is_first BOOLEAN;
+    assigned_r public.app_role;
+BEGIN
+    FOR u IN SELECT id, raw_user_meta_data FROM auth.users LOOP
+        SELECT (COUNT(*) = 0) INTO is_first FROM public.user_roles;
+        IF is_first THEN
+            assigned_r := 'admin'::public.app_role;
+        ELSE
+            assigned_r := COALESCE((u.raw_user_meta_data->>'role')::public.app_role, 'organiser'::public.app_role);
+        END IF;
+
+        INSERT INTO public.profiles (user_id, full_name)
+        VALUES (u.id, COALESCE(u.raw_user_meta_data->>'full_name', 'User'))
+        ON CONFLICT (user_id) DO NOTHING;
+
+        INSERT INTO public.user_roles (user_id, role)
+        VALUES (u.id, assigned_r)
+        ON CONFLICT (user_id, role) DO NOTHING;
+    END LOOP;
+END $$;
+
