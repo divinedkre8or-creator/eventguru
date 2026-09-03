@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, role: AppRole) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         emailRedirectTo: window.location.origin,
       },
     });
-    return { error: error?.message ?? null };
+    return { session: data.session, user: data.user, error: error?.message ?? null };
   };
 
   const signIn = async (email: string, password: string) => {

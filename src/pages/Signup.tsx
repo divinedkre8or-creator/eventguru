@@ -27,12 +27,15 @@ const Signup = () => {
     }
     if (!fullName || !email || !password) return;
     setSubmitting(true);
-    const { error } = await signUp(email, password, fullName, role);
+    const { session, error } = await signUp(email, password, fullName, role);
     setSubmitting(false);
     if (error) {
       toast({ variant: "destructive", title: "Signup failed", description: error });
+    } else if (session) {
+      toast({ title: "Welcome to MyEventGuru!", description: "Account created and logged in successfully." });
+      navigate("/dashboard");
     } else {
-      toast({ title: "Account created", description: "Check your email to verify your account." });
+      toast({ title: "Account created", description: "Please check your inbox or confirm your email to log in." });
       navigate("/login");
     }
   };
