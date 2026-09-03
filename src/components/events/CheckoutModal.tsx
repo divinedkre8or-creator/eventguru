@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Loader2, Mail, CreditCard, ShieldCheck } from "lucide-react";
+import { X, Loader2, Mail, CreditCard, ShieldCheck, CheckCircle2, Sparkles, Image as ImageIcon, ArrowRight } from "lucide-react";
 import { usePaystackPayment } from "react-paystack";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -24,10 +25,10 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
   const [phone, setPhone] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [processing, setProcessing] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   // Use a dummy test key as requested if env var isn't set
   const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "pk_test_dummykey1234567890";
-  const RESEND_KEY = import.meta.env.VITE_RESEND_API_KEY || "";
 
   const originalAmount = (ticket?.price || 0) * quantity;
   const totalAmount = discountPercentage > 0 
@@ -47,27 +48,20 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
   const sendConfirmationEmail = async (registrationId: string) => {
     try {
-      // Invoke the secure Edge Function to dispatch the email via Resend
       const { data, error } = await supabase.functions.invoke('send-ticket', {
         body: { registrationId }
       });
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-      console.log("Ticket dispatched via Edge Function:", data);
+      if (error) throw new Error(error.message);
     } catch (err) {
       console.error("Failed to send email via Supabase Edge Function", err);
-      // We don't block the checkout success for mail failure, but we log it
     }
   };
 
   const completeRegistration = async (paymentRef: string | null = null) => {
     try {
-      // 1. Insert into registrations
       const { data: reg, error: regError } = await supabase.from("registrations").insert({
         event_id: event.id,
-        user_id: user?.id || null, // Guest checkout supported
+        user_id: user?.id || null,
         ticket_type_id: ticket?.id || null,
         full_name: name,
         email: email,
@@ -80,7 +74,6 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
       if (regError) throw regError;
 
-      // 2. Decrement ticket inventory
       if (ticket?.id) {
         const { data: tData } = await supabase.from('ticket_types').select('sold').eq('id', ticket.id).single();
         if (tData) {
@@ -88,14 +81,13 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
         }
       }
 
-      // 3. Send email confirmation
       if (reg?.id) {
          await sendConfirmationEmail(reg.id);
       }
 
-      toast.success("Registration Successful! Your ticket has been emailed to you.");
+      toast.success("Registration Successful!");
       onSuccess();
-      onClose();
+      setIsCompleted(true);
     } catch (err: any) {
       console.error(err);
       toast.error(err.message || "Failed to complete registration");
@@ -104,7 +96,6 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
     }
   };
 
-  // Paystack Callbacks
   const onSuccessPayment = (reference: any) => {
     completeRegistration(reference.reference);
   };
@@ -130,7 +121,60 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
     }
   };
 
+  const handleModalClose = () => {
+    setIsCompleted(false);
+    onClose();
+  };
+
   if (!isOpen) return null;
+
+  // Post-Registration Celebration & DP Generator Prompt Modal
+  if (isCompleted) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-md p-4 font-sans">
+        <div className="bg-card border border-secondary/30 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-foreground p-6 text-center space-y-6">
+          <div className="w-16 h-16 rounded-2xl bg-chart-green/10 border border-chart-green/30 text-chart-green flex items-center justify-center mx-auto shadow-md">
+            <CheckCircle2 className="w-10 h-10 animate-bounce" />
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-widest bg-chart-green/10 text-chart-green px-3 py-1 rounded-full inline-block">
+              REGISTRATION CONFIRMED 🎉
+            </div>
+            <h2 className="font-heading text-2xl font-black tracking-tight text-foreground">You're All Set, {name.split(" ")[0]}!</h2>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Your ticket for <strong className="text-foreground">{event.title}</strong> has been registered.
+            </p>
+          </div>
+
+          {/* Highlighting the DP Generator Feature */}
+          <div className="bg-gradient-to-br from-secondary/15 via-primary/5 to-secondary/10 border border-secondary/30 rounded-xl p-5 text-left space-y-3 relative overflow-hidden shadow-inner">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-secondary animate-pulse" />
+              <span className="font-mono text-xs font-bold text-secondary uppercase tracking-wider">OFFICIAL EVENT DP</span>
+            </div>
+            <h3 className="font-heading text-base font-bold text-foreground">Generate Your Custom DP Frame</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Let your friends and network know you are attending! Create your personalized event picture flier in 1-click.
+            </p>
+
+            <Link to={`/events/${event.id}/dp`} onClick={handleModalClose}>
+              <Button className="w-full bg-secondary text-secondary-foreground font-bold text-xs h-11 rounded-lg hover:opacity-90 shadow-md flex items-center justify-center gap-2 mt-2">
+                <ImageIcon className="w-4 h-4" /> Create My Event DP <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+
+          <button
+            onClick={handleModalClose}
+            className="text-xs font-bold text-muted-foreground hover:text-foreground transition-colors pt-2 block mx-auto"
+          >
+            Close & Return to Event
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-[DM_Sans]">

@@ -197,13 +197,18 @@ const EventDetails = () => {
            </div>
         )}
 
-        {/* Banner Section */}
-        <div className="w-full aspect-[21/9] sm:aspect-[3/1] bg-card rounded-xl border border-border overflow-hidden relative shadow-sm">
+        {/* Banner Section - Natural Aspect Ratio Display without forced cropping */}
+        <div className="w-full max-h-[550px] bg-card/50 rounded-2xl border border-border overflow-hidden relative shadow-md flex items-center justify-center p-1 sm:p-2">
           {image_url ? (
-            <img src={image_url} alt={title} className="w-full h-full object-cover" />
+            <img 
+              src={image_url} 
+              alt={title} 
+              className="w-full h-auto max-h-[520px] object-contain rounded-xl" 
+            />
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground/30 bg-muted">
-              <ImageIcon className="w-16 h-16" />
+            <div className="w-full h-48 sm:h-64 flex flex-col items-center justify-center text-muted-foreground/40 bg-muted/40 rounded-xl">
+              <ImageIcon className="w-16 h-16 mb-2" />
+              <span className="text-xs font-mono font-bold">No Event Banner</span>
             </div>
           )}
         </div>
@@ -285,32 +290,32 @@ const EventDetails = () => {
                     const discountedPrice = discountPercentage > 0 ? originalPrice * (1 - discountPercentage / 100) : originalPrice;
                     
                     return (
-                    <div key={ticket.id} className="flex flex-col gap-2 p-4 rounded-lg border border-border bg-background hover:border-primary/40 transition-colors group">
+                    <div key={ticket.id} className="flex flex-col gap-3 p-4 rounded-xl border border-border bg-background hover:border-secondary transition-all shadow-xs group">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-xs text-foreground">{ticket.name}</span>
+                        <span className="font-bold text-sm text-foreground">{ticket.name}</span>
                         <div className="flex items-center gap-2">
                           {discountPercentage > 0 && originalPrice > 0 && (
                             <span className="text-xs text-muted-foreground line-through">
                               NGN {originalPrice.toLocaleString()}
                             </span>
                           )}
-                          <span className="font-mono font-bold text-foreground text-sm">
+                          <span className="font-mono font-bold text-foreground text-base">
                             {originalPrice === 0 ? "Free" : `NGN ${discountedPrice.toLocaleString()}`}
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="text-[11px] text-muted-foreground">Available</span>
-                        <button 
-                          onClick={() => {
-                            setSelectedTicket(ticket);
-                            setIsCheckoutOpen(true);
-                          }}
-                          className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
-                        >
-                          {is_free || discountedPrice === 0 ? "Register" : "Buy"}
-                        </button>
-                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2">{ticket.description || "Access ticket to event"}</p>
+                      
+                      <Button 
+                        onClick={() => {
+                          setSelectedTicket(ticket);
+                          setIsCheckoutOpen(true);
+                        }}
+                        className="w-full bg-secondary text-secondary-foreground font-bold text-xs h-10 rounded-lg hover:opacity-90 shadow-sm flex items-center justify-center gap-2 mt-1"
+                      >
+                        <Tag className="w-3.5 h-3.5" />
+                        {is_free || discountedPrice === 0 ? "Register For Event" : "Buy Ticket"}
+                      </Button>
                     </div>
                   )})
                 ) : (

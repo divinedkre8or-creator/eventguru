@@ -226,6 +226,96 @@ const Index = () => {
           </div>
         </section>
 
+        {/* DP Generator Spotlight Section — Major Platform Selling Point */}
+        <section className="bg-card border-b border-border py-20 px-4 sm:px-6 relative overflow-hidden">
+          <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <motion.div 
+              initial={{ opacity: 0, x: -25 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="lg:col-span-6 space-y-6"
+            >
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[11px] font-mono font-bold tracking-wider uppercase">
+                <Sparkles className="w-3.5 h-3.5" /> SIGNATURE SELLING POINT
+              </div>
+
+              <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-foreground uppercase tracking-tight leading-[1.15]">
+                Turn Every Attendee Into Your Marketing Team.
+              </h2>
+
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Most event platforms only give you tickets. <strong className="text-foreground">MyEventGuru gives you virality.</strong> Our built-in Display Picture (DP) Generator lets organizers upload a custom photo frame. When attendees register, they generate branded profile pictures in 1-click to share across WhatsApp, Instagram, X (Twitter), and LinkedIn.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="p-4 rounded-xl border border-border bg-background space-y-1">
+                  <div className="font-heading text-lg font-bold text-foreground">1-Click Generation</div>
+                  <p className="text-xs text-muted-foreground">Attendees upload their photo and get a crisp branded flier instantly.</p>
+                </div>
+
+                <div className="p-4 rounded-xl border border-border bg-background space-y-1">
+                  <div className="font-heading text-lg font-bold text-foreground">Zero Design Skills Needed</div>
+                  <p className="text-xs text-muted-foreground">Organizers position name badges and frames visually in minutes.</p>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Link to="/signup">
+                  <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-sm h-12 px-7 rounded-lg hover:opacity-90 shadow-md">
+                    Build Your Event DP Frame Now →
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Visual Showcase Box */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, x: 25 }}
+              whileInView={{ opacity: 1, scale: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="lg:col-span-6 flex justify-center"
+            >
+              <div className="relative w-full max-w-md bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-3xl p-6 shadow-2xl text-neutral-100 space-y-6">
+                <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-secondary"></div>
+                    <span className="font-mono text-xs font-bold uppercase tracking-wider text-neutral-400">LIVE DP PREVIEW</span>
+                  </div>
+                  <span className="text-[10px] font-mono bg-neutral-800 px-2 py-0.5 rounded text-neutral-300">AUTOMATIC ALIGNMENT</span>
+                </div>
+
+                {/* Simulated DP Frame Display */}
+                <div className="relative aspect-square w-full rounded-2xl bg-neutral-900 border border-neutral-800 overflow-hidden flex items-center justify-center p-4 shadow-inner">
+                  {/* Decorative Background Grid */}
+                  <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] opacity-30"></div>
+                  
+                  {/* Sample DP Frame Mockup */}
+                  <div className="relative z-10 w-full h-full rounded-xl border-4 border-secondary flex flex-col items-center justify-center p-6 text-center space-y-3 bg-gradient-to-t from-neutral-950 via-neutral-900/90 to-transparent">
+                    <div className="w-24 h-24 rounded-full border-4 border-white/20 overflow-hidden shadow-xl bg-neutral-800 flex items-center justify-center">
+                      <Users className="w-12 h-12 text-neutral-500" />
+                    </div>
+                    <div>
+                      <div className="font-heading font-black text-lg text-white uppercase tracking-tight">I Am Attending!</div>
+                      <div className="text-xs font-bold text-secondary font-mono">LAGOS TECH SUMMIT 2026</div>
+                    </div>
+                    <div className="text-[10px] bg-secondary text-secondary-foreground font-mono font-bold px-3 py-1 rounded-full uppercase shadow-xs">
+                      Official Attendee Badge
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center text-xs text-neutral-400 font-medium">
+                  "Every attendee share brings 10+ new visitors to your ticket page."
+                </div>
+              </div>
+            </motion.div>
+
+          </div>
+        </section>
+
         {/* Social Proof & Stats Section */}
         <section className="max-w-[1440px] mx-auto px-4 sm:px-6 py-20 border-b border-border">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">

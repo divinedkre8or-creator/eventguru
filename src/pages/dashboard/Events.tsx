@@ -89,6 +89,24 @@ const Events = () => {
         </div>
       </div>
 
+      {/* DP Generator Organiser Prompt Banner */}
+      <div className="bg-gradient-to-r from-secondary/15 via-primary/10 to-secondary/10 border border-secondary/30 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-secondary text-secondary-foreground flex items-center justify-center shrink-0 font-bold">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-heading text-sm font-bold text-foreground">Boost Event Virality with DP Generator</h3>
+            <p className="text-xs text-muted-foreground">Attach a custom photo frame to your event so registered attendees generate branded profile pictures automatically.</p>
+          </div>
+        </div>
+        <Link to="/dashboard/dp">
+          <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-4 rounded-lg shrink-0 hover:opacity-90">
+            Create DP Frame →
+          </Button>
+        </Link>
+      </div>
+
       {/* Grid of Event Cards */}
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -161,6 +179,13 @@ const Events = () => {
                     <span className="text-muted-foreground font-medium">Tickets Sold</span>
                     <span className="font-mono font-bold text-foreground">{totalSold} / {totalTickets > 0 ? totalTickets : "∞"}</span>
                   </div>
+
+                  {/* DP Setup Shortcut Link */}
+                  <Link to={`/dashboard/dp?event_id=${event.id}`} className="block">
+                    <div className="w-full bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/30 text-[11px] font-bold py-1.5 rounded-md flex items-center justify-center gap-1.5 transition-colors">
+                      <Sparkles className="w-3.5 h-3.5" /> Setup DP Generator Frame
+                    </div>
+                  </Link>
 
                   <div className="flex items-center gap-2">
                     <Link to={`/dashboard/events/${event.id}/edit`} className="flex-1">
