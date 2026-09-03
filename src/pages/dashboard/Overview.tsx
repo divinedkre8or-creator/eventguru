@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 
 const Overview = () => {
   const { user, profile } = useAuth();
-  const firstName = profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "Organizer";
+  const fullName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Organizer";
+  const firstName = fullName.split(" ")[0];
 
   const { data, isLoading } = useQuery({
     queryKey: ["organiser-overview-v2", user?.id],

@@ -1,5 +1,6 @@
-import { Users, CalendarDays, Wallet, Zap, Clock } from "lucide-react";
+import { Users, CalendarDays, Wallet, Zap, Clock, Shield } from "lucide-react";
 import { adminStats } from "@/data/mock";
+import { useAuth } from "@/contexts/AuthContext";
 
 const stats = [
   { label: "Total Organisers", value: adminStats.totalOrganisers, icon: Users, color: "text-chart-orange" },
@@ -10,13 +11,23 @@ const stats = [
 ];
 
 const Overview = () => {
+  const { profile, user } = useAuth();
+  const fullName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Super Admin";
+  const firstName = fullName.split(" ")[0];
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
       <div className="border-b border-border pb-4">
-        <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
-          ADMIN DASHBOARD
+        <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-primary/10 text-primary px-2.5 py-1 rounded inline-flex items-center gap-1 mb-2 font-bold">
+          <Shield className="w-3 h-3" />
+          <span>SUPER ADMIN DASHBOARD</span>
         </div>
-        <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Platform Overview</h1>
+        <h1 className="font-heading text-3xl sm:text-4xl font-black text-foreground tracking-tight">
+          Welcome back, {firstName}.
+        </h1>
+        <p className="text-muted-foreground text-xs font-medium mt-1">
+          Platform-wide metrics, organizer activities, and feedback management.
+        </p>
       </div>
 
       {/* Stats */}

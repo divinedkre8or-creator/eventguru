@@ -1,10 +1,12 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, CalendarDays, Users, CreditCard,
-  AlertTriangle, Settings, Bell, Menu, X, Shield, MessageSquarePlus,
+  AlertTriangle, Settings, Menu, X, Shield, MessageSquarePlus, LogOut, ArrowLeft
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navItems = [
   { title: "Overview", path: "/admin", icon: LayoutDashboard },
@@ -18,33 +20,43 @@ const navItems = [
 
 const AdminLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { profile, user, signOut } = useAuth();
+
+  const fullName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Super Admin";
 
   const isActive = (path: string) =>
     path === "/admin" ? location.pathname === path : location.pathname.startsWith(path);
 
   return (
-    <div className="min-h-screen bg-ink">
+    <div className="min-h-screen bg-background font-sans flex text-foreground antialiased">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 flex-col bg-ink border-r border-white/5 z-40">
-        <div className="p-4 border-b border-white/5">
-          <Link to="/" className="font-heading text-lg font-800 text-ivory">
-            Event<span className="text-amber">guru</span>
+      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-[260px] flex-col bg-card border-r border-border z-40">
+        <div className="h-16 flex items-center px-6 border-b border-border justify-between">
+          <Link to="/" className="font-heading font-black text-lg text-primary tracking-tighter uppercase flex items-center gap-1">
+            MYEVENTGURU<span className="text-[10px] text-muted-foreground align-top">™</span>
           </Link>
-          <div className="flex items-center gap-1.5 mt-1">
-            <Shield className="w-3 h-3 text-coral" />
-            <span className="text-coral text-[10px] font-heading font-700 uppercase tracking-wider">Super Admin</span>
-          </div>
         </div>
-        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+
+        {/* Super Admin Badge */}
+        <div className="p-4 border-b border-border bg-primary/5">
+          <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
+            <Shield className="w-4 h-4" />
+            <span>Super Admin Portal</span>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Platform Management</p>
+        </div>
+
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-body transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${
                 isActive(item.path)
-                  ? "bg-coral/10 text-coral"
-                  : "text-ivory/50 hover:text-ivory/80 hover:bg-white/5"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               <item.icon className="w-4 h-4 shrink-0" />
@@ -52,35 +64,50 @@ const AdminLayout = () => {
             </Link>
           ))}
         </nav>
+
+        {/* Return to Organizer View */}
+        <div className="p-3 border-t border-border">
+          <Link
+            to="/dashboard"
+            className="flex items-center justify-between w-full bg-muted hover:bg-muted/80 text-foreground font-bold px-3 py-2 rounded-lg text-xs transition-all border border-border"
+          >
+            <span className="flex items-center gap-2">
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Organizer View</span>
+            </span>
+          </Link>
+        </div>
       </aside>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Drawer */}
       {sidebarOpen && (
         <div className="md:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-64 bg-ink border-r border-white/5 flex flex-col">
-            <div className="p-4 border-b border-white/5 flex items-center justify-between">
-              <div>
-                <span className="font-heading text-lg font-800 text-ivory">Event<span className="text-amber">guru</span></span>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <Shield className="w-3 h-3 text-coral" />
-                  <span className="text-coral text-[10px] font-heading font-700 uppercase">Super Admin</span>
-                </div>
-              </div>
-              <button onClick={() => setSidebarOpen(false)} className="text-ivory/50">
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border flex flex-col shadow-2xl">
+            <div className="h-16 px-5 border-b border-border flex items-center justify-between">
+              <span className="font-heading font-black text-lg text-primary tracking-tight uppercase">
+                MyEventGuru<span className="text-[10px] text-muted-foreground">™</span>
+              </span>
+              <button onClick={() => setSidebarOpen(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+
+            <div className="p-4 border-b border-border bg-primary/5">
+              <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
+                <Shield className="w-4 h-4" />
+                <span>Super Admin Portal</span>
+              </div>
+            </div>
+
+            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-body transition-colors ${
-                    isActive(item.path)
-                      ? "bg-coral/10 text-coral"
-                      : "text-ivory/50 hover:text-ivory/80 hover:bg-white/5"
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
+                    isActive(item.path) ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground"
                   }`}
                 >
                   <item.icon className="w-4 h-4 shrink-0" />
@@ -88,31 +115,72 @@ const AdminLayout = () => {
                 </Link>
               ))}
             </nav>
+
+            <div className="p-4 border-t border-border">
+              <Link
+                to="/dashboard"
+                onClick={() => setSidebarOpen(false)}
+                className="flex items-center justify-center gap-2 w-full bg-muted text-foreground font-bold px-3 py-2.5 rounded-lg text-xs"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Return to Organizer View</span>
+              </Link>
+            </div>
           </aside>
         </div>
       )}
 
-      {/* Main */}
-      <div className="md:ml-56 min-h-screen">
-        <header className="sticky top-0 z-30 bg-ink/80 backdrop-blur-xl border-b border-white/5">
-          <div className="flex items-center justify-between px-4 h-14">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setSidebarOpen(true)} className="md:hidden text-ivory/60">
-                <Menu className="w-5 h-5" />
-              </button>
-              <span className="text-ivory text-sm font-heading font-700">Platform Admin</span>
-            </div>
+      {/* Main Content Area */}
+      <div className="flex-1 md:ml-[260px] flex flex-col min-h-screen bg-background">
+        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(true)} className="md:hidden text-muted-foreground hover:text-foreground">
+              <Menu className="w-5 h-5" />
+            </button>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="text-ivory/50 hover:text-ivory hover:bg-white/5 h-9 w-9">
-                <Bell className="w-4 h-4" />
+              <Shield className="w-4 h-4 text-primary" />
+              <span className="text-foreground text-sm font-heading font-black">Super Admin Portal</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link to="/dashboard">
+              <Button size="sm" variant="outline" className="hidden sm:flex items-center gap-1.5 text-xs font-bold border-border text-foreground hover:bg-muted">
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Organizer Dashboard</span>
               </Button>
-              <div className="w-8 h-8 rounded-full bg-coral/20 flex items-center justify-center">
-                <Shield className="w-3.5 h-3.5 text-coral" />
+            </Link>
+
+            <ThemeToggle />
+
+            <div className="h-5 w-px bg-border mx-1"></div>
+
+            {/* Profile */}
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+                <Shield className="w-4 h-4" />
               </div>
+              <div className="hidden lg:block text-left">
+                <div className="text-xs font-bold text-foreground leading-tight">{fullName}</div>
+                <div className="text-[10px] text-primary font-bold uppercase">Super Admin</div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                onClick={async () => {
+                  await signOut();
+                  navigate("/");
+                }}
+                title="Sign out"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </header>
-        <main className="p-4 md:p-6">
+
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           <Outlet />
         </main>
       </div>

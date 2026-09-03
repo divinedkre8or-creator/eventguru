@@ -79,9 +79,10 @@ const DashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { profile, user, signOut } = useAuth();
+  const { profile, user, roles, signOut } = useAuth();
+  const isAdmin = roles.includes("admin");
 
-  const fullName = profile?.full_name || user?.email?.split("@")[0] || "User";
+  const fullName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
   const firstName = fullName.split(" ")[0];
 
   const isActive = (path: string) =>
@@ -98,6 +99,23 @@ const DashboardLayout = () => {
         </div>
 
         <div className="flex-1 p-3 space-y-5 overflow-y-auto">
+          {/* Super Admin Quick Link */}
+          {isAdmin && (
+            <div className="p-3 bg-primary/10 border border-primary/30 rounded-lg text-xs space-y-1.5">
+              <div className="flex items-center justify-between text-primary font-bold text-[10px] uppercase">
+                <span className="flex items-center gap-1"><Shield className="w-3.5 h-3.5" /> Super Admin Portal</span>
+                <span className="bg-primary text-primary-foreground font-extrabold px-1.5 py-0.5 rounded text-[9px]">LIVE</span>
+              </div>
+              <Link
+                to="/admin"
+                className="flex items-center justify-between w-full bg-primary hover:opacity-90 text-primary-foreground font-bold px-3 py-1.5 rounded text-xs transition-all shadow-xs"
+              >
+                <span>Platform Admin</span>
+                <ChevronDown className="w-4 h-4 -rotate-90" />
+              </Link>
+            </div>
+          )}
+
           {/* Main Top Nav */}
           <nav className="flex flex-col gap-1">
             {mainNavItems.map((item) => (
@@ -150,8 +168,8 @@ const DashboardLayout = () => {
                 <Sparkles className="w-3.5 h-3.5" />
               </div>
               <div>
-                <div className="font-bold text-foreground">Pro Organizer</div>
-                <div className="text-[10px] text-muted-foreground">Active Plan</div>
+                <div className="font-bold text-foreground">{isAdmin ? "Super Admin" : "Pro Organizer"}</div>
+                <div className="text-[10px] text-muted-foreground">{isAdmin ? "Full Access" : "Active Plan"}</div>
               </div>
             </div>
           </div>
@@ -172,6 +190,19 @@ const DashboardLayout = () => {
               </button>
             </div>
             <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+              {isAdmin && (
+                <div className="p-3 bg-primary/10 border border-primary/30 rounded-lg text-xs space-y-1.5">
+                  <div className="text-primary font-bold text-[10px] uppercase">Super Admin Portal</div>
+                  <Link
+                    to="/admin"
+                    onClick={() => setSidebarOpen(false)}
+                    className="flex items-center justify-between w-full bg-primary text-primary-foreground font-bold px-3 py-1.5 rounded text-xs"
+                  >
+                    <span>Platform Admin</span>
+                    <ChevronDown className="w-4 h-4 -rotate-90" />
+                  </Link>
+                </div>
+              )}
               {navGroups.map((group) => (
                 <div key={group.groupName} className="space-y-1">
                   <div className="px-3 text-[10px] font-bold text-muted-foreground uppercase">{group.groupName}</div>
@@ -216,6 +247,15 @@ const DashboardLayout = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {isAdmin && (
+              <Link to="/admin">
+                <Button size="sm" variant="outline" className="hidden sm:flex items-center gap-1.5 text-xs font-bold border-primary/40 text-primary hover:bg-primary/10">
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Admin Portal</span>
+                </Button>
+              </Link>
+            )}
+
             <Link to="/dashboard/events/create">
               <Button size="sm" className="bg-primary text-primary-foreground font-bold text-xs h-9 px-4 rounded-lg hover:opacity-90 transition-all flex items-center gap-1.5">
                 <PlusCircle className="w-4 h-4" />
@@ -234,7 +274,7 @@ const DashboardLayout = () => {
               </div>
               <div className="hidden lg:block text-left">
                 <div className="text-xs font-bold text-foreground leading-tight">{fullName}</div>
-                <div className="text-[10px] text-muted-foreground">Organizer</div>
+                <div className="text-[10px] text-muted-foreground">{isAdmin ? "Super Admin" : "Organizer"}</div>
               </div>
               <Button
                 variant="ghost"
