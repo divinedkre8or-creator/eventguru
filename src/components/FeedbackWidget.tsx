@@ -51,7 +51,7 @@ export const FeedbackWidget = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button 
-          className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-primary text-primary-foreground shadow-xl hover:bg-primary/90 transition-all hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-primary/30"
+          className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 p-3.5 md:p-4 rounded-full bg-primary text-primary-foreground shadow-xl hover:bg-primary/90 transition-all hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-primary/30"
           aria-label="Send Feedback"
         >
           <MessageSquarePlus className="w-6 h-6" />
