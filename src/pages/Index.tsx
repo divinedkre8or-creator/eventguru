@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   CalendarDays, Ticket, Users, ScanLine, BarChart3, Mail, ChevronRight, 
-  ArrowUpRight, Sparkles, Calendar, MapPin, CheckCircle2, ShieldCheck, Globe, Star
+  ArrowUpRight, Sparkles, Calendar, MapPin, CheckCircle2, ShieldCheck, Globe, Star,
+  Loader2
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { featuredEvents } from "@/data/mock";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
 const containerVariants = {
@@ -30,6 +31,24 @@ const itemVariants = {
 };
 
 const Index = () => {
+  const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+
+  useEffect(() => {
+    const fetchPublishedEvents = async () => {
+      setLoadingEvents(true);
+      const { data, error } = await supabase
+        .from('events')
+        .select('id, title, date, venue, city, category, image_url, is_free, max_attendees')
+        .eq('status', 'published')
+        .order('date', { ascending: true })
+        .limit(6);
+      if (!error && data) setFeaturedEvents(data);
+      setLoadingEvents(false);
+    };
+    fetchPublishedEvents();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background font-sans text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden">
       {/* Navigation Header */}
@@ -135,10 +154,10 @@ const Index = () => {
                 <div className="w-8 h-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center font-bold text-[10px] text-primary">AO</div>
                 <div className="w-8 h-8 rounded-full bg-secondary/10 border-2 border-background flex items-center justify-center font-bold text-[10px] text-secondary">CN</div>
                 <div className="w-8 h-8 rounded-full bg-chart-green/10 border-2 border-background flex items-center justify-center font-bold text-[10px] text-chart-green">EK</div>
-                <div className="w-8 h-8 rounded-full bg-chart-purple/10 border-2 border-background flex items-center justify-center font-bold text-[10px] text-chart-purple">+2k</div>
+                <div className="w-8 h-8 rounded-full bg-chart-purple/10 border-2 border-background flex items-center justify-center font-bold text-[10px] text-chart-purple">★</div>
               </div>
               <p className="text-xs text-muted-foreground font-medium">
-                Join <span className="text-foreground font-bold">2,000+</span> organizers already using <span className="font-bold text-foreground">MyEventGuru</span>
+                Be among the first organizers on <span className="font-bold text-foreground">MyEventGuru</span> — early access is live now.
               </p>
             </motion.div>
           </motion.div>
@@ -240,10 +259,10 @@ const Index = () => {
             >
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 divide-x divide-border">
                 {[
-                  { value: "2,000+", label: "Event Organizers" },
-                  { value: "10M+", label: "Tickets Sold" },
-                  { value: "120+", label: "Cities Reached" },
+                  { value: "8", label: "Core Modules" },
+                  { value: "60+", label: "Platform Features" },
                   { value: "99.9%", label: "Platform Uptime" },
+                  { value: "Africa", label: "Built For" },
                 ].map((stat, idx) => (
                   <div key={idx} className="flex flex-col gap-1 pl-4 first:pl-0 border-l-0">
                     <span className="font-heading text-3xl sm:text-4xl font-black text-foreground tracking-tighter">{stat.value}</span>
@@ -256,7 +275,7 @@ const Index = () => {
               <div className="mt-12 pt-8 border-t border-border">
                 <p className="text-xs font-mono font-bold text-muted-foreground uppercase mb-4">POWERING EVENT CATEGORIES ACROSS AFRICA</p>
                 <div className="flex flex-wrap items-center gap-2">
-                  {["TECH SUMMITS", "MUSIC FESTIVALS", "CORPORATE CONFERENCES", "COMMUNITY GATHERINGS", "CAMPUS EXPOS"].map((cat, idx) => (
+                  {["TECH SUMMITS", "MUSIC FESTIVALS", "CORPORATE CONFERENCES", "COMMUNITY GATHERINGS", "CAMPUS EXPOS", "CHURCH EVENTS"].map((cat, idx) => (
                     <motion.span 
                       key={idx}
                       whileHover={{ scale: 1.05 }}
@@ -265,7 +284,7 @@ const Index = () => {
                       {cat}
                     </motion.span>
                   ))}
-                  <span className="font-mono text-xs font-bold text-secondary bg-secondary/10 border border-secondary/20 px-3 py-1.5 rounded-lg">+ 500 MORE</span>
+                  <span className="font-mono text-xs font-bold text-secondary bg-secondary/10 border border-secondary/20 px-3 py-1.5 rounded-lg">& MORE</span>
                 </div>
               </div>
             </motion.div>
@@ -281,57 +300,87 @@ const Index = () => {
               </div>
               <h2 className="font-heading text-3xl font-black text-foreground tracking-tight">Featured Events</h2>
             </div>
-            <Link to="/login" className="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
-              Browse all events <ArrowUpRight className="w-3.5 h-3.5" />
+            <Link to="/signup" className="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
+              Create your event <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredEvents.map((event, idx) => (
-              <motion.div 
-                key={event.id} 
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.1 }}
-                whileHover={{ y: -6 }}
-                className="bg-card border border-border rounded-lg overflow-hidden flex flex-col justify-between hover:border-secondary/40 transition-all shadow-xs group"
-              >
-                <div>
-                  <div className="relative aspect-[16/9] bg-muted overflow-hidden">
-                    <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
-                      {event.category}
+          {loadingEvents ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+              <Loader2 className="w-6 h-6 animate-spin text-secondary" />
+              <p className="text-xs text-muted-foreground font-medium">Loading events…</p>
+            </div>
+          ) : featuredEvents.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4 border border-dashed border-border rounded-xl bg-muted/30">
+              <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center">
+                <CalendarDays className="w-7 h-7 text-secondary" />
+              </div>
+              <div className="text-center space-y-1">
+                <h3 className="font-heading text-lg font-bold text-foreground">No Events Yet</h3>
+                <p className="text-xs text-muted-foreground max-w-sm">Be the first to create an event on MyEventGuru. Your event will be featured right here.</p>
+              </div>
+              <Link to="/signup">
+                <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-5 rounded-lg">
+                  Create Your First Event →
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredEvents.map((event, idx) => (
+                <motion.div 
+                  key={event.id} 
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  whileHover={{ y: -6 }}
+                  className="bg-card border border-border rounded-lg overflow-hidden flex flex-col justify-between hover:border-secondary/40 transition-all shadow-xs group"
+                >
+                  <div>
+                    <div className="relative aspect-[16/9] bg-muted overflow-hidden">
+                      {event.image_url ? (
+                        <img src={event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted">
+                          <CalendarDays className="w-10 h-10 text-muted-foreground/40" />
+                        </div>
+                      )}
+                      <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
+                        {event.category}
+                      </div>
+                    </div>
+                    <div className="p-4 space-y-2">
+                      <h3 className="font-heading text-base font-bold text-foreground truncate">{event.title}</h3>
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 shrink-0" />
+                          <span>{new Date(event.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        </div>
+                        {(event.venue || event.city) && (
+                          <div className="flex items-center gap-1.5 truncate">
+                            <MapPin className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{[event.venue, event.city].filter(Boolean).join(', ')}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="p-4 space-y-2">
-                    <h3 className="font-heading text-base font-bold text-foreground truncate">{event.title}</h3>
-                    <div className="space-y-1 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 shrink-0" />
-                        <span>{event.date}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 truncate">
-                        <MapPin className="w-3.5 h-3.5 shrink-0" />
-                        <span className="truncate">{event.venue}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="p-4 pt-0">
-                  <div className="flex items-center justify-between pt-3 border-t border-border text-xs">
-                    <span className="font-mono font-bold text-foreground">{event.price}</span>
-                    <Link to={`/events/${event.id}`}>
-                      <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-8 px-3 rounded">
-                        Get Ticket
-                      </Button>
-                    </Link>
+                  <div className="p-4 pt-0">
+                    <div className="flex items-center justify-between pt-3 border-t border-border text-xs">
+                      <span className="font-mono font-bold text-foreground">{event.is_free ? 'Free' : 'Paid'}</span>
+                      <Link to={`/events/${event.id}`}>
+                        <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-8 px-3 rounded">
+                          View Event
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Theme-Aware Dark Mode Friendly Footer CTA Section */}
@@ -350,7 +399,7 @@ const Index = () => {
               Start Building Unforgettable Experiences.
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
-              Join thousands of event organizers selling tickets and running rapid check-ins with EventGuru.
+              Start managing your events with MyEventGuru — create, sell tickets, and check in attendees seamlessly.
             </p>
             <div className="pt-4">
               <Link to="/signup">
