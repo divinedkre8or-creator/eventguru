@@ -144,7 +144,7 @@ const Campaigns = () => {
         <div className="lg:col-span-7 space-y-6">
           <form onSubmit={handleSendCampaign} className="bg-card border border-border rounded-xl p-6 shadow-sm space-y-5">
             <h2 className="font-heading text-lg font-bold text-foreground flex items-center gap-2 border-b border-border pb-4">
-              <Sparkles className="w-4 h-4 text-secondary" /> Compose New Broadcast
+              <Send className="w-4 h-4 text-secondary" /> Compose New Broadcast
             </h2>
 
             {/* Target Event Selector */}

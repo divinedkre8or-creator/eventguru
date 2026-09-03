@@ -3,12 +3,13 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   CalendarDays, Ticket, Users, ScanLine, BarChart3, Mail, ChevronRight, 
-  ArrowUpRight, Sparkles, Calendar, MapPin, CheckCircle2, ShieldCheck, Globe, Star,
-  Loader2
+  ArrowUpRight, Calendar, MapPin, CheckCircle2, ShieldCheck, Globe, Star,
+  Loader2, Zap, Award, Image as ImageIcon
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { getEventUrl } from "@/lib/slugUtils";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -238,7 +239,7 @@ const Index = () => {
               className="lg:col-span-6 space-y-6"
             >
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[11px] font-mono font-bold tracking-wider uppercase">
-                <Sparkles className="w-3.5 h-3.5" /> SIGNATURE SELLING POINT
+                <Award className="w-3.5 h-3.5" /> SIGNATURE SELLING POINT
               </div>
 
               <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-foreground uppercase tracking-tight leading-[1.15]">
@@ -460,7 +461,7 @@ const Index = () => {
                   <div className="p-4 pt-0">
                     <div className="flex items-center justify-between pt-3 border-t border-border text-xs">
                       <span className="font-mono font-bold text-foreground">{event.is_free ? 'Free' : 'Paid'}</span>
-                      <Link to={`/events/${event.id}`}>
+                      <Link to={getEventUrl(event)}>
                         <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-8 px-3 rounded">
                           View Event
                         </Button>

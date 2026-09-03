@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { PlusCircle, Calendar, MapPin, Users, Search, Edit3, Copy, ExternalLink, Sparkles } from "lucide-react";
+import { PlusCircle, Calendar, MapPin, Users, Search, Edit3, Copy, ExternalLink, Image, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { getEventUrl } from "@/lib/slugUtils";
 
 const statusBadgeStyle: Record<string, string> = {
   draft: "bg-muted text-muted-foreground border-border",
@@ -93,7 +94,7 @@ const Events = () => {
       <div className="bg-gradient-to-r from-secondary/15 via-primary/10 to-secondary/10 border border-secondary/30 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-secondary text-secondary-foreground flex items-center justify-center shrink-0 font-bold">
-            <Sparkles className="w-5 h-5" />
+            <Zap className="w-5 h-5" />
           </div>
           <div>
             <h3 className="font-heading text-sm font-bold text-foreground">Boost Event Virality with DP Generator</h3>
@@ -183,7 +184,7 @@ const Events = () => {
                   {/* DP Setup Shortcut Link */}
                   <Link to={`/dashboard/dp?event_id=${event.id}`} className="block">
                     <div className="w-full bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/30 text-[11px] font-bold py-1.5 rounded-md flex items-center justify-center gap-1.5 transition-colors">
-                      <Sparkles className="w-3.5 h-3.5" /> Setup DP Generator Frame
+                      <Image className="w-3.5 h-3.5" /> Setup DP Generator Frame
                     </div>
                   </Link>
 
@@ -193,7 +194,7 @@ const Events = () => {
                         <Edit3 className="w-3.5 h-3.5 mr-1.5" /> Edit
                       </Button>
                     </Link>
-                    <Link to={`/events/${event.id}`} target="_blank">
+                    <Link to={getEventUrl(event)} target="_blank">
                       <Button variant="outline" size="icon" className="h-9 w-9 border-border text-muted-foreground hover:text-foreground" title="View Public Event Page">
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Button>
@@ -204,7 +205,7 @@ const Events = () => {
                       className="h-9 w-9 border-border text-muted-foreground hover:text-foreground" 
                       title="Copy Public Link"
                       onClick={() => {
-                        navigator.clipboard.writeText(`${window.location.origin}/events/${event.id}`);
+                        navigator.clipboard.writeText(`${window.location.origin}${getEventUrl(event)}`);
                         toast.success("Event link copied!");
                       }}
                     >

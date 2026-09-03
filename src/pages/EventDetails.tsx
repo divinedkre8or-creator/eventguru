@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { CheckoutModal } from "@/components/events/CheckoutModal";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { slugify, getEventUrl, getEventDpUrl } from "@/lib/slugUtils";
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,28 +22,42 @@ const EventDetails = () => {
   const { data: event, isLoading, error, refetch } = useQuery({
     queryKey: ["public-event", id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*, ticket_types(*)")
-        .eq("id", id)
-        .single();
-      
-      if (error) throw error;
-      
-      // Attempt to fetch dp_templates separately so it doesn't hard-crash the event page if the table is missing
+      let eventData: any = null;
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || "");
+
+      if (isUUID) {
+        const { data, error } = await supabase
+          .from("events")
+          .select("*, ticket_types(*)")
+          .eq("id", id)
+          .single();
+        if (error) throw error;
+        eventData = data;
+      } else {
+        // Resolve human-readable slug by matching slugified title
+        const { data: allEvents, error } = await supabase
+          .from("events")
+          .select("*, ticket_types(*)");
+        if (error) throw error;
+        eventData = (allEvents || []).find((e: any) => slugify(e.title) === id) || null;
+      }
+
+      if (!eventData) throw new Error("Event not found");
+
+      // Fetch dp_templates
       let dpTemplates = null;
       try {
         const { data: dpData } = await supabase
           .from("dp_templates")
           .select("id")
-          .eq("event_id", id)
+          .eq("event_id", eventData.id)
           .maybeSingle();
-        dpTemplates = dpData ? [dpData] : null; // Wrap in array as expected by the UI condition
+        dpTemplates = dpData ? [dpData] : null;
       } catch (e) {
         console.warn("DP Templates table not ready yet");
       }
-      
-      return { ...data, dp_templates: dpTemplates };
+
+      return { ...eventData, dp_templates: dpTemplates };
     },
     enabled: !!id,
   });
@@ -69,7 +84,9 @@ const EventDetails = () => {
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    if (!event) return;
+    const cleanUrl = `${window.location.origin}${getEventUrl(event)}`;
+    navigator.clipboard.writeText(cleanUrl);
     toast.success("Event link copied to clipboard!");
   };
 
@@ -332,7 +349,7 @@ const EventDetails = () => {
                      </div>
                      <h3 className="font-bold text-sm text-foreground mb-1">Get Your Display Picture</h3>
                      <p className="text-xs text-muted-foreground mb-4">Generate a custom DP flier for this event to let your network know you are attending!</p>
-                     <Link to={`/events/${id}/dp`}>
+                     <Link to={getEventDpUrl(event)}>
                         <Button className="w-full bg-secondary text-secondary-foreground font-bold text-xs h-10 rounded-lg shadow-sm hover:opacity-90 transition-all">
                            Create My DP
                         </Button>

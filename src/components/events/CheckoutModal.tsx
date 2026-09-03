@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
+import { getEventDpUrl } from "@/lib/slugUtils";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -139,7 +140,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
           <div className="space-y-2">
             <div className="text-[11px] font-mono font-bold uppercase tracking-widest bg-chart-green/10 text-chart-green px-3 py-1 rounded-full inline-block">
-              REGISTRATION CONFIRMED 🎉
+              REGISTRATION CONFIRMED
             </div>
             <h2 className="font-heading text-2xl font-black tracking-tight text-foreground">You're All Set, {name.split(" ")[0]}!</h2>
             <p className="text-xs text-muted-foreground leading-relaxed">
@@ -150,7 +151,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
           {/* Highlighting the DP Generator Feature */}
           <div className="bg-gradient-to-br from-secondary/15 via-primary/5 to-secondary/10 border border-secondary/30 rounded-xl p-5 text-left space-y-3 relative overflow-hidden shadow-inner">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-secondary animate-pulse" />
+              <ImageIcon className="w-4 h-4 text-secondary" />
               <span className="font-mono text-xs font-bold text-secondary uppercase tracking-wider">OFFICIAL EVENT DP</span>
             </div>
             <h3 className="font-heading text-base font-bold text-foreground">Generate Your Custom DP Frame</h3>
@@ -158,7 +159,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
               Let your friends and network know you are attending! Create your personalized event picture flier in 1-click.
             </p>
 
-            <Link to={`/events/${event.id}/dp`} onClick={handleModalClose}>
+            <Link to={getEventDpUrl(event)} onClick={handleModalClose}>
               <Button className="w-full bg-secondary text-secondary-foreground font-bold text-xs h-11 rounded-lg hover:opacity-90 shadow-md flex items-center justify-center gap-2 mt-2">
                 <ImageIcon className="w-4 h-4" /> Create My Event DP <ArrowRight className="w-4 h-4" />
               </Button>

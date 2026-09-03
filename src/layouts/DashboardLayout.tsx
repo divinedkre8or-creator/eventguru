@@ -2,7 +2,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, CalendarDays, PlusCircle, Users, Ticket, ScanLine, Image,
   Megaphone, BarChart3, Wallet, Settings, Bell, Menu, X, LogOut, Search, ChevronDown,
-  Layers, ShoppingCart, Mail, CheckSquare, FileText, UserPlus, Terminal, Sparkles, Shield
+  Layers, ShoppingCart, Mail, CheckSquare, FileText, UserPlus, Terminal, Zap, Shield
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -165,7 +165,7 @@ const DashboardLayout = () => {
           <div className="bg-muted/50 border border-border rounded-lg p-3 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2.5">
               <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <Sparkles className="w-3.5 h-3.5" />
+                <Zap className="w-3.5 h-3.5" />
               </div>
               <div>
                 <div className="font-bold text-foreground">{isAdmin ? "Super Admin" : "Pro Organizer"}</div>

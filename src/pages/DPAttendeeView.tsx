@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { KenteStripe } from "@/components/KenteStripe";
 import { toast } from "sonner";
 import { compressImageToBase64 } from "@/lib/imageUtils";
+import { slugify } from "@/lib/slugUtils";
 
 const DPAttendeeView = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,10 +22,22 @@ const DPAttendeeView = () => {
   const { data: template, isLoading, error } = useQuery({
     queryKey: ["public-dp-template", id],
     queryFn: async () => {
+      let targetEventId = id;
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || "");
+
+      if (!isUUID && id) {
+        // Resolve slug to event ID
+        const { data: events } = await supabase.from("events").select("id, title");
+        const found = (events || []).find((e) => slugify(e.title) === id);
+        if (found) {
+          targetEventId = found.id;
+        }
+      }
+
       const { data, error } = await supabase
         .from("dp_templates")
         .select("*, events(title)")
-        .eq("event_id", id)
+        .eq("event_id", targetEventId)
         .maybeSingle();
 
       if (error) throw error;

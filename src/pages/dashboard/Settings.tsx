@@ -39,14 +39,17 @@ const Settings = () => {
     if (!user?.id) return;
     setSavingProfile(true);
     try {
-      // 1. Update profiles table
+      // 1. Update profiles table with onConflict target
       const { error: profErr } = await supabase
         .from("profiles")
-        .upsert({
-          user_id: user.id,
-          full_name: fullName,
-          updated_at: new Date().toISOString(),
-        });
+        .upsert(
+          {
+            user_id: user.id,
+            full_name: fullName,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id" }
+        );
       if (profErr) throw profErr;
 
       // 2. Update user metadata

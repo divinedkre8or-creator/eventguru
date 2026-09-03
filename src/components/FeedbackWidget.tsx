@@ -78,10 +78,10 @@ export const FeedbackWidget = () => {
               onChange={(e) => setType(e.target.value as any)}
               className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
             >
-              <option value="suggestion">💡 Feature Suggestion</option>
-              <option value="bug">🐛 Report a Bug</option>
-              <option value="support">👋 General Support</option>
-              <option value="complaint">⚠️ Complaint</option>
+              <option value="suggestion">Feature Suggestion</option>
+              <option value="bug">Report a Bug</option>
+              <option value="support">General Support</option>
+              <option value="complaint">Complaint</option>
             </select>
           </div>
 

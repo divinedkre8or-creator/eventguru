@@ -1,7 +1,7 @@
 import { useState, ChangeEvent } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Rnd } from "react-rnd";
-import { ImagePlus, Save, Loader2, LayoutTemplate, Copy, Sparkles, ExternalLink } from "lucide-react";
+import { ImagePlus, Save, Loader2, LayoutTemplate, Copy, Image, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
