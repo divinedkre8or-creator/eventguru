@@ -2,7 +2,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, CalendarDays, PlusCircle, Users, Ticket, ScanLine, Image,
   Megaphone, BarChart3, Wallet, Settings, Bell, Menu, X, LogOut, Search, ChevronDown,
-  Layers, ShoppingCart, Mail, CheckSquare, FileText, UserPlus, Terminal, Sparkles
+  Layers, ShoppingCart, Mail, CheckSquare, FileText, UserPlus, Terminal, Sparkles, Shield
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
