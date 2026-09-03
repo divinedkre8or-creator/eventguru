@@ -13,7 +13,7 @@ const Signup = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"attendee" | "organiser" | null>(null);
+  const [role, setRole] = useState<"attendee" | "organiser">("attendee");
   const [submitting, setSubmitting] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();

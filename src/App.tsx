@@ -55,9 +55,9 @@ const App = () => (
             <Route path="/events/:id" element={<EventDetails />} />
             <Route path="/events/:id/dp" element={<DPAttendeeView />} />
 
-            {/* Organiser Dashboard */}
+            {/* Dashboard (Organisers & Attendees) */}
             <Route path="/dashboard" element={
-              <ProtectedRoute requiredRole="organiser">
+              <ProtectedRoute>
                 <DashboardLayout />
               </ProtectedRoute>
             }>

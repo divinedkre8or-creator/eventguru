@@ -3,16 +3,24 @@ import { Link } from "react-router-dom";
 import { 
   CalendarDays, Users, Wallet, ScanLine, ArrowUpRight, Loader2, PlusCircle, 
   Ticket, Megaphone, Image as ImageIcon, Download, MessageSquare, ArrowRight,
-  Sparkles, ExternalLink, Calendar, MapPin, CheckCircle2, ChevronRight
+  ExternalLink, Calendar, MapPin, CheckCircle2, ChevronRight
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
+import AttendeeOverview from "./AttendeeOverview";
 
 const Overview = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, roles } = useAuth();
+
+  // If user is strictly an attendee, render the Attendee Portal
+  const isOrganiserOrAdmin = roles.includes("organiser") || roles.includes("admin");
+  if (!isOrganiserOrAdmin) {
+    return <AttendeeOverview />;
+  }
+
   const fullName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Organizer";
   const firstName = fullName.split(" ")[0];
 

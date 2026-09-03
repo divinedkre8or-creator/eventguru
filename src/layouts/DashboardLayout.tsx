@@ -85,6 +85,8 @@ const DashboardLayout = () => {
   const fullName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
   const firstName = fullName.split(" ")[0];
 
+  const isOrganiserOrAdmin = roles.includes("organiser") || roles.includes("admin");
+
   const isActive = (path: string) =>
     path === "/dashboard" ? location.pathname === path : location.pathname.startsWith(path);
 
@@ -116,38 +118,50 @@ const DashboardLayout = () => {
             </div>
           )}
 
-          {/* Main Top Nav */}
-          <nav className="flex flex-col gap-1">
-            {mainNavItems.map((item) => (
+          {!isOrganiserOrAdmin ? (
+            /* Attendee Navigation */
+            <nav className="flex flex-col gap-1">
               <Link
-                key={item.path}
-                to={item.path}
+                to="/dashboard"
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                  isActive(item.path)
-                    ? "bg-primary text-primary-foreground shadow-sm"
+                  location.pathname === "/dashboard"
+                    ? "bg-secondary text-secondary-foreground shadow-sm font-bold"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
-                <item.icon className="w-4 h-4 shrink-0" />
-                <span className="truncate">{item.title}</span>
+                <Ticket className="w-4 h-4 shrink-0" />
+                <span className="truncate">My Registered Events</span>
               </Link>
-            ))}
-          </nav>
-
-          {/* Grouped Nav Items */}
-          {navGroups.map((group) => (
-            <div key={group.groupName} className="space-y-1">
-              <div className="px-3 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                {group.groupName}
-              </div>
-              <nav className="flex flex-col gap-0.5">
-                {group.items.map((item) => (
+              <Link
+                to="/dashboard/settings"
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  location.pathname === "/dashboard/settings"
+                    ? "bg-secondary text-secondary-foreground shadow-sm font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <Settings className="w-4 h-4 shrink-0" />
+                <span className="truncate">Account Settings</span>
+              </Link>
+              <Link
+                to="/"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted"
+              >
+                <CalendarDays className="w-4 h-4 shrink-0" />
+                <span className="truncate">Explore Events</span>
+              </Link>
+            </nav>
+          ) : (
+            /* Organiser / Admin Navigation */
+            <>
+              <nav className="flex flex-col gap-1">
+                {mainNavItems.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                       isActive(item.path)
-                        ? "bg-primary text-primary-foreground font-bold shadow-sm"
+                        ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
@@ -156,8 +170,32 @@ const DashboardLayout = () => {
                   </Link>
                 ))}
               </nav>
-            </div>
-          ))}
+
+              {navGroups.map((group) => (
+                <div key={group.groupName} className="space-y-1">
+                  <div className="px-3 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                    {group.groupName}
+                  </div>
+                  <nav className="flex flex-col gap-0.5">
+                    {group.items.map((item) => (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                          isActive(item.path)
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        <item.icon className="w-4 h-4 shrink-0" />
+                        <span className="truncate">{item.title}</span>
+                      </Link>
+                    ))}
+                  </nav>
+                </div>
+              ))}
+            </>
+          )}
         </div>
 
         {/* Bottom Plan Widget */}
