@@ -20,14 +20,22 @@ import Events from "./pages/dashboard/Events";
 import CreateEvent from "./pages/dashboard/CreateEvent";
 import Tickets from "./pages/dashboard/Tickets";
 import Attendees from "./pages/dashboard/Attendees";
-import Placeholder from "./pages/dashboard/Placeholder";
 import Checkin from "./pages/dashboard/Checkin";
 import DPGenerator from "./pages/dashboard/DPGenerator";
+import Campaigns from "./pages/dashboard/Campaigns";
+import Analytics from "./pages/dashboard/Analytics";
+import Payments from "./pages/dashboard/Payments";
+import Settings from "./pages/dashboard/Settings";
 import DPAttendeeView from "./pages/DPAttendeeView";
 
 import AdminLayout from "./layouts/AdminLayout";
 import AdminOverview from "./pages/admin/Overview";
+import AdminEvents from "./pages/admin/Events";
+import AdminOrganisers from "./pages/admin/Organisers";
+import AdminTransactions from "./pages/admin/Transactions";
+import AdminDisputes from "./pages/admin/Disputes";
 import AdminFeedback from "./pages/admin/FeedbackList";
+import AdminSettings from "./pages/admin/Settings";
 
 const queryClient = new QueryClient();
 
@@ -61,10 +69,10 @@ const App = () => (
               <Route path="tickets" element={<Tickets />} />
               <Route path="checkin" element={<Checkin />} />
               <Route path="dp" element={<DPGenerator />} />
-              <Route path="campaigns" element={<Placeholder />} />
-              <Route path="analytics" element={<Placeholder />} />
-              <Route path="payments" element={<Placeholder />} />
-              <Route path="settings" element={<Placeholder />} />
+              <Route path="campaigns" element={<Campaigns />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="settings" element={<Settings />} />
             </Route>
 
             {/* Super Admin */}
@@ -74,12 +82,12 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route index element={<AdminOverview />} />
-              <Route path="events" element={<Placeholder />} />
-              <Route path="organisers" element={<Placeholder />} />
-              <Route path="transactions" element={<Placeholder />} />
-              <Route path="disputes" element={<Placeholder />} />
+              <Route path="events" element={<AdminEvents />} />
+              <Route path="organisers" element={<AdminOrganisers />} />
+              <Route path="transactions" element={<AdminTransactions />} />
+              <Route path="disputes" element={<AdminDisputes />} />
               <Route path="feedback" element={<AdminFeedback />} />
-              <Route path="settings" element={<Placeholder />} />
+              <Route path="settings" element={<AdminSettings />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
