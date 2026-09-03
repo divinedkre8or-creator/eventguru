@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Crowdstack - Integrations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#c6c6c6",
+                      "tertiary-fixed": "#e2e2e2",
+                      "surface-dim": "#dadada",
+                      "primary-fixed-dim": "#c6c6c6",
+                      "secondary-container": "#2170e4",
+                      "secondary": "#0058be",
+                      "inverse-on-surface": "#f1f1f1",
+                      "on-surface-variant": "#4c4546",
+                      "tertiary-container": "#1b1b1b",
+                      "on-secondary-fixed-variant": "#004395",
+                      "background": "#f9f9f9",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#474747",
+                      "surface-bright": "#f9f9f9",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#848484",
+                      "surface-container-low": "#f3f3f3",
+                      "error-container": "#ffdad6",
+                      "on-primary-container": "#848484",
+                      "surface-container": "#eeeeee",
+                      "primary-container": "#1b1b1b",
+                      "on-background": "#1b1b1b",
+                      "on-tertiary-fixed": "#1b1b1b",
+                      "on-surface": "#1b1b1b",
+                      "surface-tint": "#5e5e5e",
+                      "error": "#ba1a1a",
+                      "primary-fixed": "#e2e2e2",
+                      "surface-variant": "#e2e2e2",
+                      "on-primary": "#ffffff",
+                      "tertiary": "#000000",
+                      "on-primary-fixed": "#1b1b1b",
+                      "surface-container-high": "#e8e8e8",
+                      "secondary-fixed": "#d8e2ff",
+                      "on-error": "#ffffff",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "inverse-surface": "#303030",
+                      "surface": "#f9f9f9",
+                      "outline-variant": "#cfc4c5",
+                      "inverse-primary": "#c6c6c6",
+                      "on-tertiary-fixed-variant": "#474747",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-highest": "#e2e2e2",
+                      "outline": "#7e7576",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#001a42",
+                      "on-secondary-container": "#fefcff",
+                      "primary": "#000000"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "section-gap": "32px",
+                      "gutter": "16px",
+                      "container-margin": "24px",
+                      "component-padding-y": "12px",
+                      "component-padding-x": "16px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-display": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.03em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "900"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background h-full font-body-lg text-on-surface antialiased">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-[260px] bg-surface border-r border-outline-variant flex flex-col p-gutter z-50">
+<div class="mb-section-gap flex items-center gap-3 px-2">
+<div class="w-10 h-10 bg-primary rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary font-bold">layers</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-black text-primary tracking-tighter">Crowdstack</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Enterprise Platform</p>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-caps text-label-caps py-3 rounded mb-6 hover:bg-tertiary-container transition-colors">
+            Create New Event
+        </button>
+<div class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+                Events
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined">groups</span>
+                Attendees
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined">campaign</span>
+                Marketing
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined">handshake</span>
+                Partners
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                Assets
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-primary text-on-primary font-bold border-r-2 border-primary opacity-90 transition-all duration-150 font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+                Settings
+            </a>
+</div>
+<div class="mt-auto space-y-1 border-t border-outline-variant pt-4">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+                Help Center
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined">person</span>
+                Account
+            </a>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="docked full-width top-0 sticky z-40 bg-surface flex justify-between items-center h-16 px-container-margin ml-[260px] w-[calc(100%-260px)] border-b border-outline-variant">
+<div class="flex-1 flex items-center">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full pl-9 pr-3 py-1.5 bg-surface-container-low border border-outline-variant rounded font-body-sm text-body-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-on-surface-variant" placeholder="Search Crowdstack..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-opacity focus:ring-1 focus:ring-primary rounded-full p-1">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-opacity focus:ring-1 focus:ring-primary rounded-full p-1">
+<span class="material-symbols-outlined">chat_bubble_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden cursor-pointer focus:ring-1 focus:ring-primary">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of an individual, serving as a user profile avatar. The lighting is clean and modern, suited for an enterprise platform environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjkmRCf1b6dl76p_mSAJWpTKlADGJDiunKTgmGoJp4Xm4Yq1Fj2rcwA9PoMNfpVVSFNvkfrQNjMgPd7TuTJSBpBacDG1Z78HL1ENn03N-b2ctKUFkQat2tO_bpJVlab5HKKzXd_qoZI_cRpmuS4v0uE1GTpRkybVMmC5W6NkZnxjh2vwcD_MFN7AfiPLwu9Nhqpk1VlIuk7K_Cjllnzz4y7z8dQJ9zjKW5lFG2xTtWknBBgANtTgsNkw"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-[260px] p-container-margin min-h-[calc(100vh-64px)]">
+<!-- Page Header -->
+<div class="mb-section-gap">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-2">Integration Settings</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">Connect third-party tools to Crowdstack to automate workflows, sync data, and enhance your event management capabilities.</p>
+</div>
+<!-- Integration Categories Tabs -->
+<div class="flex gap-6 border-b border-outline-variant mb-6 pb-2">
+<button class="font-label-caps text-label-caps text-primary border-b-2 border-primary pb-2 -mb-[10px]">All Integrations</button>
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors pb-2">Payment Gateways</button>
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors pb-2">Communication</button>
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors pb-2">CRM</button>
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors pb-2">Marketing</button>
+</div>
+<!-- Bento Grid Layout for Integrations -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Stripe Integration Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-component-padding-x py-component-padding-y flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 rounded bg-[#F6F8FA] border border-outline-variant flex items-center justify-center p-2">
+<!-- Placeholder for Stripe Logo -->
+<span class="material-symbols-outlined text-secondary text-3xl">payments</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-headline-md text-primary mb-1">Stripe</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 line-clamp-2">Process secure payments, manage subscriptions, and handle ticketing revenue seamlessly.</p>
+</div>
+<div class="pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary bg-secondary-fixed px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Active
+                    </span>
+<button class="font-label-caps text-label-caps text-primary hover:underline" onclick="toggleConfig('config-stripe')">Configure</button>
+</div>
+</div>
+<!-- Zoom Integration Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-component-padding-x py-component-padding-y flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 rounded bg-[#F6F8FA] border border-outline-variant flex items-center justify-center p-2">
+<span class="material-symbols-outlined text-[#2D8CFF] text-3xl">videocam</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-headline-md text-primary mb-1">Zoom</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 line-clamp-2">Automatically generate webinar links for virtual and hybrid events. Sync attendee data.</p>
+</div>
+<div class="pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-1 rounded">
+                        Not Configured
+                    </span>
+<button class="font-label-caps text-label-caps text-primary hover:underline">Connect</button>
+</div>
+</div>
+<!-- Salesforce Integration Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-component-padding-x py-component-padding-y flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 rounded bg-[#F6F8FA] border border-outline-variant flex items-center justify-center p-2">
+<span class="material-symbols-outlined text-[#00A1E0] text-3xl">cloud</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-headline-md text-primary mb-1">Salesforce</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 line-clamp-2">Sync leads, contacts, and event activity directly into your CRM pipelines.</p>
+</div>
+<div class="pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary bg-secondary-fixed px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[14px]">sync</span> Syncing
+                    </span>
+<button class="font-label-caps text-label-caps text-primary hover:underline">Configure</button>
+</div>
+</div>
+<!-- Mailchimp Integration Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-component-padding-x py-component-padding-y flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 rounded bg-[#F6F8FA] border border-outline-variant flex items-center justify-center p-2">
+<span class="material-symbols-outlined text-[#FFE01B] text-3xl" style="font-variation-settings: 'FILL' 1; color: #000;">mail</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-headline-md text-primary mb-1">Mailchimp</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 line-clamp-2">Automate email campaigns, sync attendee lists to audiences, and track engagement.</p>
+</div>
+<div class="pt-4 border-t border-outline-variant flex justify-between items-center">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-1 rounded">
+                        Not Configured
+                    </span>
+<button class="font-label-caps text-label-caps text-primary hover:underline">Connect</button>
+</div>
+</div>
+</div>
+<!-- Detailed Configuration Panel (Example: Stripe) -->
+<div class="mt-section-gap bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden" id="config-stripe">
+<div class="bg-surface-container-low px-component-padding-x py-3 border-b border-outline-variant flex justify-between items-center">
+<h4 class="font-headline-md text-headline-md text-primary">Stripe Configuration</h4>
+<button class="text-on-surface-variant hover:text-primary" onclick="toggleConfig('config-stripe')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-component-padding-x grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- API Keys -->
+<div>
+<h5 class="font-label-caps text-label-caps text-on-surface mb-4 border-b border-outline-variant pb-2">API Credentials</h5>
+<div class="space-y-4">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-1">Publishable Key</label>
+<input class="w-full px-3 py-2 bg-background border border-outline-variant rounded font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="pk_test_51NxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"/>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-1">Secret Key</label>
+<div class="relative">
+<input class="w-full px-3 py-2 bg-background border border-outline-variant rounded font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none pr-10" type="password" value="sk_test_51NxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">visibility_off</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Webhooks -->
+<div>
+<h5 class="font-label-caps text-label-caps text-on-surface mb-4 border-b border-outline-variant pb-2">Webhook Settings</h5>
+<div class="space-y-4">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-1">Webhook Endpoint URL</label>
+<div class="flex gap-2">
+<input class="flex-1 px-3 py-2 bg-surface-container-low border border-outline-variant rounded font-body-sm text-body-sm text-on-surface-variant outline-none" readonly="" type="text" value="https://api.crowdstack.com/v1/webhooks/stripe"/>
+<button class="bg-surface-container border border-outline-variant px-3 rounded hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+</button>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Add this URL to your Stripe developer dashboard to receive real-time event updates.</p>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-1">Webhook Secret</label>
+<input class="w-full px-3 py-2 bg-background border border-outline-variant rounded font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="whsec_..." type="password"/>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low px-component-padding-x py-3 border-t border-outline-variant flex justify-end gap-3">
+<button class="px-4 py-2 bg-surface-container-lowest border border-outline-variant rounded font-label-caps text-label-caps text-primary hover:bg-surface-container transition-colors">Test Connection</button>
+<button class="px-4 py-2 bg-primary text-on-primary rounded font-label-caps text-label-caps hover:opacity-90 transition-opacity">Save Configuration</button>
+</div>
+</div>
+</main>
+<script>
+        function toggleConfig(id) {
+            const el = document.getElementById(id);
+            if(el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                // Scroll into view smoothly
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+        // Initially hide config panels for cleaner starting state, except for demonstration
+        // document.getElementById('config-stripe').classList.add('hidden');
+    </script>
+</body></html>

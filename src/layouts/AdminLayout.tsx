@@ -29,7 +29,7 @@ const AdminLayout = () => {
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 flex-col bg-ink border-r border-white/5 z-40">
         <div className="p-4 border-b border-white/5">
           <Link to="/" className="font-heading text-lg font-800 text-ivory">
-            Event<span className="text-amber">stack</span>
+            Event<span className="text-amber">guru</span>
           </Link>
           <div className="flex items-center gap-1.5 mt-1">
             <Shield className="w-3 h-3 text-coral" />
@@ -61,7 +61,7 @@ const AdminLayout = () => {
           <aside className="absolute left-0 top-0 bottom-0 w-64 bg-ink border-r border-white/5 flex flex-col">
             <div className="p-4 border-b border-white/5 flex items-center justify-between">
               <div>
-                <span className="font-heading text-lg font-800 text-ivory">Event<span className="text-amber">stack</span></span>
+                <span className="font-heading text-lg font-800 text-ivory">Event<span className="text-amber">guru</span></span>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <Shield className="w-3 h-3 text-coral" />
                   <span className="text-coral text-[10px] font-heading font-700 uppercase">Super Admin</span>

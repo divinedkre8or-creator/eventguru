@@ -1,56 +1,61 @@
-import { Users, CalendarDays, Wallet, Zap, Clock, Shield } from "lucide-react";
+import { Users, CalendarDays, Wallet, Zap, Clock } from "lucide-react";
 import { adminStats } from "@/data/mock";
 
 const stats = [
-  { label: "Total Organisers", value: adminStats.totalOrganisers, icon: Users, color: "text-coral" },
-  { label: "Total Events", value: adminStats.totalEvents.toLocaleString(), icon: CalendarDays, color: "text-amber" },
-  { label: "Total Revenue", value: adminStats.totalRevenue, icon: Wallet, color: "text-teal" },
-  { label: "Active Today", value: adminStats.activeToday, icon: Zap, color: "text-amber" },
-  { label: "Pending Payouts", value: adminStats.pendingPayouts, icon: Clock, color: "text-coral" },
+  { label: "Total Organisers", value: adminStats.totalOrganisers, icon: Users, color: "text-chart-orange" },
+  { label: "Total Events", value: adminStats.totalEvents.toLocaleString(), icon: CalendarDays, color: "text-chart-blue" },
+  { label: "Total Revenue", value: adminStats.totalRevenue, icon: Wallet, color: "text-chart-green" },
+  { label: "Active Today", value: adminStats.activeToday, icon: Zap, color: "text-chart-purple" },
+  { label: "Pending Payouts", value: adminStats.pendingPayouts, icon: Clock, color: "text-chart-orange" },
 ];
 
 const Overview = () => {
   return (
-    <div className="space-y-6">
-      <h1 className="font-heading text-xl font-800 text-ivory">Platform Overview</h1>
+    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
+      <div className="border-b border-border pb-4">
+        <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
+          ADMIN DASHBOARD
+        </div>
+        <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Platform Overview</h1>
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {stats.map((s) => (
-          <div key={s.label} className="p-4 rounded-xl bg-white/[0.03] border border-white/5">
+          <div key={s.label} className="p-4 rounded-lg bg-card border border-border shadow-xs hover:border-primary/40 transition-colors">
             <s.icon className={`w-4 h-4 ${s.color} mb-2`} />
-            <div className={`font-heading text-lg font-800 ${s.color} truncate`}>{s.value}</div>
-            <div className="text-ivory/40 text-[10px] font-body mt-0.5">{s.label}</div>
+            <div className={`font-heading text-xl font-black ${s.color} truncate`}>{s.value}</div>
+            <div className="text-muted-foreground text-xs font-medium mt-1">{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* Organisers Table */}
-      <div className="rounded-xl bg-white/[0.03] border border-white/5 overflow-hidden">
-        <div className="p-4 border-b border-white/5">
-          <h2 className="font-heading text-sm font-700 text-ivory">Organisers</h2>
+      <div className="rounded-lg bg-card border border-border overflow-hidden shadow-xs">
+        <div className="p-4 border-b border-border">
+          <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">Organisers</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/5">
-                <th className="text-left px-4 py-2.5 text-ivory/40 text-[10px] font-body font-normal uppercase tracking-wider">Name</th>
-                <th className="text-left px-4 py-2.5 text-ivory/40 text-[10px] font-body font-normal uppercase tracking-wider">Events</th>
-                <th className="text-left px-4 py-2.5 text-ivory/40 text-[10px] font-body font-normal uppercase tracking-wider">Revenue</th>
-                <th className="text-left px-4 py-2.5 text-ivory/40 text-[10px] font-body font-normal uppercase tracking-wider">Status</th>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Name</th>
+                <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Events</th>
+                <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Revenue</th>
+                <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Status</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border">
               {adminStats.organisers.map((org, i) => (
-                <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 text-ivory text-xs font-body">{org.name}</td>
-                  <td className="px-4 py-3 text-ivory/60 text-xs font-body">{org.events}</td>
-                  <td className="px-4 py-3 text-amber text-xs font-heading font-700">{org.revenue}</td>
+                <tr key={i} className="hover:bg-muted/40 transition-colors">
+                  <td className="px-4 py-3 text-foreground text-xs font-bold">{org.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground text-xs">{org.events}</td>
+                  <td className="px-4 py-3 text-foreground text-xs font-mono font-bold">{org.revenue}</td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-heading font-700 ${
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
                       org.status === "active"
-                        ? "bg-teal/10 text-teal"
-                        : "bg-coral/10 text-coral"
+                        ? "bg-chart-green/10 text-chart-green"
+                        : "bg-destructive/10 text-destructive"
                     }`}>
                       {org.status}
                     </span>

@@ -4,11 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, MapPin, Tag, Users, ArrowLeft, Loader2, Image as ImageIcon, Edit2, Trash2, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { KenteStripe } from "@/components/KenteStripe";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { CheckoutModal } from "@/components/events/CheckoutModal";
-import { ThemeToggle } from "@/components/ThemeToggle"; // Import ThemeToggle
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -77,18 +76,20 @@ const EventDetails = () => {
   if (isLoading || isDeleting) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-7 h-7 animate-spin text-primary" />
       </div>
     );
   }
 
   if (error || !event) {
     return (
-      <div className="flex flex-col h-screen items-center justify-center bg-background p-6 text-center space-y-4 font-[DM_Sans]">
-        <h1 className="font-heading text-4xl font-extrabold text-foreground">Event not found</h1>
-        <p className="text-muted-foreground text-base">The event you are looking for does not exist or has been removed.</p>
+      <div className="flex flex-col h-screen items-center justify-center bg-background p-6 text-center space-y-4 font-sans">
+        <h1 className="font-heading text-4xl font-black text-foreground tracking-tight">Event not found</h1>
+        <p className="text-muted-foreground text-sm font-medium">The event you are looking for does not exist or has been removed.</p>
         <Link to="/">
-          <button className="bg-primary text-primary-foreground font-heading font-bold px-6 py-3 rounded-xl hover:brightness-110 transition-all">Return Home</button>
+          <Button className="bg-secondary text-secondary-foreground font-bold px-6 py-3 rounded-lg hover:opacity-90 transition-all">
+            Return Home
+          </Button>
         </Link>
       </div>
     );
@@ -142,31 +143,29 @@ const EventDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background font-[DM_Sans] transition-colors duration-300">
-      <KenteStripe />
-
+    <div className="min-h-screen bg-background font-sans text-foreground antialiased">
       {/* Navigation */}
-      <nav className="bg-background/95 backdrop-blur-[12px] sticky top-0 z-50 border-b border-border transition-colors duration-300">
-        <div className="container max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="font-heading font-bold text-xl text-foreground">
-            Event<span className="text-primary">stack</span>
+      <nav className="bg-card/90 backdrop-blur-md sticky top-0 z-50 border-b border-border">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+          <Link to="/" className="font-heading font-black text-lg sm:text-xl text-primary tracking-tighter uppercase flex items-center gap-1">
+            MYEVENTGURU<span className="text-[10px] text-muted-foreground align-top">™</span>
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <ThemeToggle />
             {user ? (
-               <Link to="/dashboard" className="text-foreground text-sm font-medium bg-transparent hover:opacity-80 transition-opacity">
+               <Link to="/dashboard" className="text-xs font-bold text-foreground hover:opacity-80 transition-opacity px-2 py-1">
                 Dashboard
                </Link>
             ) : (
               <>
-                <Link to="/login" className="text-foreground text-sm font-medium bg-transparent hover:opacity-80 transition-opacity hidden sm:block">
+                <Link to="/login" className="text-xs font-bold text-foreground hover:opacity-80 px-2 py-1 hidden sm:block">
                   Log In
                 </Link>
                 <Link to="/signup">
-                  <button className="bg-primary text-primary-foreground font-heading font-bold text-sm rounded-[10px] px-5 py-2.5 hover:brightness-110 hover:-translate-y-[1px] transition-all">
-                    Get Started
-                  </button>
+                  <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-4 rounded-lg hover:opacity-90 transition-all shadow-sm">
+                    Get Started Free
+                  </Button>
                 </Link>
               </>
             )}
@@ -174,32 +173,32 @@ const EventDetails = () => {
         </div>
       </nav>
 
-      <main className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
         {/* Organizer Actions Floating Bar */}
         {isOrganizer && (
-           <div className="bg-secondary text-secondary-foreground p-3 rounded-[12px] flex flex-wrap items-center justify-between gap-4 shadow-sm mb-6 border border-border">
+           <div className="bg-primary text-primary-foreground p-3 rounded-lg flex flex-wrap items-center justify-between gap-4 shadow-sm mb-6 border border-border">
              <div className="flex items-center gap-2">
-               <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-               <span className="text-sm font-bold font-heading">You are managing this event</span>
+               <span className="inline-block w-2 h-2 rounded-full bg-chart-green animate-pulse"></span>
+               <span className="text-xs font-bold font-mono uppercase tracking-wider">You are managing this event</span>
              </div>
-             <div className="flex items-center gap-2">
-               <button onClick={handleCopyLink} className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Copy Link">
-                 <Share2 className="w-5 h-5" />
+             <div className="flex items-center gap-1">
+               <button onClick={handleCopyLink} className="p-2 rounded-lg hover:bg-primary-foreground/10 text-primary-foreground transition-colors" title="Copy Link">
+                 <Share2 className="w-4 h-4" />
                </button>
                <Link to={`/dashboard/events/${event.id}/edit`}>
-                 <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Edit Event">
-                   <Edit2 className="w-5 h-5" />
+                 <button className="p-2 rounded-lg hover:bg-primary-foreground/10 text-primary-foreground transition-colors" title="Edit Event">
+                   <Edit2 className="w-4 h-4" />
                  </button>
                </Link>
-               <button onClick={handleDelete} className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Delete Event">
-                 <Trash2 className="w-5 h-5" />
+               <button onClick={handleDelete} className="p-2 rounded-lg hover:bg-destructive/20 text-primary-foreground hover:text-destructive transition-colors" title="Delete Event">
+                 <Trash2 className="w-4 h-4" />
                </button>
              </div>
            </div>
         )}
 
         {/* Banner Section */}
-        <div className="w-full aspect-[21/9] sm:aspect-[3/1] bg-card rounded-2xl border border-border overflow-hidden relative shadow-sm">
+        <div className="w-full aspect-[21/9] sm:aspect-[3/1] bg-card rounded-xl border border-border overflow-hidden relative shadow-sm">
           {image_url ? (
             <img src={image_url} alt={title} className="w-full h-full object-cover" />
           ) : (
@@ -213,40 +212,40 @@ const EventDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-20">
           <div className="lg:col-span-2 space-y-8">
             <div className="space-y-4 border-b border-border pb-8">
-              <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-heading font-bold uppercase tracking-wider backdrop-blur-sm">
+              <div className="text-[10px] font-mono font-bold uppercase tracking-widest bg-muted px-2.5 py-1 rounded inline-block text-foreground">
                 {category?.replace("-", " ")}
               </div>
-              <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-[1.1] tracking-[-1px]">
+              <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-foreground leading-tight tracking-tight">
                 {title}
               </h1>
             </div>
 
-            <div className="prose prose-sm sm:prose-base max-w-none text-muted-foreground font-[DM_Sans] leading-[1.8] whitespace-pre-wrap dark:prose-invert">
+            <div className="prose prose-sm sm:prose-base max-w-none text-muted-foreground font-sans leading-[1.8] whitespace-pre-wrap dark:prose-invert">
               {parsedDesc || "No description provided for this event."}
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <div className="bg-card rounded-2xl border border-border p-6 shadow-sm space-y-6 sticky top-24">
+            <div className="bg-card rounded-xl border border-border p-6 shadow-sm space-y-6 sticky top-24">
               
               <div className="space-y-5">
                 <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 w-11 h-11 rounded-xl flex items-center justify-center shrink-0">
-                    <Calendar className="w-5 h-5 text-primary" />
+                  <div className="bg-secondary/10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
+                    <Calendar className="w-5 h-5 text-secondary" />
                   </div>
                   <div>
-                    <h3 className="font-heading font-bold text-base text-foreground">When</h3>
+                    <h3 className="font-bold text-sm text-foreground">When</h3>
                     {parsedSchedule.length > 0 ? (
                       <div className="mt-1 space-y-1">
                         {parsedSchedule.map((s, idx) => (
-                           <div key={idx} className="text-muted-foreground text-sm font-[DM_Sans]">
+                           <div key={idx} className="text-muted-foreground text-xs">
                              <span className="font-bold text-foreground">{new Date(s.date).toLocaleDateString("en-US", { month: 'short', day: 'numeric' })}:</span> {s.startTime} {s.endTime ? `- ${s.endTime}` : ''}
                            </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-muted-foreground text-sm font-[DM_Sans] mt-1 pr-2">
+                      <p className="text-muted-foreground text-xs mt-1">
                         {fallbackSchedule || "TBA"}
                       </p>
                     )}
@@ -254,12 +253,12 @@ const EventDetails = () => {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="bg-destructive/10 w-11 h-11 rounded-xl flex items-center justify-center shrink-0">
+                  <div className="bg-destructive/10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
                     <MapPin className="w-5 h-5 text-destructive" />
                   </div>
                   <div>
-                    <h3 className="font-heading font-bold text-base text-foreground">Where</h3>
-                    <p className="text-muted-foreground text-sm font-[DM_Sans] mt-1 pr-2">
+                    <h3 className="font-bold text-sm text-foreground">Where</h3>
+                    <p className="text-muted-foreground text-xs mt-1">
                       {venue || "Online Event"}
                       {(city || country) && (
                         <span className="block mt-0.5">
@@ -273,10 +272,10 @@ const EventDetails = () => {
 
               <div className="border-t border-border pt-6 space-y-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-heading font-extrabold text-lg text-foreground">Tickets</h3>
+                  <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">Tickets</h3>
                   {discountPercentage > 0 && (
-                     <span className="text-[10px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded-full inline-block">
-                        {discountPercentage}% COUPON APPLIED
+                     <span className="text-[10px] font-mono font-bold bg-secondary text-secondary-foreground px-2 py-0.5 rounded">
+                        {discountPercentage}% OFF
                      </span>
                   )}
                 </div>
@@ -286,28 +285,28 @@ const EventDetails = () => {
                     const discountedPrice = discountPercentage > 0 ? originalPrice * (1 - discountPercentage / 100) : originalPrice;
                     
                     return (
-                    <div key={ticket.id} className="flex flex-col gap-2 p-4 rounded-[12px] border border-border bg-background hover:border-primary transition-colors group">
+                    <div key={ticket.id} className="flex flex-col gap-2 p-4 rounded-lg border border-border bg-background hover:border-primary/40 transition-colors group">
                       <div className="flex items-center justify-between">
-                        <span className="font-heading font-bold text-sm text-foreground">{ticket.name}</span>
+                        <span className="font-bold text-xs text-foreground">{ticket.name}</span>
                         <div className="flex items-center gap-2">
                           {discountPercentage > 0 && originalPrice > 0 && (
                             <span className="text-xs text-muted-foreground line-through">
                               NGN {originalPrice.toLocaleString()}
                             </span>
                           )}
-                          <span className="font-heading font-bold text-primary text-base">
+                          <span className="font-mono font-bold text-foreground text-sm">
                             {originalPrice === 0 ? "Free" : `NGN ${discountedPrice.toLocaleString()}`}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs text-muted-foreground">Available</span>
+                        <span className="text-[11px] text-muted-foreground">Available</span>
                         <button 
                           onClick={() => {
                             setSelectedTicket(ticket);
                             setIsCheckoutOpen(true);
                           }}
-                          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-xs font-heading font-bold hover:brightness-110 transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
+                          className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
                         >
                           {is_free || discountedPrice === 0 ? "Register" : "Buy"}
                         </button>
@@ -315,21 +314,21 @@ const EventDetails = () => {
                     </div>
                   )})
                 ) : (
-                  <p className="text-muted-foreground text-sm italic">No tickets available yet.</p>
+                  <p className="text-muted-foreground text-xs italic">No tickets available yet.</p>
                 )}
               </div>
               
               {/* DP Generator Link Block */}
               {event.dp_templates && (Array.isArray(event.dp_templates) ? event.dp_templates.length > 0 : true) && (
                 <div className="border-t border-border pt-6 mt-6">
-                   <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 text-center">
-                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                       <ImageIcon className="w-6 h-6 text-primary" />
+                   <div className="bg-secondary/5 border border-secondary/20 rounded-lg p-5 text-center">
+                     <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                       <ImageIcon className="w-5 h-5 text-secondary" />
                      </div>
-                     <h3 className="font-heading font-bold text-base text-foreground mb-1">Get Your Display Picture</h3>
-                     <p className="text-sm text-muted-foreground mb-4">Generate a custom DP flier for this event to let your network know you are attending!</p>
+                     <h3 className="font-bold text-sm text-foreground mb-1">Get Your Display Picture</h3>
+                     <p className="text-xs text-muted-foreground mb-4">Generate a custom DP flier for this event to let your network know you are attending!</p>
                      <Link to={`/events/${id}/dp`}>
-                        <Button className="w-full bg-primary text-primary-foreground font-heading font-bold h-11 shadow-md hover:-translate-y-0.5 transition-transform">
+                        <Button className="w-full bg-secondary text-secondary-foreground font-bold text-xs h-10 rounded-lg shadow-sm hover:opacity-90 transition-all">
                            Create My DP
                         </Button>
                      </Link>
@@ -340,8 +339,8 @@ const EventDetails = () => {
               {/* Additional Information rendered correctly AFTER tickets on the side, or full width */}
               {parsedAdditional && (
                 <div className="border-t border-border pt-6 lg:hidden">
-                  <h3 className="font-heading font-bold text-base text-foreground mb-3">Organizer Note</h3>
-                  <div className="p-4 bg-primary/5 rounded-xl border border-primary/20 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                  <h3 className="font-bold text-sm text-foreground mb-3">Organizer Note</h3>
+                  <div className="p-4 bg-muted rounded-lg border border-border text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
                     {parsedAdditional}
                   </div>
                 </div>
@@ -353,10 +352,10 @@ const EventDetails = () => {
           {/* Full width Additional Information for desktop so it shines distinctly */}
           {parsedAdditional && (
              <div className="lg:col-span-2 hidden lg:block">
-               <h3 className="font-heading font-bold text-2xl text-foreground mb-4 border-t border-border pt-8">
+               <h3 className="font-heading font-black text-xl text-foreground mb-4 border-t border-border pt-8 tracking-tight">
                  Additional Information
                </h3>
-               <div className="p-6 bg-card rounded-2xl border border-border shadow-sm text-base text-muted-foreground leading-relaxed whitespace-pre-wrap font-[DM_Sans]">
+               <div className="p-6 bg-card rounded-xl border border-border shadow-sm text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap font-sans">
                  {parsedAdditional}
                </div>
              </div>
@@ -364,6 +363,18 @@ const EventDetails = () => {
 
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-card border-t border-border py-10 px-4 sm:px-6">
+        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span className="font-heading font-black text-foreground text-sm uppercase">MYEVENTGURU™</span>
+            <span>•</span>
+            <span>Africa's Event Operating System</span>
+          </div>
+          <div>© 2026 MYEVENTGURU. All rights reserved.</div>
+        </div>
+      </footer>
 
       {/* Checkout Flow */}
       {selectedTicket && (

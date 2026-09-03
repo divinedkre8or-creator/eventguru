@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background antialiased" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Crowdstack - Admin Dashboard</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from design system -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#c6c6c6",
+                      "tertiary-fixed": "#e2e2e2",
+                      "surface-dim": "#dadada",
+                      "primary-fixed-dim": "#c6c6c6",
+                      "secondary-container": "#2170e4",
+                      "secondary": "#0058be",
+                      "inverse-on-surface": "#f1f1f1",
+                      "on-surface-variant": "#4c4546",
+                      "tertiary-container": "#1b1b1b",
+                      "on-secondary-fixed-variant": "#004395",
+                      "background": "#f9f9f9",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#474747",
+                      "surface-bright": "#f9f9f9",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#848484",
+                      "surface-container-low": "#f3f3f3",
+                      "error-container": "#ffdad6",
+                      "on-primary-container": "#848484",
+                      "surface-container": "#eeeeee",
+                      "primary-container": "#1b1b1b",
+                      "on-background": "#1b1b1b",
+                      "on-tertiary-fixed": "#1b1b1b",
+                      "on-surface": "#1b1b1b",
+                      "surface-tint": "#5e5e5e",
+                      "error": "#ba1a1a",
+                      "primary-fixed": "#e2e2e2",
+                      "surface-variant": "#e2e2e2",
+                      "on-primary": "#ffffff",
+                      "tertiary": "#000000",
+                      "on-primary-fixed": "#1b1b1b",
+                      "surface-container-high": "#e8e8e8",
+                      "secondary-fixed": "#d8e2ff",
+                      "on-error": "#ffffff",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "inverse-surface": "#303030",
+                      "surface": "#f9f9f9",
+                      "outline-variant": "#cfc4c5",
+                      "inverse-primary": "#c6c6c6",
+                      "on-tertiary-fixed-variant": "#474747",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-highest": "#e2e2e2",
+                      "outline": "#7e7576",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#001a42",
+                      "on-secondary-container": "#fefcff",
+                      "primary": "#000000"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "section-gap": "32px",
+                      "gutter": "16px",
+                      "container-margin": "24px",
+                      "component-padding-y": "12px",
+                      "component-padding-x": "16px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-display": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.03em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "900"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        /* Base styles from JSON execution */
+        body {
+            /* Fallback for grid structure */
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Utility for 1px precise borders */
+        .border-hairline {
+            border-width: 1px;
+            border-color: #E5E7EB; /* outline-variant in tailwind config is #cfc4c5, using that for true system mapping, but the prompt says 1px #E5E7EB, using outline-variant for consistency with brand */
+            border-color: var(--tw-color-outline-variant);
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-lg">
+<!-- JSON SideNavBar Component -->
+<nav class="hidden md:flex flex-col bg-surface fixed left-0 top-0 h-screen w-[260px] border-r border-outline-variant p-gutter z-50">
+<!-- Header / Logo -->
+<div class="mb-8 flex items-center gap-3">
+<div class="h-10 w-10 bg-primary rounded overflow-hidden flex-shrink-0">
+<img alt="Crowdstack Workspace Logo" class="w-full h-full object-cover" data-alt="A highly detailed, ultra-minimalist vector logo graphic of a stylized crowd or overlapping geometric squares, stark black on a pure white background, designed for a modern B2B SaaS platform. High contrast, sharp edges, flat design, no gradients." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBULFHzn-WTavzXOv-FxeW4jg5E6DyBdKFCyls3O7a4tKb7oh8aO550KyA4PdbwgvIGvkKveijRgv_MJWAjg7zaxyCZYhtsdDcmbB41S5fqjZUJnFhIv7uF_ptJOdaxrKtcmDCR8Sm-YSvbw99cZsYhcViurnex_JWZlPtK59KAtqfo1KspRkSclGyow1zv9OwXtbiTscWWGFEMyeD4XieAvvY_aN0un2yEpYL48b-xYAifiCA4hCCaw"/>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-black text-primary tracking-tighter">Crowdstack</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Enterprise Platform</p>
+</div>
+</div>
+<!-- CTA -->
+<button class="w-full bg-primary text-on-primary font-label-caps text-label-caps py-component-padding-y px-component-padding-x rounded mb-8 hover:opacity-90 transition-all duration-150 flex justify-center items-center gap-2">
+<span class="material-symbols-outlined" data-icon="add" style="font-size: 16px;">add</span>
+            Create New Event
+        </button>
+<!-- Main Navigation Tabs -->
+<div class="flex-grow flex flex-col gap-1">
+<!-- Dashboard (Active) -->
+<a class="flex items-center gap-3 py-2 px-3 rounded-DEFAULT bg-primary text-on-primary font-bold border-r-2 border-primary opacity-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-caps text-label-caps">Dashboard</span>
+</a>
+<!-- Events -->
+<a class="flex items-center gap-3 py-2 px-3 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-caps text-label-caps">Events</span>
+</a>
+<!-- Attendees -->
+<a class="flex items-center gap-3 py-2 px-3 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-caps text-label-caps">Attendees</span>
+</a>
+<!-- Analytics -->
+<a class="flex items-center gap-3 py-2 px-3 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-caps text-label-caps">Analytics</span>
+</a>
+<!-- Marketing -->
+<a class="flex items-center gap-3 py-2 px-3 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-label-caps text-label-caps">Marketing</span>
+</a>
+<!-- Partners -->
+<a class="flex items-center gap-3 py-2 px-3 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="handshake">handshake</span>
+<span class="font-label-caps text-label-caps">Partners</span>
+</a>
+<!-- Assets -->
+<a class="flex items-center gap-3 py-2 px-3 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-caps text-label-caps">Assets</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 py-2 px-3 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</div>
+<!-- Footer Navigation -->
+<div class="mt-auto flex flex-col gap-1 border-t border-outline-variant pt-4">
+<!-- Help Center -->
+<a class="flex items-center gap-3 py-2 px-3 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span class="font-label-caps text-label-caps">Help Center</span>
+</a>
+<!-- Account -->
+<a class="flex items-center gap-3 py-2 px-3 rounded-DEFAULT text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps">Account</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col min-w-0 md:ml-[260px]">
+<!-- JSON TopNavBar Component -->
+<header class="bg-surface docked full-width top-0 sticky z-40 border-b border-outline-variant flex justify-between items-center h-16 px-container-margin w-full">
+<!-- Mobile Menu Trigger & Logo (Visible only on mobile) -->
+<div class="flex md:hidden items-center gap-3">
+<button class="text-on-surface-variant hover:text-primary transition-opacity focus:ring-1 focus:ring-primary rounded">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<span class="font-headline-md text-headline-md font-black text-primary">Crowdstack</span>
+</div>
+<!-- Search (Left Aligned on desktop per JSON) -->
+<div class="hidden md:flex flex-1 max-w-md relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline" data-icon="search" style="font-size: 18px;">search</span>
+</div>
+<input class="w-full bg-surface-container-lowest border border-outline-variant text-body-sm font-body-sm py-2 pl-10 pr-4 rounded-DEFAULT focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder:text-outline text-on-surface" placeholder="Search events, organizers, tickets..." type="text"/>
+</div>
+<!-- Trailing Icons & Profile -->
+<div class="flex items-center gap-4 ml-auto">
+<button class="text-on-surface-variant hover:text-primary transition-opacity relative focus:ring-1 focus:ring-primary rounded p-1">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-opacity focus:ring-1 focus:ring-primary rounded p-1 hidden sm:block">
+<span class="material-symbols-outlined" data-icon="chat_bubble_outline">chat_bubble_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant ml-2 cursor-pointer hover:border-primary transition-colors">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="A sharply focused headshot of a professional individual in a brightly lit, minimalist office setting. High contrast, clean background, editorial photography style, black and white aesthetic with subtle warm undertones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdv-keCN5UKVa_u5O8_W73uRR5ID4tcN1npvkktsB18TfvtKfB8HiFDDk6L9TNoyv9MwnM4HdVLwcrzwbXt6MP6OFc9w-jD49xjwxOnx6boksu7WWg0EeZq-qV_6k07TjBj-oYqNj0kpj7JYze76mC1bcnJBdw4nWt0lFELTX65q9PJSAjNOpm-m3McIeNfPG1C_EgarOCeCNA_oC9OJAtBIl3u7zOzbcJCNoW6JQWEAI_Zc_wo7eazA"/>
+</div>
+</div>
+</header>
+<!-- Main Dashboard Canvas -->
+<main class="flex-1 p-container-margin md:p-section-gap overflow-x-hidden">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-section-gap gap-4">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-2">Platform Administration</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">System health, global metrics, and administrative oversight.</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-lowest border border-outline-variant text-primary font-label-caps text-label-caps py-2 px-4 rounded-DEFAULT hover:bg-surface-container transition-colors">
+                        Export Report
+                    </button>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps py-2 px-4 rounded-DEFAULT hover:opacity-90 transition-opacity">
+                        Global Settings
+                    </button>
+</div>
+</div>
+<!-- KPI Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-section-gap">
+<!-- KPI 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-5 rounded-lg flex flex-col justify-between hover:bg-surface transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-6">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Total Organizers</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="corporate_fare">corporate_fare</span>
+</div>
+<div>
+<div class="font-headline-display text-headline-display text-primary mb-1">1,248</div>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-outline">
+<span class="material-symbols-outlined text-secondary" data-icon="trending_up" style="font-size: 14px;">trending_up</span>
+<span class="text-secondary">+12%</span>
+<span>from last month</span>
+</div>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-5 rounded-lg flex flex-col justify-between hover:bg-surface transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-6">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Active Tickets</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="local_activity">local_activity</span>
+</div>
+<div>
+<div class="font-headline-display text-headline-display text-primary mb-1">84.5k</div>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-outline">
+<span class="material-symbols-outlined text-secondary" data-icon="trending_up" style="font-size: 14px;">trending_up</span>
+<span class="text-secondary">+5.2%</span>
+<span>from last month</span>
+</div>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-5 rounded-lg flex flex-col justify-between hover:bg-surface transition-colors cursor-pointer group relative overflow-hidden">
+<!-- Subtle pattern bg -->
+<div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%); background-size: 8px 8px;"></div>
+<div class="flex justify-between items-start mb-6 relative z-10">
+<span class="font-label-caps text-label-caps text-on-surface-variant">System Uptime</span>
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+</div>
+<div class="relative z-10">
+<div class="font-headline-display text-headline-display text-primary mb-1">99.99%</div>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-outline">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>All systems operational</span>
+</div>
+</div>
+</div>
+<!-- KPI 4 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-5 rounded-lg flex flex-col justify-between hover:bg-surface transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-6">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Platform Revenue</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<div class="font-headline-display text-headline-display text-primary mb-1">$2.4M</div>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-outline">
+<span class="material-symbols-outlined text-secondary" data-icon="trending_up" style="font-size: 14px;">trending_up</span>
+<span class="text-secondary">+18%</span>
+<span>YTD</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Two Column Layout: Main Chart & Action Log -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- System Health & Traffic (Spans 2 columns) -->
+<div class="lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-lg flex flex-col">
+<div class="p-5 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-primary">Traffic &amp; Load</h3>
+<select class="bg-transparent border border-outline-variant text-label-sm font-label-sm py-1 px-2 rounded focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Last 24 Hours</option>
+<option>Last 7 Days</option>
+<option>Last 30 Days</option>
+</select>
+</div>
+<div class="p-5 flex-1 min-h-[300px] flex items-center justify-center relative">
+<!-- Abstract representation of a chart using divs -->
+<div class="absolute inset-x-5 inset-y-8 flex items-end justify-between gap-1 opacity-20">
+<!-- Bar segments -->
+<div class="w-full bg-primary h-[30%]"></div>
+<div class="w-full bg-primary h-[50%]"></div>
+<div class="w-full bg-primary h-[40%]"></div>
+<div class="w-full bg-primary h-[70%]"></div>
+<div class="w-full bg-primary h-[60%]"></div>
+<div class="w-full bg-primary h-[90%]"></div>
+<div class="w-full bg-primary h-[85%]"></div>
+<div class="w-full bg-primary h-[65%]"></div>
+<div class="w-full bg-primary h-[45%]"></div>
+<div class="w-full bg-primary h-[35%]"></div>
+</div>
+<!-- Decorative overlay chart line -->
+<svg class="absolute inset-x-5 inset-y-8 w-[calc(100%-40px)] h-[calc(100%-64px)] overflow-visible" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,80 L10,60 L20,70 L30,40 L40,50 L50,20 L60,30 L70,10 L80,30 L90,50 L100,60" fill="none" stroke="black" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<path d="M0,80 L10,60 L20,70 L30,40 L40,50 L50,20 L60,30 L70,10 L80,30 L90,50 L100,60 L100,100 L0,100 Z" fill="url(#fadeGradient)" opacity="0.1" stroke="none" vector-effect="non-scaling-stroke"></path>
+<defs>
+<lineargradient id="fadeGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="black"></stop>
+<stop offset="100%" stop-color="transparent"></stop>
+</lineargradient>
+</defs>
+</svg>
+<!-- Grid lines -->
+<div class="absolute inset-x-5 inset-y-8 flex flex-col justify-between border-l border-b border-outline-variant opacity-50">
+<div class="w-full border-t border-outline-variant opacity-50 h-0"></div>
+<div class="w-full border-t border-outline-variant opacity-50 h-0"></div>
+<div class="w-full border-t border-outline-variant opacity-50 h-0"></div>
+<div class="w-full border-t border-outline-variant opacity-50 h-0"></div>
+</div>
+</div>
+</div>
+<!-- Admin Action Log (Spans 1 column) -->
+<div class="lg:col-span-1 bg-surface-container-lowest border border-outline-variant rounded-lg flex flex-col">
+<div class="p-5 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-primary">Audit Log</h3>
+<button class="text-label-sm font-label-sm text-outline hover:text-primary transition-colors">View All</button>
+</div>
+<div class="flex-1 overflow-y-auto">
+<ul class="flex flex-col">
+<!-- Log Item 1 -->
+<li class="p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors flex gap-3 items-start">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center flex-shrink-0 mt-1">
+<span class="font-label-caps text-label-caps">AK</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-primary mb-1">
+<span class="font-bold">Anna Kowalski</span> changed global API rate limits.
+                                    </p>
+<p class="font-label-sm text-label-sm text-outline">2 mins ago • System Config</p>
+</div>
+</li>
+<!-- Log Item 2 -->
+<li class="p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors flex gap-3 items-start">
+<div class="w-8 h-8 rounded-full bg-error-container text-on-error-container flex items-center justify-center flex-shrink-0 mt-1">
+<span class="material-symbols-outlined" data-icon="security" style="font-size: 16px;">security</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-primary mb-1">
+<span class="font-bold">System</span> flagged unusual login attempt.
+                                    </p>
+<p class="font-label-sm text-label-sm text-outline">15 mins ago • Security Alert</p>
+</div>
+</li>
+<!-- Log Item 3 -->
+<li class="p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors flex gap-3 items-start">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center flex-shrink-0 mt-1">
+<span class="font-label-caps text-label-caps">JD</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-primary mb-1">
+<span class="font-bold">John Doe</span> approved organizer <span class="underline cursor-pointer">TechCorp Events</span>.
+                                    </p>
+<p class="font-label-sm text-label-sm text-outline">1 hour ago • Organizer Management</p>
+</div>
+</li>
+<!-- Log Item 4 -->
+<li class="p-4 hover:bg-surface-container-low transition-colors flex gap-3 items-start">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center flex-shrink-0 mt-1">
+<span class="font-label-caps text-label-caps">MR</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-primary mb-1">
+<span class="font-bold">Mark Ruff</span> initiated database backup.
+                                    </p>
+<p class="font-label-sm text-label-sm text-outline">3 hours ago • Infrastructure</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

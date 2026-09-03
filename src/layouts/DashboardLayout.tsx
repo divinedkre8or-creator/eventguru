@@ -1,7 +1,8 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard, CalendarDays, Users, Ticket, ScanLine, Image,
-  Megaphone, BarChart3, Wallet, Settings, Bell, Menu, X, LogOut,
+  LayoutDashboard, CalendarDays, PlusCircle, Users, Ticket, ScanLine, Image,
+  Megaphone, BarChart3, Wallet, Settings, Bell, Menu, X, LogOut, Search, ChevronDown,
+  Layers, ShoppingCart, Mail, CheckSquare, FileText, UserPlus, Terminal, Sparkles
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -9,146 +10,267 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
 
-const navItems = [
+interface NavGroup {
+  groupName: string;
+  items: { title: string; path: string; icon: any }[];
+}
+
+const mainNavItems = [
   { title: "Overview", path: "/dashboard", icon: LayoutDashboard },
-  { title: "Events", path: "/dashboard/events", icon: CalendarDays },
-  { title: "Attendees", path: "/dashboard/attendees", icon: Users },
-  { title: "Tickets", path: "/dashboard/tickets", icon: Ticket },
-  { title: "Check-in", path: "/dashboard/checkin", icon: ScanLine },
-  { title: "DP Generator", path: "/dashboard/dp", icon: Image },
-  { title: "Campaigns", path: "/dashboard/campaigns", icon: Megaphone },
-  { title: "Analytics", path: "/dashboard/analytics", icon: BarChart3 },
-  { title: "Payments", path: "/dashboard/payments", icon: Wallet },
-  { title: "Settings", path: "/dashboard/settings", icon: Settings },
 ];
 
-const bottomNavItems = navItems.slice(0, 5);
+const navGroups: NavGroup[] = [
+  {
+    groupName: "EVENTS",
+    items: [
+      { title: "My Events", path: "/dashboard/events", icon: CalendarDays },
+      { title: "Create Event", path: "/dashboard/events/create", icon: PlusCircle },
+    ]
+  },
+  {
+    groupName: "AUDIENCE",
+    items: [
+      { title: "Attendees", path: "/dashboard/attendees", icon: Users },
+      { title: "DP Generator", path: "/dashboard/dp", icon: Image },
+    ]
+  },
+  {
+    groupName: "COMMERCE",
+    items: [
+      { title: "Tickets", path: "/dashboard/tickets", icon: Ticket },
+      { title: "Payments", path: "/dashboard/payments", icon: Wallet },
+    ]
+  },
+  {
+    groupName: "ENGAGEMENT",
+    items: [
+      { title: "Campaigns", path: "/dashboard/campaigns", icon: Megaphone },
+    ]
+  },
+  {
+    groupName: "ON SITE",
+    items: [
+      { title: "Check-In", path: "/dashboard/checkin", icon: ScanLine },
+    ]
+  },
+  {
+    groupName: "INSIGHTS",
+    items: [
+      { title: "Analytics", path: "/dashboard/analytics", icon: BarChart3 },
+    ]
+  },
+  {
+    groupName: "SETTINGS",
+    items: [
+      { title: "Settings", path: "/dashboard/settings", icon: Settings },
+    ]
+  }
+];
+
+const mobileNavItems = [
+  { title: "Overview", path: "/dashboard", icon: LayoutDashboard },
+  { title: "Events", path: "/dashboard/events", icon: CalendarDays },
+  { title: "Check-in", path: "/dashboard/checkin", icon: ScanLine },
+  { title: "Attendees", path: "/dashboard/attendees", icon: Users },
+  { title: "Tickets", path: "/dashboard/tickets", icon: Ticket },
+];
 
 const DashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { profile, signOut } = useAuth();
+  const { profile, user, signOut } = useAuth();
 
-  const firstName = profile?.full_name?.split(" ")[0] || "there";
+  const fullName = profile?.full_name || user?.email?.split("@")[0] || "User";
+  const firstName = fullName.split(" ")[0];
 
   const isActive = (path: string) =>
     path === "/dashboard" ? location.pathname === path : location.pathname.startsWith(path);
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-300">
+    <div className="min-h-screen bg-background font-sans flex text-foreground antialiased selection:bg-primary selection:text-primary-foreground">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 flex-col bg-card border-r border-border z-40 transition-colors duration-300">
-        <div className="p-5 border-b border-border">
-          <Link to="/" className="font-heading text-xl font-extrabold text-foreground tracking-tight">
-            Event<span className="text-primary">stack</span>
+      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-[260px] flex-col bg-card border-r border-border z-40">
+        <div className="h-16 flex items-center px-6 border-b border-border justify-between">
+          <Link to="/" className="font-heading font-black text-lg text-primary tracking-tighter uppercase flex items-center gap-1.5">
+            MYEVENTGURU<span className="text-[10px] text-muted-foreground align-top">™</span>
           </Link>
         </div>
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isActive(item.path)
-                  ? "bg-primary/10 text-primary"
-                  : "text-foreground/70 hover:text-foreground hover:bg-secondary"
-              }`}
-            >
-              <item.icon className="w-5 h-5 shrink-0" />
-              <span className="truncate">{item.title}</span>
-            </Link>
+
+        <div className="flex-1 p-3 space-y-5 overflow-y-auto">
+          {/* Main Top Nav */}
+          <nav className="flex flex-col gap-1">
+            {mainNavItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  isActive(item.path)
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <item.icon className="w-4 h-4 shrink-0" />
+                <span className="truncate">{item.title}</span>
+              </Link>
+            ))}
+          </nav>
+
+          {/* Grouped Nav Items */}
+          {navGroups.map((group) => (
+            <div key={group.groupName} className="space-y-1">
+              <div className="px-3 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                {group.groupName}
+              </div>
+              <nav className="flex flex-col gap-0.5">
+                {group.items.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                      isActive(item.path)
+                        ? "bg-primary text-primary-foreground font-bold shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{item.title}</span>
+                  </Link>
+                ))}
+              </nav>
+            </div>
           ))}
-        </nav>
+        </div>
+
+        {/* Bottom Plan Widget */}
+        <div className="p-3 border-t border-border">
+          <div className="bg-muted/50 border border-border rounded-lg p-3 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <div className="font-bold text-foreground">Pro Organizer</div>
+                <div className="text-[10px] text-muted-foreground">Active Plan</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </aside>
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile Drawer Overlay */}
       {sidebarOpen && (
         <div className="md:hidden fixed inset-0 z-50">
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border flex flex-col shadow-2xl transition-colors duration-300">
-            <div className="p-5 border-b border-border flex items-center justify-between">
-              <span className="font-heading text-xl font-extrabold text-foreground tracking-tight">
-                Event<span className="text-primary">stack</span>
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border flex flex-col shadow-2xl">
+            <div className="h-16 px-5 border-b border-border flex items-center justify-between">
+              <span className="font-heading font-black text-lg text-primary tracking-tight">
+                MyEventGuru<span className="text-[10px] text-muted-foreground">™</span>
               </span>
               <button onClick={() => setSidebarOpen(false)} className="text-muted-foreground hover:text-foreground">
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </button>
             </div>
-            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium transition-colors ${
-                    isActive(item.path)
-                      ? "bg-primary/10 text-primary"
-                      : "text-foreground/70 hover:text-foreground hover:bg-secondary"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5 shrink-0" />
-                  <span>{item.title}</span>
-                </Link>
+            <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+              {navGroups.map((group) => (
+                <div key={group.groupName} className="space-y-1">
+                  <div className="px-3 text-[10px] font-bold text-muted-foreground uppercase">{group.groupName}</div>
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
+                        isActive(item.path) ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground"
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4 shrink-0" />
+                      <span>{item.title}</span>
+                    </Link>
+                  ))}
+                </div>
               ))}
-            </nav>
+            </div>
           </aside>
         </div>
       )}
 
-      {/* Main Content */}
-      <div className="md:ml-64 min-h-screen pb-20 md:pb-0 transition-all duration-300">
-        {/* Top Bar */}
-        <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border transition-colors duration-300">
-          <div className="flex items-center justify-between px-4 md:px-6 h-16">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setSidebarOpen(true)} className="md:hidden text-muted-foreground hover:text-foreground">
-                <Menu className="w-6 h-6" />
-              </button>
-              <div>
-                <span className="text-muted-foreground text-sm font-medium">Good morning,</span>{" "}
-                <span className="text-primary text-sm font-heading font-bold">{firstName}</span>
-              </div>
+      {/* Main Content Area */}
+      <div className="flex-1 md:ml-[260px] flex flex-col min-h-screen bg-background">
+        {/* Top Header */}
+        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(true)} className="md:hidden text-muted-foreground hover:text-foreground">
+              <Menu className="w-5 h-5" />
+            </button>
+
+            {/* Global Search Bar */}
+            <div className="relative w-64 sm:w-96 hidden sm:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search events, attendees, tickets..."
+                className="w-full h-9 bg-background pl-9 pr-4 rounded-lg border border-border text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+              />
             </div>
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hover:bg-secondary h-9 w-9">
-                <Bell className="w-5 h-5" />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link to="/dashboard/events/create">
+              <Button size="sm" className="bg-primary text-primary-foreground font-bold text-xs h-9 px-4 rounded-lg hover:opacity-90 transition-all flex items-center gap-1.5">
+                <PlusCircle className="w-4 h-4" />
+                <span>Create Event</span>
               </Button>
+            </Link>
+
+            <ThemeToggle />
+
+            <div className="h-5 w-px bg-border mx-1"></div>
+
+            {/* User Profile */}
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+                {firstName.charAt(0).toUpperCase()}
+              </div>
+              <div className="hidden lg:block text-left">
+                <div className="text-xs font-bold text-foreground leading-tight">{fullName}</div>
+                <div className="text-[10px] text-muted-foreground">Organizer</div>
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-9 w-9"
-                onClick={async () => { await signOut(); navigate("/"); }}
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                onClick={async () => {
+                  await signOut();
+                  navigate("/");
+                }}
+                title="Sign out"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-4 h-4" />
               </Button>
-              <div className="hidden sm:flex w-9 h-9 ml-2 rounded-full bg-primary/20 items-center justify-center border border-primary/20">
-                <span className="text-primary text-xs font-heading font-extrabold">{firstName.slice(0, 2).toUpperCase()}</span>
-              </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="p-4 md:p-8">
+        {/* Page Main Content */}
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           <Outlet />
         </main>
       </div>
 
-      {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border z-40 transition-colors duration-300">
-        <div className="flex items-center justify-around h-16 px-2">
-          {bottomNavItems.map((item) => (
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-40">
+        <div className="flex items-center justify-around h-16 px-1">
+          {mobileNavItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
               className={`flex flex-col items-center justify-center gap-1 px-2 py-1 rounded-lg min-w-0 flex-1 ${
-                isActive(item.path) ? "text-primary" : "text-foreground/70 hover:text-foreground"
+                isActive(item.path) ? "text-primary font-bold" : "text-muted-foreground"
               }`}
             >
               <item.icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium truncate w-full text-center">{item.title}</span>
+              <span className="text-[10px] truncate">{item.title}</span>
             </Link>
           ))}
         </div>
@@ -160,3 +282,4 @@ const DashboardLayout = () => {
 };
 
 export default DashboardLayout;
+

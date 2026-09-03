@@ -46,28 +46,19 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
   const initializePayment = usePaystackPayment(config);
 
   const sendConfirmationEmail = async (registrationId: string) => {
-    // If no Resend key, we mock the email service as requested by MVP flow
-    if (!RESEND_KEY) {
-      console.log(`[MAIL SERVICE MOCK] Ticket confirmation sent to ${email} for Registration ${registrationId}`);
-      return;
-    }
-
     try {
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${RESEND_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "tickets@eventstack.com",
-          to: email,
-          subject: `Your ticket for ${event.title}`,
-          html: `<h1>You're going to ${event.title}!</h1><p>Hi ${name}, this is your ticket confirmation. Ticket Type: ${ticket.name} (x${quantity}).</p>`
-        })
+      // Invoke the secure Edge Function to dispatch the email via Resend
+      const { data, error } = await supabase.functions.invoke('send-ticket', {
+        body: { registrationId }
       });
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+      console.log("Ticket dispatched via Edge Function:", data);
     } catch (err) {
-      console.error("Failed to send email via Resend", err);
+      console.error("Failed to send email via Supabase Edge Function", err);
+      // We don't block the checkout success for mail failure, but we log it
     }
   };
 

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Team Management - Crowdstack</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#c6c6c6",
+                      "tertiary-fixed": "#e2e2e2",
+                      "surface-dim": "#dadada",
+                      "primary-fixed-dim": "#c6c6c6",
+                      "secondary-container": "#2170e4",
+                      "secondary": "#0058be",
+                      "inverse-on-surface": "#f1f1f1",
+                      "on-surface-variant": "#4c4546",
+                      "tertiary-container": "#1b1b1b",
+                      "on-secondary-fixed-variant": "#004395",
+                      "background": "#f9f9f9",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#474747",
+                      "surface-bright": "#f9f9f9",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#848484",
+                      "surface-container-low": "#f3f3f3",
+                      "error-container": "#ffdad6",
+                      "on-primary-container": "#848484",
+                      "surface-container": "#eeeeee",
+                      "primary-container": "#1b1b1b",
+                      "on-background": "#1b1b1b",
+                      "on-tertiary-fixed": "#1b1b1b",
+                      "on-surface": "#1b1b1b",
+                      "surface-tint": "#5e5e5e",
+                      "error": "#ba1a1a",
+                      "primary-fixed": "#e2e2e2",
+                      "surface-variant": "#e2e2e2",
+                      "on-primary": "#ffffff",
+                      "tertiary": "#000000",
+                      "on-primary-fixed": "#1b1b1b",
+                      "surface-container-high": "#e8e8e8",
+                      "secondary-fixed": "#d8e2ff",
+                      "on-error": "#ffffff",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "inverse-surface": "#303030",
+                      "surface": "#f9f9f9",
+                      "outline-variant": "#cfc4c5",
+                      "inverse-primary": "#c6c6c6",
+                      "on-tertiary-fixed-variant": "#474747",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-highest": "#e2e2e2",
+                      "outline": "#7e7576",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#001a42",
+                      "on-secondary-container": "#fefcff",
+                      "primary": "#000000"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "section-gap": "32px",
+                      "gutter": "16px",
+                      "container-margin": "24px",
+                      "component-padding-y": "12px",
+                      "component-padding-x": "16px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-display": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.03em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "900"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+          font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-lg">
+<!-- TopNavBar -->
+<nav class="hidden md:flex flex justify-between items-center h-16 px-container-margin ml-[260px] w-[calc(100%-260px)] bg-surface border-b border-outline-variant docked full-width top-0 sticky z-40">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-black text-primary tracking-tighter">Crowdstack</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 border border-outline-variant rounded bg-surface-container-lowest text-body-sm font-body-sm focus:border-primary focus:ring-0 focus:outline-none w-64 placeholder:text-outline-variant" placeholder="Search..." type="text"/>
+</div>
+<div class="flex gap-4 items-center">
+<button class="text-on-surface-variant hover:text-primary transition-opacity">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-opacity">
+<span class="material-symbols-outlined" data-icon="chat_bubble_outline">chat_bubble_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer focus:ring-1 focus:ring-primary ring-offset-1">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a person looking at the camera, neutral lighting, simple background, suited for a corporate profile avatar. Monochromatic styling with high contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDe9-Km6v9sMqhelE0arOqq-OaOiDCkzHHAscsUvw43o1eSHOFUnp2hTd1zdZ2MMj51J0M-m7fzF8Yd36-yN0HDoEYhjqWWZcIg61RmTnP6j7J9xYGIlUwk1S3SaPqFTLqelC1VrvrMIRiQcBydcWrG8l0LjsjQPzFuwYt0XD7807hSMKOpe-0QPhO_3eccPLXWyS7gcMVaZVOD8uwzBEFF05vUpe5N9kuWyALYm8M2pOmVb3tE6jiF-w"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-full p-gutter bg-surface fixed left-0 top-0 h-screen w-[260px] border-r border-outline-variant">
+<div class="flex items-center gap-3 mb-8 px-2 py-4 border-b border-outline-variant">
+<div class="w-10 h-10 rounded border border-outline-variant overflow-hidden flex-shrink-0 bg-primary">
+<img alt="Crowdstack Workspace Logo" class="w-full h-full object-cover mix-blend-screen" data-alt="Abstract geometric logo in stark black and white, resembling interconnected shapes or a stylized letter 'C'. High resolution, clean lines, minimalist corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBtqlt3iUVeQPBLJBT_lgPf9wn4GJ6xqA3aeBnaSXAJHnYC9nbwBiPseIns3yxKrdGLIL4S05Lw0gEMHmgqp8iKH9PhJy3sH1b8yPqOGllFHKv9XCbCPZn19jdqVNMfjo-6ui88mYNljMZ2UtR4D7L-0nVLR5gj7xld7IXXMMmD5TZoECWHlCezXMCqZI0fV2bM3xuz4ahtrAqw10X_qCn66saOZEmBFhAbeIugFZNMB7FXsQihcxsDw"/>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-black text-primary tracking-tighter leading-tight">Crowdstack</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1 uppercase">Enterprise Platform</p>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-3 px-4 rounded font-label-caps text-label-caps mb-6 hover:bg-surface-tint transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            Create New Event
+        </button>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">Events</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="groups">groups</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">Attendees</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="analytics">analytics</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="campaign">campaign</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">Marketing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="handshake">handshake</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">Partners</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container transition-colors group" href="#">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">Assets</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded bg-primary text-on-primary font-bold border-r-2 border-primary opacity-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-on-primary" data-icon="settings">settings</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">Settings</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant pt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 rounded text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-outline text-[20px]" data-icon="help_outline">help_outline</span>
+<span class="font-label-sm text-label-sm uppercase">Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-outline text-[20px]" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm uppercase">Account</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="md:ml-[260px] p-container-margin pt-6 max-w-7xl">
+<!-- Header -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-section-gap">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary mb-2 hidden md:block">Team Management</h2>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-2 md:hidden">Team Management</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Manage your organization's members, control access permissions, and oversee team activity.</p>
+</div>
+<button class="bg-primary text-on-primary py-3 px-6 rounded font-label-caps text-label-caps hover:bg-surface-tint transition-colors flex items-center justify-center gap-2 whitespace-nowrap self-start md:self-auto">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+                Invite Team Member
+            </button>
+</header>
+<!-- Controls -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-component-padding-x py-component-padding-y mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+<div class="relative w-full sm:w-80">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 border border-outline-variant rounded bg-surface-bright text-body-sm font-body-sm focus:border-primary focus:ring-0 focus:outline-none placeholder:text-outline-variant" placeholder="Search members by name or email..." type="text"/>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm uppercase">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                    Filter By:
+                </div>
+<select class="border border-outline-variant rounded bg-surface-bright py-2 pl-3 pr-8 text-body-sm font-body-sm focus:border-primary focus:ring-0 focus:outline-none appearance-none cursor-pointer">
+<option>All Roles</option>
+<option>Admin</option>
+<option>Editor</option>
+<option>Viewer</option>
+</select>
+<select class="border border-outline-variant rounded bg-surface-bright py-2 pl-3 pr-8 text-body-sm font-body-sm focus:border-primary focus:ring-0 focus:outline-none appearance-none cursor-pointer">
+<option>All Statuses</option>
+<option>Active</option>
+<option>Pending</option>
+</select>
+</div>
+</div>
+<!-- Team List -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-low">
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Member</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Role</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider hidden sm:table-cell">Last Login</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface transition-colors group">
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden bg-surface-container">
+<img alt="Sarah Jenkins" class="w-full h-full object-cover" data-alt="Professional headshot of a woman in her 30s with short dark hair, wearing a dark turtleneck. Clean white background, stark lighting, minimalist high-end corporate photography style in black and white." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfERbAFDbG7kV5-VKoOfCV2IHP4Qvx5YyCAO1ez7LS_ovroRjvlIq-g_afp0qnc5IW63wyjapxFBHUN07LMdJSnf9Daa75HwXpEVrlVB4rqxr9jQjzzDd8T_Xu7WdtgTkFIdyfm0D37EWHONp0HjTyJ845Mw8mbS2sLaAFi6U6CkxmSpP7Vy1zastvaKGpr3lXy-6OhC0RHDxFVi2CnbZ_lglWnzhK3d1EorH-kDuGIGlfbTIBVkZuDw"/>
+</div>
+<div>
+<div class="font-body-sm text-body-sm font-bold text-primary">Sarah Jenkins</div>
+<div class="font-label-sm text-label-sm text-outline">sarah.j@crowdstack.com</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2 py-1 rounded border border-outline-variant bg-surface-container-low font-label-caps text-label-caps text-primary">Admin</span>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 font-label-sm text-label-sm text-primary">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                                    Active
+                                </span>
+</td>
+<td class="py-4 px-4 hidden sm:table-cell font-body-sm text-body-sm text-on-surface-variant">
+                                2 hours ago
+                            </td>
+<td class="py-4 px-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-outline hover:text-primary hover:bg-surface-container rounded transition-colors" title="Edit Permissions">
+<span class="material-symbols-outlined text-[20px]">manage_accounts</span>
+</button>
+<button class="p-1.5 text-outline hover:text-error hover:bg-error-container rounded transition-colors" title="Remove Member">
+<span class="material-symbols-outlined text-[20px]">person_remove</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface transition-colors group">
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden bg-surface-container flex items-center justify-center font-bold text-outline">
+                                        MR
+                                    </div>
+<div>
+<div class="font-body-sm text-body-sm font-bold text-primary">Marcus Reed</div>
+<div class="font-label-sm text-label-sm text-outline">m.reed@crowdstack.com</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2 py-1 rounded border border-outline-variant bg-surface-bright font-label-caps text-label-caps text-on-surface-variant">Editor</span>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 font-label-sm text-label-sm text-primary">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                                    Active
+                                </span>
+</td>
+<td class="py-4 px-4 hidden sm:table-cell font-body-sm text-body-sm text-on-surface-variant">
+                                Yesterday, 14:30
+                            </td>
+<td class="py-4 px-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-outline hover:text-primary hover:bg-surface-container rounded transition-colors" title="Edit Permissions">
+<span class="material-symbols-outlined text-[20px]">manage_accounts</span>
+</button>
+<button class="p-1.5 text-outline hover:text-error hover:bg-error-container rounded transition-colors" title="Remove Member">
+<span class="material-symbols-outlined text-[20px]">person_remove</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface transition-colors group">
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden bg-surface-container flex items-center justify-center font-bold text-outline">
+                                        EL
+                                    </div>
+<div>
+<div class="font-body-sm text-body-sm font-bold text-primary">Elena Lopez</div>
+<div class="font-label-sm text-label-sm text-outline">elena@agency-partner.com</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2 py-1 rounded border border-outline-variant bg-surface-bright font-label-caps text-label-caps text-on-surface-variant">Viewer</span>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 font-label-sm text-label-sm text-outline">
+<span class="w-2 h-2 rounded-full border border-outline"></span>
+                                    Pending
+                                </span>
+</td>
+<td class="py-4 px-4 hidden sm:table-cell font-body-sm text-body-sm text-on-surface-variant">
+                                Never
+                            </td>
+<td class="py-4 px-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-outline hover:text-primary hover:bg-surface-container rounded transition-colors" title="Resend Invite">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+</button>
+<button class="p-1.5 text-outline hover:text-error hover:bg-error-container rounded transition-colors" title="Cancel Invite">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface transition-colors group">
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden bg-surface-container">
+<img alt="David Chen" class="w-full h-full object-cover" data-alt="Professional portrait of a man in his 40s wearing glasses and a light grey suit jacket. Shot in stark black and white with high contrast, against a plain background, exuding corporate authority." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4YxfgTU__7ugOv87jeajApHsGSbgfSAjDnZ8uH6YPHFG4j1Vh6vjfux4pogNM_XpfoIbgb6VEygaSFlAMRn6VvHJK8EIEstb1cGIhcSKQSQUPDbHL5KkRJD54ltxgNh6lsOrkHUI1pAGiPLpp07YLVZUXdbRP1oCOy9dX_xBad41K6Bexiz0AFJQy6pUYxWh81ZsqTsAHE_O_iwdbVcx_G6C5IWpur8jhQj8uNb9A7lAwxHM2kfvwsg"/>
+</div>
+<div>
+<div class="font-body-sm text-body-sm font-bold text-primary">David Chen</div>
+<div class="font-label-sm text-label-sm text-outline">d.chen@crowdstack.com</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2 py-1 rounded border border-outline-variant bg-surface-bright font-label-caps text-label-caps text-on-surface-variant">Editor</span>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 font-label-sm text-label-sm text-primary">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                                    Active
+                                </span>
+</td>
+<td class="py-4 px-4 hidden sm:table-cell font-body-sm text-body-sm text-on-surface-variant">
+                                Oct 12, 09:15
+                            </td>
+<td class="py-4 px-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-outline hover:text-primary hover:bg-surface-container rounded transition-colors" title="Edit Permissions">
+<span class="material-symbols-outlined text-[20px]">manage_accounts</span>
+</button>
+<button class="p-1.5 text-outline hover:text-error hover:bg-error-container rounded transition-colors" title="Remove Member">
+<span class="material-symbols-outlined text-[20px]">person_remove</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="border-t border-outline-variant p-4 flex items-center justify-between bg-surface-container-lowest">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Showing 4 of 12 Members</span>
+<div class="flex items-center gap-2">
+<button class="p-1 border border-outline-variant rounded hover:bg-surface-container text-on-surface-variant disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="p-1 border border-outline-variant rounded hover:bg-surface-container text-primary">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="md:hidden fixed bottom-0 w-full bg-surface border-t border-outline-variant z-50 px-2 py-2 flex justify-around">
+<a class="flex flex-col items-center p-2 text-on-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-caps text-[9px] mt-1">Dash</span>
+</a>
+<a class="flex flex-col items-center p-2 text-on-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-caps text-[9px] mt-1">Team</span>
+</a>
+<a class="flex flex-col items-center p-2 bg-primary-fixed text-on-primary-fixed rounded-lg" href="#">
+<span class="material-symbols-outlined filled" data-icon="settings">settings</span>
+<span class="font-label-caps text-[9px] mt-1">Settings</span>
+</a>
+</nav>
+</body></html>

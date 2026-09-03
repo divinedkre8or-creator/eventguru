@@ -1,92 +1,70 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Global user specified variables (HSL number format for tailwind hsl() wrapper) */
-    --ink: 217 29% 5.5%;
-    --ink2: 224 28% 14%;
-    --amber: 37 91% 55%;
-    --amber2: 32 83% 51%;
-    --coral: 3 78% 58%;
-    --teal: 168 100% 36%;
-    --electric: 231 100% 62%;
-    --ivory: 40 75% 97%;
-    --surface: 40 39% 94%;
+    /* Crowdstack Monochrome Editorial Theme Tokens */
+    --background: 0 0% 98%;      /* #F9F9F9 */
+    --foreground: 0 0% 11%;      /* #1B1B1B */
 
-    /* Light Mode Variables */
-    --background: var(--ivory);
-    --foreground: var(--ink);
+    --card: 0 0% 100%;           /* #FFFFFF */
+    --card-foreground: 0 0% 11%;
 
-    --card: var(--ivory);
-    --card-foreground: var(--ink);
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 11%;
 
-    --popover: var(--ivory);
-    --popover-foreground: var(--ink);
+    --primary: 0 0% 0%;          /* #000000 Deep Black */
+    --primary-foreground: 0 0% 100%;
 
-    --primary: var(--amber);
-    --primary-foreground: var(--ink);
+    --secondary: 216 100% 37%;   /* #0058BE Secondary Blue */
+    --secondary-foreground: 0 0% 100%;
 
-    --secondary: var(--surface);
-    --secondary-foreground: var(--ink);
+    --muted: 0 0% 95%;           /* #F3F3F3 */
+    --muted-foreground: 350 4% 38%;
 
-    --muted: var(--surface);
-    --muted-foreground: 217 10% 46%;
+    --accent: 0 0% 93%;
+    --accent-foreground: 0 0% 11%;
 
-    --accent: var(--amber);
-    --accent-foreground: var(--ink);
-
-    --destructive: var(--coral);
+    --destructive: 0 74% 42%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 217 15% 12% / 0.15;
-    --input: 40 20% 88%;
-    --ring: var(--amber);
+    --border: 0 0% 90%;          /* #E5E7EB Hairline Outline */
+    --input: 0 0% 90%;
+    --ring: 0 0% 0%;
 
-    --radius: 0.75rem;
-
-    /* Hex references for inline var() usage */
-    --ink-hex: #0A0D12;
-    --ink2-hex: #1A1F2E;
-    --amber-hex: #F5A623;
-    --amber2-hex: #E8891A;
-    --coral-hex: #E8473F;
-    --teal-hex: #00B894;
-    --electric-hex: #3B5BFF;
-    --ivory-hex: #FDFAF4;
-    --surface-hex: #F5F2EC;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: var(--ink);
-    --foreground: var(--ivory);
+    --background: 0 0% 7%;       /* Dark mode surface */
+    --foreground: 0 0% 98%;
 
-    --card: var(--ink2);
-    --card-foreground: var(--ivory);
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: var(--ink2);
-    --popover-foreground: var(--ivory);
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: var(--amber);
-    --primary-foreground: var(--ink);
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 224 28% 20%;
-    --secondary-foreground: var(--ivory);
+    --secondary: 217 91% 60%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 224 28% 20%;
-    --muted-foreground: 40 10% 55%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 70%;
 
-    --accent: var(--amber);
-    --accent-foreground: var(--ink);
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: var(--coral);
+    --destructive: 0 74% 42%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: var(--ivory) / 0.15;
-    --input: 224 28% 25%;
-    --ring: var(--amber);
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 100%;
   }
 }
 
@@ -100,24 +78,29 @@
   }
 
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
   }
 
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: hsl(var(--card));
-    border-radius: 100px;
+    background: hsl(var(--background));
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary));
-    border-radius: 100px;
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
   }
 }
 
@@ -127,14 +110,8 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.4;
+    opacity: 0.03;
     z-index: 9999;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  }
-
-  .dark-section {
-    background-color: var(--ink-hex);
-    position: relative;
-    overflow: hidden;
   }
 }

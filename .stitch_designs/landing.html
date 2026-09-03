@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Crowdstack - The Event Operating System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            font-feature-settings: 'liga';
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#1b1b1b",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "primary-container": "#1b1b1b",
+                        "on-tertiary-fixed": "#1b1b1b",
+                        "primary": "#000000",
+                        "error-container": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e2e2e2",
+                        "outline-variant": "#cfc4c5",
+                        "inverse-on-surface": "#f1f1f1",
+                        "tertiary": "#000000",
+                        "surface-container-high": "#e8e8e8",
+                        "background": "#f9f9f9",
+                        "surface-variant": "#e2e2e2",
+                        "secondary": "#0058be",
+                        "on-background": "#1b1b1b",
+                        "on-secondary-container": "#fefcff",
+                        "inverse-primary": "#c6c6c6",
+                        "tertiary-fixed": "#e2e2e2",
+                        "surface-bright": "#f9f9f9",
+                        "secondary-container": "#2170e4",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "on-surface": "#1b1b1b",
+                        "secondary-fixed": "#d8e2ff",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#303030",
+                        "surface-tint": "#5e5e5e",
+                        "surface-dim": "#dadada",
+                        "primary-fixed": "#e2e2e2",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "on-tertiary-container": "#848484",
+                        "on-primary": "#ffffff",
+                        "outline": "#7e7576",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-secondary-fixed": "#001a42",
+                        "surface": "#f9f9f9",
+                        "on-surface-variant": "#4c4546",
+                        "on-primary-container": "#848484",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#1b1b1b",
+                        "surface-container": "#eeeeee",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f3f3f3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "section-gap": "32px",
+                        "component-padding-y": "12px",
+                        "container-margin": "24px",
+                        "gutter": "16px",
+                        "component-padding-x": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-display": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-display": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "900" }],
+                        "body-lg": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "800" }],
+                        "body-sm": ["14px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+                        "label-caps": ["11px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-lg min-h-screen">
+<!-- Navigation Header -->
+<header class="w-full bg-surface-container-lowest border-b border-surface-container py-4 px-6 fixed top-0 z-50 flex justify-between items-center">
+<div class="flex items-center gap-8">
+<h1 class="text-headline-md font-headline-md font-black tracking-tighter text-primary">CROWDSTACK™</h1>
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-on-surface-variant hover:text-primary font-body-sm flex items-center gap-1" href="#">Product <span class="material-symbols-outlined text-[16px]">expand_more</span></a>
+<a class="text-on-surface-variant hover:text-primary font-body-sm flex items-center gap-1" href="#">Solutions <span class="material-symbols-outlined text-[16px]">expand_more</span></a>
+<a class="text-on-surface-variant hover:text-primary font-body-sm flex items-center gap-1" href="#">Resources <span class="material-symbols-outlined text-[16px]">expand_more</span></a>
+<a class="text-on-surface-variant hover:text-primary font-body-sm" href="#">Pricing</a>
+<a class="text-on-surface-variant hover:text-primary font-body-sm flex items-center gap-1" href="#">Company <span class="material-symbols-outlined text-[16px]">expand_more</span></a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<a class="text-on-surface-variant hover:text-primary font-body-sm font-bold" href="#">Log in</a>
+<button class="px-4 py-2 border border-outline rounded-DEFAULT text-primary font-body-sm font-bold hover:bg-surface-container-low transition-colors">Book a Demo</button>
+<button class="px-4 py-2 bg-secondary text-on-secondary rounded-DEFAULT font-body-sm font-bold hover:opacity-90 transition-opacity">Get Started Free</button>
+</div>
+</header>
+<main class="pt-[80px]">
+<!-- Hero Section -->
+<section class="max-w-[1440px] mx-auto px-6 py-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+<div class="flex flex-col gap-6 pr-0 lg:pr-12">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-secondary"></div>
+<span class="text-secondary font-label-caps text-label-caps tracking-widest uppercase">The Event Operating System</span>
+</div>
+<h2 class="text-[64px] leading-[1] font-black tracking-tight text-primary">
+                    PLAN.<br/>SELL.<br/>MANAGE.<br/>GROW.
+                </h2>
+<div class="w-16 h-[2px] bg-primary my-4"></div>
+<p class="text-headline-md font-headline-md font-normal text-on-surface-variant max-w-lg">
+                    Crowdstack is the all-in-one platform for creating unforgettable events, selling tickets, managing attendees and driving growth.
+                </p>
+<div class="flex items-center gap-4 mt-4">
+<button class="px-6 py-3 bg-secondary text-on-secondary rounded-DEFAULT font-body-lg font-bold hover:opacity-90 transition-opacity">Start Your First Event</button>
+<button class="px-6 py-3 border border-outline rounded-DEFAULT text-primary font-body-lg font-bold hover:bg-surface-container-low transition-colors flex items-center gap-2">Book a Demo <span class="material-symbols-outlined text-[20px]">arrow_outward</span></button>
+</div>
+<div class="flex items-center gap-4 mt-8">
+<div class="flex -space-x-3">
+<img class="w-10 h-10 rounded-full border-2 border-surface object-cover" data-alt="A small circular avatar portrait of a professional looking person in a well lit studio setting, neutral expression, monochromatic tone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwp6SHWW3DJk8vNDZ25EByhCpCxH64cC2InYawbSQWvtiIdm82EkLctfTPpxQ8C-EHC-3MOrsbYJW0jqTak58FL8gJtHjRbyoEPtSK_Alf4UUmJ4giZrwuzvGzhOzDqkj3QnR0UMmnvapZCgM_GbrXAV8sfCkOkqvGfjuvyDjDVhwzy3UEFtl3iEe2Lb-DktzP5eLEetwz1oDD2qo_CzSkVM9WwEyhfmddju-SB7QO7wRdW1jrNSYvQA"/>
+<img class="w-10 h-10 rounded-full border-2 border-surface object-cover" data-alt="A small circular avatar portrait of a creative professional in a modern office, bright lighting, slightly smiling, monochromatic tone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMD8xZBzQ4faVKdXm6TdXKRjMeElsZYhxUZUG-OIDVcZ5aaS9rMTQz5np03WvFPJa15FCYBng-nabPPT3eKgiRrc7rxju8Gchfz-Q2ws76OHXo-NpveP5npw5IvztLoq1yRrC0vaEiMNKjYbXHVuVfLDgufQare53MpaeiqT3fFFm1Rc4-EEAfCzFgpeE8b8IrvoYhbfIkp4JJqYzGj_Gwq_wJ171jLHD0dzswO3DCY0xyhLhpBBGs8A"/>
+<img class="w-10 h-10 rounded-full border-2 border-surface object-cover" data-alt="A small circular avatar portrait of an event organizer, busy background slightly blurred, serious expression, monochromatic tone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJITbF2msamJ2oPxPIZqSr78JnRKFBe6mwGZ-tJBcKnGC73tLPEeR4wFWX6tDZk2HkFTdoxk0ChstTTmABKhhbMcOBKbVxdm5fozn4wjZBdVAbwcX6oYwvpVeoKL53bBhzsq4Qm7jfooCJI3XmuTFgYcGsm6BRD35ZEDKG7l7VPTDyUiRnFIKDmm6TiSbtSdxwcZlOqSSQumAr-oiNmZFeH_mOySVh08X0RBRn4DoXAsgNGga1CEAh8A"/>
+<img class="w-10 h-10 rounded-full border-2 border-surface object-cover" data-alt="A small circular avatar portrait of a business executive, crisp lighting, confident expression, monochromatic tone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7AtjpytoqyPXs4xuA3hnvucUHwWYI2DDIPxjFknf-KujSZX9tJWT0Fk5RCd9G28wfX5BbFAsTH4p6l8bFjLyG_Xp8avvMW13ygsEcHFQidcg28TGY_751HH4B5w188BpR5UTq-719TC5NI-HmxEyoa5rFhERoJEDHdgJn7baK6mgV5pIfEujpflfhNRlWYlImZB4wQuKk72kHjcEp0okNTYxvTYz7RRhPo0HXxMy7MyPM52Zlqt_ljw"/>
+</div>
+<p class="text-body-sm text-on-surface-variant">Join <span class="text-secondary font-bold">2,000+</span> organizers already using Crowdstack</p>
+</div>
+</div>
+<div class="relative w-full h-[600px] bg-surface-container-low rounded-xl border border-surface-container-high overflow-hidden flex items-center justify-center">
+<img class="object-cover w-full h-full opacity-50 mix-blend-multiply" data-alt="A high fidelity UI mockup showing a mobile app dashboard overlapping a desktop web application dashboard. Both interfaces are dense with data, charts, and event management statistics in a highly professional, light mode b2b saas aesthetic with precise typography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCr8nx9YQotZHS9od21C2PsMd4l5g8qud9KGOSU0VxQknS95UWP4XIrNDGkG2CJB4FCDpyGF3UDY6eKlbsOPc7rxPCoXc9YyDhXt7M2SNW-PqL71YNDnfU_TwJZwyC4TUK9_yx-I2Zx7RaYPSSiodILHJt_tZlRmJjNcvb3H9slV7aosK1gV2vpL4MbWAUJ19hwhOeEs9el-8CAjDze_9Etys-v6lAEBmTKqDWyJsPHJ53IhddT1EPiFI7BlhGW68hbL8c"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="text-on-surface-variant font-label-caps text-label-caps tracking-widest">Dashboard Interface Preview</span>
+</div>
+</div>
+</section>
+<!-- Feature Grid -->
+<section class="bg-primary text-on-primary py-12 px-6">
+<div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-8 divide-y md:divide-y-0 md:divide-x divide-surface-tint">
+<div class="flex flex-col gap-3 pt-6 md:pt-0 md:px-6 first:pl-0">
+<div class="w-8 h-8 bg-secondary flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-on-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">calendar_add_on</span>
+</div>
+<h3 class="font-body-lg font-bold">Event Creation</h3>
+<p class="text-body-sm text-outline-variant">Create stunning event pages in minutes with our smart event builder.</p>
+</div>
+<div class="flex flex-col gap-3 pt-6 md:pt-0 md:px-6">
+<div class="w-8 h-8 bg-secondary flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-on-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">confirmation_number</span>
+</div>
+<h3 class="font-body-lg font-bold">Ticketing Engine</h3>
+<p class="text-body-sm text-outline-variant">Flexible ticket types, early bird pricing, promos, bundles and more.</p>
+</div>
+<div class="flex flex-col gap-3 pt-6 md:pt-0 md:px-6">
+<div class="w-8 h-8 bg-secondary flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-on-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">group</span>
+</div>
+<h3 class="font-body-lg font-bold">Attendee Management</h3>
+<p class="text-body-sm text-outline-variant">Collect data, manage attendees and export insights with ease.</p>
+</div>
+<div class="flex flex-col gap-3 pt-6 md:pt-0 md:px-6">
+<div class="w-8 h-8 bg-secondary flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-on-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+</div>
+<h3 class="font-body-lg font-bold">Check-In & Attendance</h3>
+<p class="text-body-sm text-outline-variant">Lightning fast QR check-in, offline mode and real-time attendance.</p>
+</div>
+<div class="flex flex-col gap-3 pt-6 md:pt-0 md:px-6">
+<div class="w-8 h-8 bg-secondary flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-on-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+</div>
+<h3 class="font-body-lg font-bold">Analytics & Reports</h3>
+<p class="text-body-sm text-outline-variant">Powerful analytics to track sales, engagement and revenue in real time.</p>
+</div>
+<div class="flex flex-col gap-3 pt-6 md:pt-0 md:pl-6 last:pr-0 border-b-0">
+<div class="w-8 h-8 bg-secondary flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-on-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">mail</span>
+</div>
+<h3 class="font-body-lg font-bold">Email & SMS Marketing</h3>
+<p class="text-body-sm text-outline-variant">Run targeted campaigns that drive engagement and conversions.</p>
+</div>
+</div>
+</section>
+<!-- Social Proof Section -->
+<section class="max-w-[1440px] mx-auto px-6 py-24 grid grid-cols-1 lg:grid-cols-12 gap-12 border-b border-surface-container-high">
+<div class="lg:col-span-5 flex flex-col gap-4 lg:pr-12 lg:border-r border-surface-container-high">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-secondary"></div>
+<span class="text-secondary font-label-caps text-label-caps tracking-widest uppercase">Built for every event</span>
+</div>
+<h2 class="text-headline-display font-headline-display text-primary">
+                    ONE PLATFORM.<br/>EVERY POSSIBLE EVENT.
+                </h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant mt-4">
+                    From conferences and concerts to church gatherings and campus events, Crowdstack gives you the tools to deliver exceptional experiences.
+                </p>
+</div>
+<div class="lg:col-span-7 flex flex-col justify-center">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-8 divide-x divide-surface-container-high">
+<div class="flex flex-col gap-2 pl-4 first:pl-0 border-l-0">
+<span class="text-[40px] font-black leading-none tracking-tighter text-primary">2,000+</span>
+<span class="text-body-sm font-bold text-on-surface-variant">Event Organizers</span>
+</div>
+<div class="flex flex-col gap-2 pl-8">
+<span class="text-[40px] font-black leading-none tracking-tighter text-primary">10M+</span>
+<span class="text-body-sm font-bold text-on-surface-variant">Tickets Sold</span>
+</div>
+<div class="flex flex-col gap-2 pl-8">
+<span class="text-[40px] font-black leading-none tracking-tighter text-primary">120+</span>
+<span class="text-body-sm font-bold text-on-surface-variant">Countries Reached</span>
+</div>
+<div class="flex flex-col gap-2 pl-8">
+<span class="text-[40px] font-black leading-none tracking-tighter text-primary">99.9%</span>
+<span class="text-body-sm font-bold text-on-surface-variant">Platform Uptime</span>
+</div>
+</div>
+<div class="mt-16">
+<p class="text-body-sm font-bold text-primary mb-6">Powering events that matter</p>
+<div class="flex flex-wrap items-center gap-8 lg:gap-12 opacity-70 grayscale">
+<div class="h-8 flex items-center justify-center font-bold text-headline-md tracking-tighter border border-outline px-2">GTCO</div>
+<div class="h-8 flex items-center justify-center font-black text-body-lg tracking-tight">AFRICA <span class="font-normal text-body-sm ml-1">TECH SUMMIT</span></div>
+<div class="h-8 flex items-center justify-center font-serif italic text-headline-md">DAYSTAR</div>
+<div class="h-8 flex items-center justify-center font-sans font-bold text-body-sm"><span class="material-symbols-outlined mr-1">school</span> UNIVERSITY OF LAGOS</div>
+<div class="h-8 flex items-center justify-center font-sans font-bold text-body-sm"><span class="material-symbols-outlined mr-1">rocket_launch</span> LAGOS STARTUP</div>
+<span class="text-secondary font-body-sm font-bold ml-auto not-grayscale opacity-100">and more...</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

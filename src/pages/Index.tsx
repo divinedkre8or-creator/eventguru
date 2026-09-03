@@ -1,297 +1,381 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { 
-  Ticket, QrCode, Image, BarChart2, Mail, Layout, CreditCard, Users,
-  ShoppingBag, Heart, GraduationCap, Music, MapPin, Calendar, Monitor
+  CalendarDays, Ticket, Users, ScanLine, BarChart3, Mail, ChevronRight, 
+  ArrowUpRight, Sparkles, Calendar, MapPin, CheckCircle2, ShieldCheck, Globe, Star
 } from "lucide-react";
-import { KenteStripe } from "@/components/KenteStripe";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { featuredEvents } from "@/data/mock";
+import { Button } from "@/components/ui/button";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { type: "spring", stiffness: 90, damping: 14 }
+  },
+};
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background font-[DM_Sans] transition-colors duration-300">
-      
-      {/* KenteStripe at very top */}
-      <KenteStripe />
+    <div className="min-h-screen bg-background font-sans text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden">
+      {/* Navigation Header */}
+      <motion.header 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full bg-card/90 backdrop-blur-md border-b border-border sticky top-0 z-50"
+      >
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link to="/" className="font-heading font-black text-lg sm:text-xl text-primary tracking-tighter uppercase flex items-center gap-1">
+              MYEVENTGURU<span className="text-[10px] text-muted-foreground align-top">™</span>
+            </Link>
+            <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-muted-foreground">
+              <a className="hover:text-foreground transition-colors flex items-center gap-1" href="#features">
+                Features <ChevronRight className="w-3 h-3 rotate-90" />
+              </a>
+              <a className="hover:text-foreground transition-colors flex items-center gap-1" href="#how-it-works">
+                Solutions <ChevronRight className="w-3 h-3 rotate-90" />
+              </a>
+              <a className="hover:text-foreground transition-colors" href="#events">
+                Events
+              </a>
+              <a className="hover:text-foreground transition-colors" href="#pricing">
+                Pricing
+              </a>
+            </nav>
+          </div>
 
-      {/* Navigation */}
-      <nav className="bg-background/95 backdrop-blur-[12px] sticky top-0 z-50 border-b border-border transition-colors duration-300">
-        <div className="container max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="font-heading font-bold text-xl text-foreground">
-            Event<span className="text-primary">stack</span>
-          </Link>
-
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
-            <Link to="/login" className="text-foreground text-sm bg-transparent hover:opacity-80 transition-opacity font-medium">
-              Log In
+            <Link to="/login" className="hidden sm:inline-block text-xs font-bold text-foreground hover:opacity-80 px-2 py-1">
+              Log in
             </Link>
             <Link to="/signup">
-              <button className="bg-primary text-primary-foreground font-heading font-bold text-sm rounded-[10px] px-5 py-2 hover:brightness-110 hover:-translate-y-[1px] transition-all">
-                Get Started
-              </button>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+                <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-3 sm:px-4 rounded-lg hover:opacity-90 transition-all shadow-sm">
+                  <span className="sm:hidden">Get Started</span>
+                  <span className="hidden sm:inline">Get Started Free</span>
+                </Button>
+              </motion.div>
             </Link>
           </div>
         </div>
-      </nav>
+      </motion.header>
 
-      {/* Hero Section */}
-      <section className="relative bg-background noise-overlay overflow-hidden pt-20 pb-16 transition-colors duration-300">
-        <div className="absolute top-[-80px] right-[-120px] w-[520px] h-[520px] rounded-full opacity-15" style={{ background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)' }} />
-        <div className="absolute bottom-[60px] left-[-100px] w-[380px] h-[380px] rounded-full opacity-10" style={{ background: 'radial-gradient(circle, hsl(var(--destructive)) 0%, transparent 70%)' }} />
-
-        <div className="max-w-[680px] mx-auto text-center relative z-10 px-4">
-          <div className="inline-flex items-center text-sm font-medium text-muted-foreground bg-secondary/50 border border-border rounded-full px-4 py-1.5 mb-6">
-            <span className="text-emerald-500 mr-2">●</span>
-            Now live across 12 African countries
-          </div>
-          
-          <h1 className="font-heading font-bold text-4xl md:text-6xl text-foreground tracking-[-1.5px] leading-[1.05] mb-2">
-            Create, Promote and Sell Out
-          </h1>
-          <h2 className="font-heading font-bold text-4xl md:text-6xl text-primary tracking-[-1.5px] leading-[1.05] mb-6">
-            Your Next Event.
-          </h2>
-
-          <p className="text-lg text-muted-foreground max-w-[500px] leading-[1.7] mx-auto mb-9">
-            Eventstack is Africa's event management platform — built to handle everything from registration to real-time check-in, so you can focus on the experience.
-          </p>
-
-          <div className="flex justify-center gap-4 flex-col sm:flex-row">
-            <Link to="/signup">
-              <button className="bg-primary text-primary-foreground font-heading font-bold text-base px-8 py-3.5 rounded-[10px] hover:brightness-110 hover:-translate-y-[2px] transition-transform w-full sm:w-auto">
-                Create Your Event →
-              </button>
-            </Link>
-            <a href="#events">
-              <button className="bg-transparent border-[1.5px] border-border text-foreground font-heading font-bold text-base px-8 py-3.5 rounded-[10px] hover:border-foreground transition-colors w-full sm:w-auto">
-                Explore Events
-              </button>
-            </a>
-          </div>
-
-          <div className="text-sm text-muted-foreground mt-6 font-medium">
-            ✓ Free to start &nbsp; ✓ No setup fees &nbsp; ✓ Paystack & Flutterwave ready
-          </div>
-
-          <div className="flex justify-center flex-wrap gap-3 mt-8">
-            {["Conferences", "Trade Shows", "Church Events", "Concerts & Festivals", "Campus Events", "NGO Events"].map(pill => (
-              <span key={pill} className="bg-secondary/50 border border-border text-muted-foreground font-heading font-bold text-xs tracking-[0.5px] px-4 py-2 rounded-full hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-colors cursor-default">
-                {pill}
+      <main>
+        {/* Hero Section */}
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-col gap-5 pr-0 lg:pr-8 items-center text-center lg:items-start lg:text-left"
+          >
+            <motion.div variants={itemVariants} className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 bg-secondary rounded-xs"></div>
+              <span className="text-secondary font-mono text-[11px] font-bold tracking-widest uppercase">
+                THE AFRICAN EVENT OPERATING SYSTEM
               </span>
-            ))}
-          </div>
+            </motion.div>
 
-          <div className="mt-14 pt-10 border-t border-border flex flex-col md:flex-row justify-center items-center max-w-[500px] mx-auto gap-6 md:gap-0">
-            <div className="flex-1 text-center">
-              <div className="font-heading font-bold text-3xl md:text-4xl text-primary">10 mins</div>
-              <div className="text-sm font-medium text-muted-foreground mt-1">average time to go live</div>
-            </div>
-            <div className="w-[1px] h-10 bg-border hidden md:block mx-4" />
-            <div className="flex-1 text-center">
-              <div className="font-heading font-bold text-3xl md:text-4xl text-primary">500+</div>
-              <div className="text-sm font-medium text-muted-foreground mt-1">events hosted across Africa</div>
-            </div>
-            <div className="w-[1px] h-10 bg-border hidden md:block mx-4" />
-            <div className="flex-1 text-center">
-              <div className="font-heading font-bold text-3xl md:text-4xl text-primary">12</div>
-              <div className="text-sm font-medium text-muted-foreground mt-1">countries and counting</div>
-            </div>
-          </div>
-        </div>
-      </section>
+            <motion.h1 
+              variants={itemVariants} 
+              className="font-heading text-3xl sm:text-5xl lg:text-[54px] leading-[1.15] font-black tracking-tight text-foreground uppercase"
+            >
+              Plan, Sell, Manage, & Grow Your Events{" "}
+              <span className="relative inline-block text-secondary underline decoration-secondary decoration-[3.5px] underline-offset-[8px]">
+                from one place
+              </span>
+            </motion.h1>
 
-      {/* Features Section */}
-      <section className="bg-secondary/30 py-24 px-4 border-y border-border transition-colors duration-300">
-        <div className="container max-w-6xl mx-auto">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-6 h-0.5 bg-primary" />
-            <span className="font-heading font-bold text-xs tracking-[3px] text-primary uppercase">What's Inside</span>
-          </div>
-          <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground tracking-[-1px] mb-3">Built for Every African Event</h2>
-          <p className="text-base text-muted-foreground mb-12">8 powerful modules. One platform. Zero chaos.</p>
+            <motion.div variants={itemVariants} className="w-16 h-[2px] bg-primary my-1"></motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {[
-              { icon: <Ticket className="w-5 h-5"/>, title: "Smart Ticketing", desc: "Multiple ticket types, dynamic pricing, promo codes, and group discounts." },
-              { icon: <QrCode className="w-5 h-5"/>, title: "QR Check-In", desc: "Scan-to-verify with offline mode, multi-gate support, and real-time counts." },
-              { icon: <Image className="w-5 h-5"/>, title: "DP Generator", desc: "Let attendees create branded profile pictures with custom event frames." },
-              { icon: <BarChart2 className="w-5 h-5"/>, title: "Analytics Hub", desc: "Revenue tracking, attendee insights, registration funnels, and reports." },
-              { icon: <Mail className="w-5 h-5"/>, title: "Campaigns", desc: "Email and SMS campaigns with templates, scheduling, and automated triggers." },
-              { icon: <Layout className="w-5 h-5"/>, title: "Form Builder", desc: "Custom registration forms with conditional logic and multiple field types." },
-              { icon: <CreditCard className="w-5 h-5"/>, title: "Payments", desc: "Paystack and Flutterwave integration with split payments and early payouts." },
-              { icon: <Users className="w-5 h-5"/>, title: "Attendee CRM", desc: "Full attendee management with tags, notes, communication history, and exports." },
-            ].map((f, i) => (
-              <div key={i} className="bg-card border border-border rounded-2xl p-6 border-l-[3px] border-l-primary transition-all duration-200 hover:shadow-lg hover:border-l-destructive hover:-translate-y-1">
-                <div className="bg-primary/10 w-10 h-10 rounded-xl flex items-center justify-center text-primary mb-4">
-                  {f.icon}
-                </div>
-                <h3 className="font-heading font-bold text-base text-card-foreground mb-2">{f.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {f.desc}
-                </p>
+            <motion.p 
+              variants={itemVariants} 
+              className="text-base sm:text-lg text-muted-foreground max-w-lg leading-relaxed font-medium"
+            >
+              EventGuru is Africa's premier all-in-one event operating system—built to help creators, organizers, and brands publish events, sell tickets, manage attendees, and drive revenue across the continent.
+            </motion.p>
+
+            <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mt-2">
+              <Link to="/signup">
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                  <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-sm h-12 px-6 rounded-lg hover:opacity-90 transition-all shadow-md">
+                    Start Your First Event
+                  </Button>
+                </motion.div>
+              </Link>
+              <a href="#events">
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                  <Button variant="outline" size="lg" className="border-border text-foreground font-bold text-sm h-12 px-6 rounded-lg hover:bg-muted transition-all flex items-center gap-2">
+                    Explore Events <ArrowUpRight className="w-4 h-4" />
+                  </Button>
+                </motion.div>
+              </a>
+            </motion.div>
+
+            {/* Social Proof Bar */}
+            <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-6 pt-6 border-t border-border w-full">
+              <div className="flex -space-x-2">
+                <div className="w-8 h-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center font-bold text-[10px] text-primary">AO</div>
+                <div className="w-8 h-8 rounded-full bg-secondary/10 border-2 border-background flex items-center justify-center font-bold text-[10px] text-secondary">CN</div>
+                <div className="w-8 h-8 rounded-full bg-chart-green/10 border-2 border-background flex items-center justify-center font-bold text-[10px] text-chart-green">EK</div>
+                <div className="w-8 h-8 rounded-full bg-chart-purple/10 border-2 border-background flex items-center justify-center font-bold text-[10px] text-chart-purple">+2k</div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <p className="text-xs text-muted-foreground font-medium">
+                Join <span className="text-foreground font-bold">2,000+</span> organizers already using <span className="font-bold text-foreground">MyEventGuru</span>
+              </p>
+            </motion.div>
+          </motion.div>
 
-      {/* Kente Stripe before How It Works */}
-      <KenteStripe />
+          {/* Hero Graphic Standalone */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.96, y: 25 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.25, ease: "easeOut" }}
+            className="w-full flex items-center justify-center"
+          >
+            <motion.img 
+              src="/heroimg.webp" 
+              alt="MyEventGuru Platform Showcase" 
+              whileHover={{ y: -4, scale: 1.01 }}
+              transition={{ duration: 0.3 }}
+              className="w-full h-auto max-h-[560px] object-contain rounded-2xl shadow-2xl transition-all"
+            />
+          </motion.div>
+        </section>
 
-      {/* How It Works Section */}
-      <section className="bg-background noise-overlay py-24 px-4 transition-colors duration-300">
-        <div className="container max-w-6xl mx-auto relative z-10">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-6 h-0.5 bg-primary" />
-            <span className="font-heading font-bold text-xs tracking-[3px] text-primary uppercase">How It Works</span>
-          </div>
-          <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground mb-3">Everything in One Place.</h2>
-          <p className="text-base text-muted-foreground mb-12">From first ticket to final check-in —<br/>Eventstack has every step covered.</p>
+        {/* Inverted Contrast Features Grid Section (Black in Light Mode, White in Dark Mode) */}
+        <section id="features" className="bg-neutral-950 text-neutral-100 dark:bg-white dark:text-neutral-950 border-y border-neutral-800 dark:border-neutral-200 py-16 px-4 sm:px-6 transition-colors duration-300">
+          <div className="max-w-[1440px] mx-auto">
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="flex items-center gap-2 mb-8 justify-center sm:justify-start"
+            >
+              <div className="w-2.5 h-2.5 rounded-xs bg-secondary"></div>
+              <span className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-600">
+                CORE PLATFORM MODULES
+              </span>
+            </motion.div>
 
-          <div className="flex flex-col md:flex-row gap-6 relative">
-            <div className="hidden md:block absolute top-[40%] left-0 w-full h-0.5 border-t-2 border-dashed border-border -translate-y-1/2 z-0"></div>
-            
-            {[
-              { bg: "01", title: "Create Your Event", desc: "Set up your event with our intuitive builder. Add your details, ticket types, pricing, and registration form in minutes." },
-              { bg: "02", title: "Sell & Promote", desc: "Share your event page and start selling tickets instantly. Accept payments securely. Use built-in campaigns to fill seats fast." },
-              { bg: "03", title: "Manage & Get Paid", desc: "Track registrations, check in guests with QR codes, run real-time analytics, and receive your payout automatically." }
-            ].map((s) => (
-              <div key={s.bg} className="flex-1 bg-secondary border border-border rounded-[20px] p-8 relative overflow-hidden z-10 transition-colors">
-                <div className="absolute top-[-10px] right-4 font-heading font-bold text-[96px] text-muted-foreground/10 pointer-events-none select-none">{s.bg}</div>
-                <div className="inline-block font-heading font-bold text-sm text-primary bg-primary/10 rounded-full px-3 py-1 mb-5">{s.bg}</div>
-                <h3 className="font-heading font-bold text-xl text-foreground mb-3">{s.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Events Section */}
-      <section id="events" className="bg-secondary/30 py-24 px-4 border-y border-border transition-colors duration-300">
-        <div className="container max-w-6xl mx-auto">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-6 h-0.5 bg-primary" />
-            <span className="font-heading font-bold text-xs tracking-[3px] text-primary uppercase">Happening Across Africa</span>
-          </div>
-          <div className="flex justify-between items-end mb-10">
-            <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground">Featured Events</h2>
-            <a href="#" className="text-primary font-heading font-bold text-sm hover:underline mb-2">View all →</a>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {featuredEvents.map(event => (
-              <div key={event.id} className="bg-card rounded-[16px] border border-border overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
-                <div className="h-48 relative overflow-hidden group">
-                  <img src={event.image} alt={event.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/70 to-transparent" />
-                  <span className="absolute top-3 left-3 bg-primary text-primary-foreground font-heading font-bold text-[10px] uppercase tracking-[1px] px-2.5 py-1 rounded-full">
-                    {event.category}
-                  </span>
-                </div>
-                <div className="p-5">
-                  <h3 className="font-heading font-bold text-lg text-card-foreground mb-3 whitespace-nowrap overflow-hidden text-ellipsis">{event.title}</h3>
-                  <div className="flex flex-col gap-2 text-sm text-muted-foreground mb-4">
-                     <span className="flex items-center gap-2"><Calendar className="w-4 h-4 text-muted-foreground" /> {event.date}</span>
-                     <span className="flex items-center gap-2 whitespace-nowrap overflow-hidden text-ellipsis"><MapPin className="w-4 h-4 text-muted-foreground" /> {event.venue}</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
+              {[
+                { icon: CalendarDays, title: "Event Creation", desc: "Create stunning event pages in minutes with our smart event builder." },
+                { icon: Ticket, title: "Ticketing Engine", desc: "Flexible ticket types, early bird pricing, promos, bundles and more." },
+                { icon: Users, title: "Attendee CRM", desc: "Collect data, manage guest lists, and export insights with ease." },
+                { icon: ScanLine, title: "Rapid Check-In", desc: "Lightning fast QR check-in, gate security, and live attendance tracking." },
+                { icon: BarChart3, title: "Analytics Hub", desc: "Powerful analytics to track sales, engagement, and revenue in real time." },
+                { icon: Mail, title: "Email & SMS", desc: "Run targeted marketing campaigns that drive engagement and conversions." },
+              ].map((mod, idx) => (
+                <motion.div 
+                  key={idx} 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: idx * 0.08 }}
+                  whileHover={{ y: -5 }}
+                  className="bg-neutral-900/90 border border-neutral-800 dark:bg-neutral-50 dark:border-neutral-200/80 rounded-xl p-5 shadow-xs hover:border-secondary transition-all flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="w-10 h-10 rounded-lg bg-secondary text-white flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform shadow-sm">
+                      <mod.icon className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-sm text-white dark:text-neutral-950 tracking-tight">{mod.title}</h3>
+                    <p className="text-xs text-neutral-400 dark:text-neutral-600 leading-relaxed mt-1.5">{mod.desc}</p>
                   </div>
-                  <div className="flex justify-between items-center pt-4 border-t border-border">
-                    <span className="font-heading font-bold text-base text-primary">{event.price}</span>
-                    <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {event.attendees.toLocaleString()} attending</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Social Proof & Stats Section */}
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 py-20 border-b border-border">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="lg:col-span-5 flex flex-col gap-3 lg:pr-8 lg:border-r border-border"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 bg-secondary"></div>
+                <span className="text-secondary font-mono text-[11px] font-bold tracking-widest uppercase">
+                  BUILT FOR EVERY EVENT
+                </span>
+              </div>
+              <h2 className="font-heading text-3xl sm:text-4xl font-black text-foreground uppercase tracking-tight leading-tight">
+                ONE PLATFORM.<br/>EVERY POSSIBLE EVENT.
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+                From tech summits and music festivals to corporate galas and campus expos, EventGuru gives African organizers the tools to deliver world-class experiences.
+              </p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="lg:col-span-7 flex flex-col justify-center"
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 divide-x divide-border">
+                {[
+                  { value: "2,000+", label: "Event Organizers" },
+                  { value: "10M+", label: "Tickets Sold" },
+                  { value: "120+", label: "Cities Reached" },
+                  { value: "99.9%", label: "Platform Uptime" },
+                ].map((stat, idx) => (
+                  <div key={idx} className="flex flex-col gap-1 pl-4 first:pl-0 border-l-0">
+                    <span className="font-heading text-3xl sm:text-4xl font-black text-foreground tracking-tighter">{stat.value}</span>
+                    <span className="text-xs font-bold text-muted-foreground">{stat.label}</span>
                   </div>
+                ))}
+              </div>
+
+              {/* Event Categories Authority Badges */}
+              <div className="mt-12 pt-8 border-t border-border">
+                <p className="text-xs font-mono font-bold text-muted-foreground uppercase mb-4">POWERING EVENT CATEGORIES ACROSS AFRICA</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  {["TECH SUMMITS", "MUSIC FESTIVALS", "CORPORATE CONFERENCES", "COMMUNITY GATHERINGS", "CAMPUS EXPOS"].map((cat, idx) => (
+                    <motion.span 
+                      key={idx}
+                      whileHover={{ scale: 1.05 }}
+                      className="font-mono text-xs font-bold border border-border bg-card px-3 py-1.5 rounded-lg cursor-default shadow-2xs"
+                    >
+                      {cat}
+                    </motion.span>
+                  ))}
+                  <span className="font-mono text-xs font-bold text-secondary bg-secondary/10 border border-secondary/20 px-3 py-1.5 rounded-lg">+ 500 MORE</span>
                 </div>
               </div>
-            ))}
+            </motion.div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Browse By Category Section */}
-      <section className="bg-background noise-overlay py-24 px-4 transition-colors duration-300">
-        <div className="container max-w-6xl mx-auto relative z-10">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-6 h-0.5 bg-primary" />
-            <span className="font-heading font-bold text-xs tracking-[3px] text-primary uppercase">Explore By Category</span>
-          </div>
-          <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground mb-3">Find Your Kind of Event</h2>
-          <p className="text-base text-muted-foreground mb-12">From church concerts to tech summits — it's all on Eventstack.</p>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {[
-              { name: "Tech Events", icon: <Monitor className="w-7 h-7"/>, count: "120+ events" },
-              { name: "Trade Shows", icon: <ShoppingBag className="w-7 h-7"/>, count: "80+ events" },
-              { name: "Church Events", icon: <Heart className="w-7 h-7"/>, count: "150+ events" },
-              { name: "Concerts & Festivals", icon: <Music className="w-7 h-7"/>, count: "95+ events" },
-              { name: "Campus Events", icon: <GraduationCap className="w-7 h-7"/>, count: "90+ events" },
-              { name: "NGO & Community", icon: <Users className="w-7 h-7"/>, count: "70+ events" },
-            ].map(cat => (
-              <div key={cat.name} className="bg-secondary/50 border border-border rounded-xl p-6 text-center cursor-pointer transition-all duration-200 hover:bg-primary/10 hover:border-primary/25 hover:-translate-y-1">
-                <div className="text-primary flex justify-center mb-3 mx-auto">{cat.icon}</div>
-                <div className="font-heading font-bold text-sm text-foreground mb-1.5">{cat.name}</div>
-                <div className="text-xs text-muted-foreground">{cat.count}</div>
+        {/* Featured Events Section */}
+        <section id="events" className="max-w-[1440px] mx-auto px-4 sm:px-6 py-20">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <div>
+              <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
+                HAPPENING ACROSS AFRICA
               </div>
+              <h2 className="font-heading text-3xl font-black text-foreground tracking-tight">Featured Events</h2>
+            </div>
+            <Link to="/login" className="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
+              Browse all events <ArrowUpRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredEvents.map((event, idx) => (
+              <motion.div 
+                key={event.id} 
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                whileHover={{ y: -6 }}
+                className="bg-card border border-border rounded-lg overflow-hidden flex flex-col justify-between hover:border-secondary/40 transition-all shadow-xs group"
+              >
+                <div>
+                  <div className="relative aspect-[16/9] bg-muted overflow-hidden">
+                    <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
+                      {event.category}
+                    </div>
+                  </div>
+                  <div className="p-4 space-y-2">
+                    <h3 className="font-heading text-base font-bold text-foreground truncate">{event.title}</h3>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 shrink-0" />
+                        <span>{event.date}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 truncate">
+                        <MapPin className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">{event.venue}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 pt-0">
+                  <div className="flex items-center justify-between pt-3 border-t border-border text-xs">
+                    <span className="font-mono font-bold text-foreground">{event.price}</span>
+                    <Link to={`/events/${event.id}`}>
+                      <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-8 px-3 rounded">
+                        Get Ticket
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Before Footer CTA KenteStripe */}
-      <KenteStripe />
-
-      {/* Footer CTA Section */}
-      <section className="bg-secondary/50 noise-overlay py-28 px-4 relative overflow-hidden border-t border-border transition-colors duration-300">
-        <div className="absolute top-[-50px] right-[-50px] w-[300px] h-[300px] rounded-full opacity-10 bg-[radial-gradient(circle,hsl(var(--primary))_0%,transparent_70%)]" />
-        <div className="absolute bottom-[-50px] left-[-50px] w-[300px] h-[300px] rounded-full opacity-10 bg-[radial-gradient(circle,hsl(var(--destructive))_0%,transparent_70%)]" />
-
-        <div className="max-w-[600px] mx-auto text-center relative z-10">
-          <div className="inline-block font-heading font-bold text-xs tracking-[3px] text-primary bg-primary/10 px-5 py-2 rounded-full mb-6 uppercase">
-            Join 500+ Organisers
-          </div>
-          
-          <h2 className="font-heading font-bold text-4xl md:text-5xl text-foreground tracking-[-1.5px] leading-[1.1] mb-5">
-            Ready to Stack<br/>Your Next Event?
-          </h2>
-          <p className="text-base md:text-lg text-muted-foreground max-w-[420px] mx-auto mb-10">
-            Join thousands of organisers building unforgettable experiences across Africa.
-          </p>
-
-          <Link to="/signup">
-            <button className="bg-primary text-primary-foreground font-heading font-bold text-lg px-10 py-4 rounded-xl hover:brightness-110 hover:-translate-y-1 transition-all shadow-lg shadow-primary/20">
-              Get Started Free →
-            </button>
-          </Link>
-          <div className="text-sm text-muted-foreground mt-4 font-medium">
-            No credit card required · Set up in 10 minutes
-          </div>
-        </div>
-      </section>
+        {/* Theme-Aware Dark Mode Friendly Footer CTA Section */}
+        <section className="bg-card border-t border-border py-20 px-4 sm:px-6 text-center relative overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="max-w-2xl mx-auto space-y-4 relative z-10"
+          >
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest bg-secondary/10 text-secondary px-3 py-1 rounded inline-block">
+              READY TO ELEVATE YOUR EVENTS?
+            </span>
+            <h2 className="font-heading text-4xl sm:text-5xl font-black uppercase tracking-tight text-foreground">
+              Start Building Unforgettable Experiences.
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
+              Join thousands of event organizers selling tickets and running rapid check-ins with EventGuru.
+            </p>
+            <div className="pt-4">
+              <Link to="/signup">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="inline-block">
+                  <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-sm h-12 px-8 rounded-lg hover:opacity-90 transition-all shadow-md">
+                    Create Your Free Account →
+                  </Button>
+                </motion.div>
+              </Link>
+            </div>
+          </motion.div>
+        </section>
+      </main>
 
       {/* Footer */}
-      <footer className="bg-background border-t border-border pt-16 transition-colors duration-300">
-        <div className="container max-w-6xl mx-auto px-4 pb-12 flex flex-col items-center text-center">
-          <Link to="/" className="font-heading font-bold text-2xl text-foreground mb-3 block">
-            Event<span className="text-primary">stack</span>
-          </Link>
-          <p className="text-sm md:text-base text-muted-foreground max-w-[360px] mx-auto mb-10 leading-[1.6]">
-            Africa's all-in-one event management platform. Built for organisers who demand excellence.
-          </p>
-
-          <div className="flex gap-8 mb-10 text-sm font-medium text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">Product</a>
-            <a href="#" className="hover:text-foreground transition-colors">Company</a>
-            <a href="#" className="hover:text-foreground transition-colors">Legal</a>
+      <footer className="bg-card border-t border-border py-10 px-4 sm:px-6">
+        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span className="font-heading font-black text-foreground text-sm uppercase">MYEVENTGURU™</span>
+            <span>•</span>
+            <span>Africa's Event Operating System</span>
           </div>
-
-          <div className="text-sm text-muted-foreground">
-            © 2026 Eventstack. All rights reserved.
-          </div>
+          <div>© 2026 MYEVENTGURU. All rights reserved.</div>
         </div>
-        
-        {/* Bottom of footer KenteStripe */}
-        <KenteStripe />
       </footer>
-
     </div>
   );
 };

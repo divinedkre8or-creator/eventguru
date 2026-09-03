@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Crowdstack - Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#c6c6c6",
+                      "tertiary-fixed": "#e2e2e2",
+                      "surface-dim": "#dadada",
+                      "primary-fixed-dim": "#c6c6c6",
+                      "secondary-container": "#2170e4",
+                      "secondary": "#0058be",
+                      "inverse-on-surface": "#f1f1f1",
+                      "on-surface-variant": "#4c4546",
+                      "tertiary-container": "#1b1b1b",
+                      "on-secondary-fixed-variant": "#004395",
+                      "background": "#f9f9f9",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#474747",
+                      "surface-bright": "#f9f9f9",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#848484",
+                      "surface-container-low": "#f3f3f3",
+                      "error-container": "#ffdad6",
+                      "on-primary-container": "#848484",
+                      "surface-container": "#eeeeee",
+                      "primary-container": "#1b1b1b",
+                      "on-background": "#1b1b1b",
+                      "on-tertiary-fixed": "#1b1b1b",
+                      "on-surface": "#1b1b1b",
+                      "surface-tint": "#5e5e5e",
+                      "error": "#ba1a1a",
+                      "primary-fixed": "#e2e2e2",
+                      "surface-variant": "#e2e2e2",
+                      "on-primary": "#ffffff",
+                      "tertiary": "#000000",
+                      "on-primary-fixed": "#1b1b1b",
+                      "surface-container-high": "#e8e8e8",
+                      "secondary-fixed": "#d8e2ff",
+                      "on-error": "#ffffff",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "inverse-surface": "#303030",
+                      "surface": "#f9f9f9",
+                      "outline-variant": "#cfc4c5",
+                      "inverse-primary": "#c6c6c6",
+                      "on-tertiary-fixed-variant": "#474747",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-highest": "#e2e2e2",
+                      "outline": "#7e7576",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#001a42",
+                      "on-secondary-container": "#fefcff",
+                      "primary": "#000000"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "section-gap": "32px",
+                      "gutter": "16px",
+                      "container-margin": "24px",
+                      "component-padding-y": "12px",
+                      "component-padding-x": "16px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-display": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.03em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "900"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+          body {
+              background-color: theme('colors.background');
+              color: theme('colors.on-surface');
+          }
+          .material-symbols-outlined {
+              font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+          }
+          .material-symbols-outlined.fill-1 {
+              font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+          }
+      </style>
+</head>
+<body class="flex min-h-screen selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-[260px] bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline flex flex-col p-gutter z-50">
+<div class="mb-8">
+<h1 class="font-headline-md text-headline-md font-black text-primary dark:text-inverse-primary tracking-tighter">Crowdstack</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1">Enterprise Platform</p>
+</div>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps py-component-padding-y px-component-padding-x rounded mb-8 w-full flex items-center justify-center gap-2 hover:bg-surface-tint transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+            Create New Event
+        </button>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-tertiary-fixed-dim hover:bg-surface-container dark:hover:bg-tertiary-container transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<span class="font-label-caps text-label-caps">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-tertiary-fixed-dim hover:bg-surface-container dark:hover:bg-tertiary-container transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">calendar_today</span>
+<span class="font-label-caps text-label-caps">Events</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-tertiary-fixed-dim hover:bg-surface-container dark:hover:bg-tertiary-container transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">groups</span>
+<span class="font-label-caps text-label-caps">Attendees</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-primary dark:bg-primary-fixed text-on-primary dark:text-on-primary-fixed font-bold border-r-2 border-primary rounded-l" href="#">
+<span class="material-symbols-outlined fill-1">analytics</span>
+<span class="font-label-caps text-label-caps">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-tertiary-fixed-dim hover:bg-surface-container dark:hover:bg-tertiary-container transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">campaign</span>
+<span class="font-label-caps text-label-caps">Marketing</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-tertiary-fixed-dim hover:bg-surface-container dark:hover:bg-tertiary-container transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">handshake</span>
+<span class="font-label-caps text-label-caps">Partners</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-tertiary-fixed-dim hover:bg-surface-container dark:hover:bg-tertiary-container transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">inventory_2</span>
+<span class="font-label-caps text-label-caps">Assets</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-tertiary-fixed-dim hover:bg-surface-container dark:hover:bg-tertiary-container transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant pt-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">help_outline</span>
+<span class="font-label-caps text-label-caps">Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant hover:bg-surface-container transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">person</span>
+<span class="font-label-caps text-label-caps">Account</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-16 px-container-margin w-full bg-surface dark:bg-inverse-surface border-b border-outline-variant dark:border-outline docked full-width top-0 sticky z-40">
+<div class="flex-1 flex items-center gap-4">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded pl-10 pr-4 py-2 text-body-sm font-body-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-shadow" placeholder="Search analytics..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">chat_bubble_outline</span>
+</button>
+<div class="w-8 h-8 rounded bg-surface-container-high border border-outline-variant overflow-hidden cursor-pointer">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate user, neutral background, high resolution, sharp focus, well lit." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF879Dby5WQH5I1HDl3x-fs6gMYkdpMMiFAy0tRfOvu-cjEG_cuVOcUiGZjrE6G5WeRinm07GONY9dhStkGJHmLi2k8NycaxHdl2T329Wanv_q6y1JTtjMMfY3HOxnlR8JxcLsF57U0ypD5I3EOFuIb6i1aJkQHr7jFi0qAHkmbHxL2SuwlIX9boTrGFvbor8rVdKshYc6PQTIab7H4xJJnaE6p5h3jW7Yu3vjuTSXfKMdAnOQRoElcw"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 p-container-margin overflow-y-auto bg-[#FAFAFA]">
+<div class="mb-section-gap flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary mb-2">Advanced Analytics</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Deep dive into attendee demographics, ticket sales velocity, and marketing attribution.</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-lowest border border-outline-variant text-primary font-label-caps text-label-caps py-2 px-4 rounded flex items-center gap-2 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[16px]">calendar_month</span>
+                        Last 30 Days
+                        <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps py-2 px-4 rounded flex items-center gap-2 hover:bg-surface-tint transition-colors">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                        Export Report
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-gutter mb-section-gap">
+<!-- KPI Cards -->
+<div class="col-span-12 md:col-span-3 bg-surface-container-lowest border border-outline-variant rounded-lg p-4 flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Total Registrations</span>
+<div class="mt-4">
+<span class="font-headline-display text-headline-display text-primary">12,450</span>
+<div class="flex items-center gap-1 mt-1 text-[#059669]">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span class="font-label-sm text-label-sm">+14.2% vs last month</span>
+</div>
+</div>
+</div>
+<div class="col-span-12 md:col-span-3 bg-surface-container-lowest border border-outline-variant rounded-lg p-4 flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Net Revenue</span>
+<div class="mt-4">
+<span class="font-headline-display text-headline-display text-primary">$1.2M</span>
+<div class="flex items-center gap-1 mt-1 text-[#059669]">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span class="font-label-sm text-label-sm">+8.4% vs last month</span>
+</div>
+</div>
+</div>
+<div class="col-span-12 md:col-span-3 bg-surface-container-lowest border border-outline-variant rounded-lg p-4 flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Avg. Ticket Price</span>
+<div class="mt-4">
+<span class="font-headline-display text-headline-display text-primary">$95</span>
+<div class="flex items-center gap-1 mt-1 text-[#DC2626]">
+<span class="material-symbols-outlined text-[14px]">trending_down</span>
+<span class="font-label-sm text-label-sm">-2.1% vs last month</span>
+</div>
+</div>
+</div>
+<div class="col-span-12 md:col-span-3 bg-surface-container-lowest border border-outline-variant rounded-lg p-4 flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Check-in Rate</span>
+<div class="mt-4">
+<span class="font-headline-display text-headline-display text-primary">87%</span>
+<div class="flex items-center gap-1 mt-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">horizontal_rule</span>
+<span class="font-label-sm text-label-sm">No change</span>
+</div>
+</div>
+</div>
+<!-- Sales Velocity Chart (Multi-line) -->
+<div class="col-span-12 md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-lg p-6">
+<div class="flex justify-between items-center mb-6 pb-4 border-b border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-primary">Ticket Sales Velocity</h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-sm bg-primary"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">General Admission</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-sm bg-outline"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">VIP</span>
+</div>
+</div>
+</div>
+<div class="h-64 w-full relative">
+<!-- Placeholder for Chart -->
+<div class="absolute inset-0 flex items-end justify-between px-4 pb-8 pt-4">
+<!-- Y-axis lines -->
+<div class="absolute left-0 right-0 top-4 h-[1px] bg-surface-container-low"></div>
+<div class="absolute left-0 right-0 top-1/4 h-[1px] bg-surface-container-low"></div>
+<div class="absolute left-0 right-0 top-2/4 h-[1px] bg-surface-container-low"></div>
+<div class="absolute left-0 right-0 top-3/4 h-[1px] bg-surface-container-low"></div>
+<div class="absolute left-0 right-0 bottom-8 h-[1px] bg-surface-container-high"></div>
+<!-- Synthetic SVG lines for visual representation -->
+<svg class="absolute inset-0 h-full w-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path class="opacity-80" d="M 0,90 Q 20,80 40,60 T 80,30 T 100,10" fill="none" stroke="#000000" stroke-width="2"></path>
+<path class="opacity-60" d="M 0,95 Q 30,90 50,70 T 90,50 T 100,45" fill="none" stroke="#7e7576" stroke-dasharray="4,4" stroke-width="2"></path>
+</svg>
+<!-- X-axis labels -->
+<span class="absolute bottom-0 left-0 font-label-caps text-label-caps text-on-surface-variant">Week 1</span>
+<span class="absolute bottom-0 left-1/4 font-label-caps text-label-caps text-on-surface-variant">Week 2</span>
+<span class="absolute bottom-0 left-2/4 font-label-caps text-label-caps text-on-surface-variant">Week 3</span>
+<span class="absolute bottom-0 left-3/4 font-label-caps text-label-caps text-on-surface-variant">Week 4</span>
+<span class="absolute bottom-0 right-0 font-label-caps text-label-caps text-on-surface-variant">Current</span>
+</div>
+</div>
+</div>
+<!-- Marketing Attribution -->
+<div class="col-span-12 md:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-lg p-6">
+<h3 class="font-headline-md text-headline-md text-primary mb-6 pb-4 border-b border-outline-variant">Marketing Attribution</h3>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span>Organic Search</span>
+<span class="font-bold">45%</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[45%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span>Email Campaign</span>
+<span class="font-bold">30%</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary opacity-80 w-[30%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span>Social Media</span>
+<span class="font-bold">15%</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary opacity-60 w-[15%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span>Referral</span>
+<span class="font-bold">10%</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary opacity-40 w-[10%]"></div>
+</div>
+</div>
+</div>
+<button class="mt-6 w-full py-2 border border-outline-variant rounded text-label-caps font-label-caps hover:bg-surface-container-low transition-colors">View Detailed Channels</button>
+</div>
+<!-- Attendee Heatmap -->
+<div class="col-span-12 bg-surface-container-lowest border border-outline-variant rounded-lg p-6">
+<h3 class="font-headline-md text-headline-md text-primary mb-6 pb-4 border-b border-outline-variant">Global Attendee Distribution</h3>
+<div class="w-full h-80 bg-surface-container-low border border-outline-variant rounded relative overflow-hidden flex items-center justify-center">
+<div class="bg-cover bg-center w-full h-full opacity-60 mix-blend-multiply" data-alt="A highly detailed, stylized minimalist map of the world, using a light gray and white color palette with sharp lines. Intense, bright glowing red dots indicate high-density attendee locations, concentrated in North America and Western Europe, contrasting sharply against the clean background. Professional SaaS dashboard aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDnvBLTBWHtFx72caaBfdLVO-k5Gddjos8bGdQtve45xF-wTssEx96C5eMEJLUZZPWqKloMRzEYP0hjUvN0SuUfzCkrA7ZC6_qGPqoIWss8nag67OSUbDuxx7g4zW95FCqTdeuy69fNMDfokqZTZlZSZ1PYZaK3RyMHge137CmesNsyNk0GRBmYRlHNTcNjL67B7f2mjVJVdjfT7x6OulxbptJ_FTdTjPyfRcrzc53Gsfg8tpBZWYENpw')"></div>
+<!-- Overlay elements for UI realism -->
+<div class="absolute top-4 right-4 bg-surface-container-lowest border border-outline-variant rounded p-2 shadow-sm flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-[#ef4444] opacity-100"></div>
+<span class="font-label-caps text-label-caps">&gt; 1,000</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-[#ef4444] opacity-60"></div>
+<span class="font-label-caps text-label-caps">100 - 999</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-[#ef4444] opacity-30"></div>
+<span class="font-label-caps text-label-caps">&lt; 100</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Granular Data Table -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<h3 class="font-headline-md text-headline-md text-primary">Recent Registrations</h3>
+<div class="flex gap-2">
+<input class="bg-surface-container-low border border-outline-variant rounded px-3 py-1 text-body-sm font-body-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none h-8 w-64" placeholder="Filter records..." type="text"/>
+<button class="h-8 px-3 border border-outline-variant rounded text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#FAFAFA] border-b border-outline-variant">
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant font-bold">Attendee Name</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant font-bold">Ticket Type</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant font-bold">Purchase Date</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant font-bold">Amount</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant font-bold">Source</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant font-bold text-right">Action</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm divide-y divide-outline-variant">
+<tr class="hover:bg-[#FAFAFA] transition-colors group">
+<td class="p-4 font-medium text-primary">Eleanor Vance</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-container-high text-primary border border-outline-variant">VIP Access</span>
+</td>
+<td class="p-4 text-on-surface-variant">Oct 24, 2023 - 14:32</td>
+<td class="p-4 font-medium">$299.00</td>
+<td class="p-4 text-on-surface-variant">Direct Mail</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-[#FAFAFA] transition-colors group">
+<td class="p-4 font-medium text-primary">Marcus Sterling</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-container text-on-surface-variant border border-outline-variant">General</span>
+</td>
+<td class="p-4 text-on-surface-variant">Oct 24, 2023 - 11:15</td>
+<td class="p-4 font-medium">$95.00</td>
+<td class="p-4 text-on-surface-variant">Organic Search</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-[#FAFAFA] transition-colors group">
+<td class="p-4 font-medium text-primary">Sarah Chen</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-container text-on-surface-variant border border-outline-variant">General</span>
+</td>
+<td class="p-4 text-on-surface-variant">Oct 23, 2023 - 09:45</td>
+<td class="p-4 font-medium">$95.00</td>
+<td class="p-4 text-on-surface-variant">Social Media</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-[#FAFAFA] transition-colors group">
+<td class="p-4 font-medium text-primary">James Wilson</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-container-high text-primary border border-outline-variant">VIP Access</span>
+</td>
+<td class="p-4 text-on-surface-variant">Oct 22, 2023 - 16:20</td>
+<td class="p-4 font-medium">$299.00</td>
+<td class="p-4 text-on-surface-variant">Referral</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-outline-variant bg-[#FAFAFA] flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Showing 1-4 of 12,450 records</span>
+<div class="flex gap-1">
+<button class="w-8 h-8 flex items-center justify-center border border-outline-variant rounded text-on-surface-variant hover:bg-surface-container-low transition-colors" disabled="">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center border border-primary bg-primary text-on-primary rounded font-label-caps text-label-caps">1</button>
+<button class="w-8 h-8 flex items-center justify-center border border-outline-variant rounded text-on-surface-variant hover:bg-surface-container-low transition-colors font-label-caps text-label-caps">2</button>
+<button class="w-8 h-8 flex items-center justify-center border border-outline-variant rounded text-on-surface-variant hover:bg-surface-container-low transition-colors font-label-caps text-label-caps">3</button>
+<span class="w-8 h-8 flex items-center justify-center text-on-surface-variant">...</span>
+<button class="w-8 h-8 flex items-center justify-center border border-outline-variant rounded text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

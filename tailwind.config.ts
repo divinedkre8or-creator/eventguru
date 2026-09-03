@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -18,8 +19,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ["Space Grotesk", "sans-serif"],
-        body: ["DM Sans", "sans-serif"],
+        heading: ["Inter", "sans-serif"],
+        body: ["Inter", "sans-serif"],
+        sans: ["Inter", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -55,15 +58,11 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        ink: "hsl(var(--ink))",
-        ink2: "hsl(var(--ink2))",
-        amber: "hsl(var(--amber))",
-        amber2: "hsl(var(--amber2))",
-        coral: "hsl(var(--coral))",
-        teal: "hsl(var(--teal))",
-        electric: "hsl(var(--electric))",
-        ivory: "hsl(var(--ivory))",
-        surface: "hsl(var(--surface))",
+        "chart-green": "#22c55e",
+        "chart-blue": "#3b82f6",
+        "chart-orange": "#f97316",
+        "chart-purple": "#8b5cf6",
+        "chart-cyan": "#06b6d4",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -106,5 +105,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;
