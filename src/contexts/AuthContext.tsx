@@ -31,14 +31,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserData = async (userId: string) => {
+  const fetchUserData = async (userId: string, metaRole?: AppRole) => {
     try {
       const [profileRes, rolesRes] = await Promise.all([
         supabase.from("profiles").select("full_name, avatar_url").eq("user_id", userId).single(),
         supabase.from("user_roles").select("role").eq("user_id", userId),
       ]);
       if (profileRes.data) setProfile(profileRes.data);
-      if (rolesRes.data) setRoles(rolesRes.data.map((r) => r.role as AppRole));
+      if (rolesRes.data && rolesRes.data.length > 0) {
+        setRoles(rolesRes.data.map((r) => r.role as AppRole));
+      } else if (metaRole) {
+        setRoles([metaRole]);
+      } else {
+        setRoles(["attendee"]);
+      }
     } finally {
       setLoading(false);
     }
@@ -51,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         if (session?.user) {
           setLoading(true);
-          fetchUserData(session.user.id);
+          fetchUserData(session.user.id, session.user.user_metadata?.role as AppRole);
         } else {
           setProfile(null);
           setRoles([]);
@@ -65,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         setLoading(true);
-        fetchUserData(session.user.id);
+        fetchUserData(session.user.id, session.user.user_metadata?.role as AppRole);
       } else {
         setLoading(false);
       }

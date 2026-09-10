@@ -89,6 +89,8 @@ const AttendeeOverview = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "all">("upcoming");
   const [selectedTicketEvent, setSelectedTicketEvent] = useState<RegisteredEvent | null>(null);
+  const [trendingEvents, setTrendingEvents] = useState<any[]>([]);
+  const [loadingTrending, setLoadingTrending] = useState(false);
 
   const fullName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Attendee";
   const firstName = fullName.split(" ")[0];
@@ -134,6 +136,26 @@ const AttendeeOverview = () => {
 
     fetchMyEvents();
   }, [user?.id, user?.email]);
+
+  // Fetch trending published events if attendee has 0 registrations
+  useEffect(() => {
+    if (registrations.length === 0 && !loading) {
+      const fetchTrending = async () => {
+        setLoadingTrending(true);
+        const { data, error } = await supabase
+          .from("events")
+          .select("id, title, date, venue, city, category, image_url, is_free, slug")
+          .eq("status", "published")
+          .order("date", { ascending: true })
+          .limit(4);
+        if (!error && data) {
+          setTrendingEvents(data);
+        }
+        setLoadingTrending(false);
+      };
+      fetchTrending();
+    }
+  }, [registrations.length, loading]);
 
   const now = new Date();
   const upcomingEvents = useMemo(() => registrations.filter((r) => new Date(r.date) >= new Date(now.setHours(0, 0, 0, 0))), [registrations]);
@@ -181,7 +203,7 @@ const AttendeeOverview = () => {
           </p>
         </div>
 
-        <Link to="/">
+        <Link to="/events">
           <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-10 px-4 rounded-lg flex items-center gap-2 hover:opacity-90 shadow-sm">
             <Compass className="w-4 h-4" /> Explore Events
           </Button>
@@ -194,22 +216,93 @@ const AttendeeOverview = () => {
           <p className="text-xs text-muted-foreground font-medium">Loading your dashboard...</p>
         </div>
       ) : registrations.length === 0 ? (
-        /* Empty State */
-        <div className="bg-card border border-dashed border-border rounded-2xl p-12 text-center space-y-4 max-w-xl mx-auto">
-          <div className="w-14 h-14 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center mx-auto">
-            <Ticket className="w-7 h-7" />
+        /* Empty State With Rich Onboarding & Live Event Catalog */
+        <div className="space-y-8">
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
+            <div className="space-y-2 max-w-xl">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-secondary/10 text-secondary text-[11px] font-mono font-bold uppercase tracking-wider">
+                <Wallet className="w-3.5 h-3.5" /> DIGITAL TICKET WALLET
+              </div>
+              <h2 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+                Your Ticket Wallet is Ready, {firstName}.
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                When you secure passes or register for events on EventRally, your digital tickets, 1-second gate QR entry passes, and custom event fliers will automatically be stored right here.
+              </p>
+            </div>
+            <Link to="/events" className="shrink-0">
+              <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-xs sm:text-sm h-11 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2">
+                <Compass className="w-4 h-4" />
+                <span>Explore Live Events</span>
+              </Button>
+            </Link>
           </div>
-          <div className="space-y-1">
-            <h3 className="font-heading text-xl font-bold text-foreground">No Registered Events Yet</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              You haven't signed up for any events yet. Browse featured events on EventRally and get your tickets in 1-click.
-            </p>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-heading text-lg font-bold text-foreground">Trending Events to Attend</h3>
+                <p className="text-xs text-muted-foreground">Discover what is happening next and get your tickets in one click.</p>
+              </div>
+              <Link to="/events" className="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
+                View all <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            {loadingTrending ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-secondary" />
+              </div>
+            ) : trendingEvents.length === 0 ? (
+              <div className="p-8 text-center border border-dashed border-border rounded-xl text-xs text-muted-foreground bg-card">
+                No events currently published. Check back soon or browse our full events catalog.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {trendingEvents.map((evt) => (
+                  <div key={evt.id} className="bg-card border border-border rounded-xl overflow-hidden flex flex-col justify-between hover:border-secondary/40 transition-all shadow-xs group">
+                    <div>
+                      <div className="aspect-[16/9] bg-muted relative overflow-hidden">
+                        {evt.image_url ? (
+                          <img src={evt.image_url} alt={evt.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground/30">
+                            <Calendar className="w-8 h-8" />
+                          </div>
+                        )}
+                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase">
+                          {evt.category || "Event"}
+                        </div>
+                      </div>
+                      <div className="p-3.5 space-y-1.5">
+                        <h4 className="font-heading text-sm font-bold text-foreground truncate">{evt.title}</h4>
+                        <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                          <Calendar className="w-3 h-3 shrink-0" />
+                          <span>{new Date(evt.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
+                          {(evt.city || evt.venue) && (
+                            <>
+                              <span>•</span>
+                              <span className="truncate">{evt.city || evt.venue}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-3.5 pt-0">
+                      <div className="flex items-center justify-between pt-2 border-t border-border text-xs">
+                        <span className="font-mono font-bold text-foreground text-[11px]">{evt.is_free ? "Free" : "Paid"}</span>
+                        <Link to={getEventUrl(evt)}>
+                          <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-[11px] h-7 px-2.5 rounded">
+                            Get Ticket
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <Link to="/">
-            <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-10 px-6 rounded-lg shadow-sm">
-              Discover Upcoming Events
-            </Button>
-          </Link>
         </div>
       ) : (
         <>

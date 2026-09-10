@@ -2,9 +2,10 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, CalendarDays, PlusCircle, Users, Ticket, ScanLine, Image,
   Megaphone, BarChart3, Wallet, Settings, Bell, Menu, X, LogOut, Search, ChevronDown,
-  Layers, ShoppingCart, Mail, CheckSquare, FileText, UserPlus, Terminal, Zap, Shield
+  Layers, ShoppingCart, Mail, CheckSquare, FileText, UserPlus, Terminal, Zap, Shield,
+  Compass
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -67,7 +68,19 @@ const navGroups: NavGroup[] = [
   }
 ];
 
-const mobileNavItems = [
+const attendeeNavItems = [
+  { title: "My Wallet & Tickets", path: "/dashboard", icon: Wallet },
+  { title: "Explore Events", path: "/events", icon: Compass },
+  { title: "Account Settings", path: "/dashboard/settings", icon: Settings },
+];
+
+const attendeeMobileNavItems = [
+  { title: "My Wallet", path: "/dashboard", icon: Wallet },
+  { title: "Explore", path: "/events", icon: Compass },
+  { title: "Settings", path: "/dashboard/settings", icon: Settings },
+];
+
+const organiserMobileNavItems = [
   { title: "Overview", path: "/dashboard", icon: LayoutDashboard },
   { title: "Events", path: "/dashboard/events", icon: CalendarDays },
   { title: "Check-in", path: "/dashboard/checkin", icon: ScanLine },
@@ -89,6 +102,13 @@ const DashboardLayout = () => {
 
   const isActive = (path: string) =>
     path === "/dashboard" ? location.pathname === path : location.pathname.startsWith(path);
+
+  // Route Guard: Prevent attendees from accessing organizer management pages
+  useEffect(() => {
+    if (!isOrganiserOrAdmin && location.pathname !== "/dashboard" && location.pathname !== "/dashboard/settings") {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isOrganiserOrAdmin, location.pathname, navigate]);
 
   return (
     <div className="min-h-screen bg-background font-sans flex text-foreground antialiased selection:bg-primary selection:text-primary-foreground">
@@ -121,35 +141,23 @@ const DashboardLayout = () => {
           {!isOrganiserOrAdmin ? (
             /* Attendee Navigation */
             <nav className="flex flex-col gap-1">
-              <Link
-                to="/dashboard"
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                  location.pathname === "/dashboard"
-                    ? "bg-secondary text-secondary-foreground shadow-sm font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                <LayoutDashboard className="w-4 h-4 shrink-0" />
-                <span className="truncate">Dashboard</span>
-              </Link>
-              <Link
-                to="/dashboard/settings"
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                  location.pathname === "/dashboard/settings"
-                    ? "bg-secondary text-secondary-foreground shadow-sm font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                <Settings className="w-4 h-4 shrink-0" />
-                <span className="truncate">Account Settings</span>
-              </Link>
-              <Link
-                to="/"
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted"
-              >
-                <CalendarDays className="w-4 h-4 shrink-0" />
-                <span className="truncate">Explore Events</span>
-              </Link>
+              <div className="px-3 py-1 text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
+                ATTENDEE PORTAL
+              </div>
+              {attendeeNavItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+                    isActive(item.path)
+                      ? "bg-secondary text-secondary-foreground shadow-sm font-bold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <item.icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{item.title}</span>
+                </Link>
+              ))}
             </nav>
           ) : (
             /* Organiser / Admin Navigation */
@@ -241,10 +249,10 @@ const DashboardLayout = () => {
                   </Link>
                 </div>
               )}
-              {navGroups.map((group) => (
-                <div key={group.groupName} className="space-y-1">
-                  <div className="px-3 text-[10px] font-bold text-muted-foreground uppercase">{group.groupName}</div>
-                  {group.items.map((item) => (
+              {!isOrganiserOrAdmin ? (
+                <div className="space-y-1">
+                  <div className="px-3 text-[10px] font-bold text-muted-foreground uppercase">Attendee Portal</div>
+                  {attendeeNavItems.map((item) => (
                     <Link
                       key={item.path}
                       to={item.path}
@@ -258,7 +266,26 @@ const DashboardLayout = () => {
                     </Link>
                   ))}
                 </div>
-              ))}
+              ) : (
+                navGroups.map((group) => (
+                  <div key={group.groupName} className="space-y-1">
+                    <div className="px-3 text-[10px] font-bold text-muted-foreground uppercase">{group.groupName}</div>
+                    {group.items.map((item) => (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
+                          isActive(item.path) ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground"
+                        }`}
+                      >
+                        <item.icon className="w-4 h-4 shrink-0" />
+                        <span>{item.title}</span>
+                      </Link>
+                    ))}
+                  </div>
+                ))
+              )}
             </div>
           </aside>
         </div>
@@ -278,7 +305,7 @@ const DashboardLayout = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search events, attendees, tickets..."
+                placeholder={isOrganiserOrAdmin ? "Search events, attendees, tickets..." : "Search my tickets or events..."}
                 className="w-full h-9 bg-background pl-9 pr-4 rounded-lg border border-border text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
               />
             </div>
@@ -341,7 +368,7 @@ const DashboardLayout = () => {
       {/* Mobile Bottom Navigation Bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-40">
         <div className="flex items-center justify-around h-16 px-1">
-          {mobileNavItems.map((item) => (
+          {(!isOrganiserOrAdmin ? attendeeMobileNavItems : organiserMobileNavItems).map((item) => (
             <Link
               key={item.path}
               to={item.path}

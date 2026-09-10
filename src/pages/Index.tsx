@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { 
   CalendarDays, Ticket, Users, ScanLine, BarChart3, Mail, ChevronRight, 
   ArrowUpRight, Calendar, MapPin, CheckCircle2, ShieldCheck, Globe, Star,
-  Loader2, Zap, Award, Image as ImageIcon, Wallet
+  Loader2, Zap, Award, Image as ImageIcon, Wallet, PlusCircle, Share2, Download
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,9 +71,9 @@ const Index = () => {
               <a className="hover:text-foreground transition-colors flex items-center gap-1" href="#how-it-works">
                 Solutions <ChevronRight className="w-3 h-3 rotate-90" />
               </a>
-              <a className="hover:text-foreground transition-colors" href="#events">
-                Events
-              </a>
+              <Link to="/events" className="hover:text-foreground transition-colors">
+                Explore Events
+              </Link>
               <a className="hover:text-foreground transition-colors" href="#pricing">
                 Pricing
               </a>
@@ -88,8 +88,7 @@ const Index = () => {
             <Link to="/signup">
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
                 <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-3 sm:px-4 rounded-lg hover:opacity-90 transition-all shadow-sm">
-                  <span className="sm:hidden">Get Started</span>
-                  <span className="hidden sm:inline">Get Started Free</span>
+                  Organize an Event
                 </Button>
               </motion.div>
             </Link>
@@ -257,44 +256,178 @@ const Index = () => {
           </div>
         </section>
 
-        {/* DP Generator Spotlight Section (Enhanced Hot Feature) */}
-        <section className="bg-card border-b border-border py-16 px-4 sm:px-6 relative overflow-hidden">
-          <div className="max-w-[1440px] mx-auto">
+        {/* DP Generator Spotlight Section (Hot Feature) */}
+        <section className="bg-card border-b border-border py-16 sm:py-24 px-4 sm:px-6 relative overflow-hidden">
+          <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
+            {/* Left Column: Copy & Organizer Call-To-Action */}
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="max-w-3xl space-y-5"
+              className="lg:col-span-7 space-y-6"
             >
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[11px] font-mono font-bold tracking-wider uppercase">
-                <Award className="w-3.5 h-3.5" /> HOT FEATURE • VIRAL EVENT MARKETING
+                <Award className="w-3.5 h-3.5" />
+                <span>HOT FEATURE • VIRAL EVENT MARKETING</span>
               </div>
 
-              <h2 className="font-heading text-3xl sm:text-4xl font-black text-foreground uppercase tracking-tight leading-tight">
+              <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-foreground uppercase tracking-tight leading-[1.1]">
                 Turn Every Attendee Into Your Marketing Team.
               </h2>
 
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Stop wasting money on social media ads that people scroll past. The most trusted promotion is a friend posting, <strong className="text-foreground">"I'm attending!"</strong> With EventRally, upload your official event frame once. The second an attendee registers, they generate a personalized, branded picture flier in 1-click to share across WhatsApp Status, Instagram, and X.
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                Traditional social ads get scrolled past. The highest-converting endorsement for any event is an attendee posting, <strong className="text-foreground">"I am attending."</strong> With EventRally, upload your official event frame once. The moment an attendee registers or secures a ticket, the platform automatically renders a personalized, branded picture flier ready for 1-click sharing to WhatsApp Status, Instagram, and X.
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                <div className="p-4 rounded-xl border border-border bg-background space-y-1">
-                  <div className="font-heading text-sm font-bold text-foreground">Zero Design Skills Needed</div>
-                  <p className="text-xs text-muted-foreground">No Photoshop or designer fees. The system automatically places attendee photos and names into your frame.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+                <div className="p-4 rounded-xl border border-border bg-background/60 space-y-1">
+                  <div className="text-[11px] font-mono font-bold uppercase text-secondary">AUTOMATED</div>
+                  <div className="font-heading text-sm font-bold text-foreground">Zero Design Overhead</div>
+                  <p className="text-xs text-muted-foreground">No Photoshop or designer delays. Attendee avatar and details merge automatically into your template.</p>
                 </div>
 
-                <div className="p-4 rounded-xl border border-border bg-background space-y-1">
-                  <div className="font-heading text-sm font-bold text-foreground">1-Click Mobile Downloads</div>
-                  <p className="text-xs text-muted-foreground">Attendees grab their ready-to-post, high-res flier in seconds right after checkout.</p>
+                <div className="p-4 rounded-xl border border-border bg-background/60 space-y-1">
+                  <div className="text-[11px] font-mono font-bold uppercase text-secondary">VIRAL LOOP</div>
+                  <div className="font-heading text-sm font-bold text-foreground">1-Click Downloads</div>
+                  <p className="text-xs text-muted-foreground">Attendees generate high-resolution fliers right at checkout or from their attendee ticket wallet.</p>
                 </div>
 
-                <div className="p-4 rounded-xl border border-border bg-background space-y-1">
-                  <div className="font-heading text-sm font-bold text-foreground">Free Word-of-Mouth Hype</div>
-                  <p className="text-xs text-muted-foreground">When 200 attendees post your flier, your event reaches over 10,000 friends organically—driving fresh ticket sales.</p>
+                <div className="p-4 rounded-xl border border-border bg-background/60 space-y-1">
+                  <div className="text-[11px] font-mono font-bold uppercase text-secondary">CONVERSION</div>
+                  <div className="font-heading text-sm font-bold text-foreground">Organic Ticket Hype</div>
+                  <p className="text-xs text-muted-foreground">250 attendees posting on WhatsApp status reaches 12,000+ local contacts organically.</p>
                 </div>
+              </div>
+
+              {/* Organizer Primary Call-to-Action */}
+              <div className="pt-2 space-y-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <Link to="/signup">
+                    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                      <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-sm h-12 px-7 rounded-lg hover:opacity-90 transition-all shadow-md flex items-center gap-2">
+                        <PlusCircle className="w-4 h-4" />
+                        <span>Organize an Event</span>
+                      </Button>
+                    </motion.div>
+                  </Link>
+                  <Link to="/events">
+                    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                      <Button variant="outline" size="lg" className="border-border text-foreground font-bold text-sm h-12 px-6 rounded-lg hover:bg-muted transition-all flex items-center gap-2">
+                        <span>Explore Live Events</span>
+                        <ArrowUpRight className="w-4 h-4" />
+                      </Button>
+                    </motion.div>
+                  </Link>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium pt-1">
+                  <div className="flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-secondary" />
+                    <span>Free for free events</span>
+                  </div>
+                  <div className="w-1 h-1 rounded-full bg-border"></div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-secondary" />
+                    <span>Instant Paystack payouts</span>
+                  </div>
+                  <div className="w-1 h-1 rounded-full bg-border"></div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-secondary" />
+                    <span>Live in 2 minutes</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right Column: Visual Hot Feature Demonstration Mockup */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="lg:col-span-5 flex flex-col items-center justify-center relative"
+            >
+              <div className="w-full max-w-[420px] bg-card border border-border rounded-2xl shadow-xl p-5 space-y-4 relative">
+                
+                {/* Simulated Frame Top Controls */}
+                <div className="flex items-center justify-between border-b border-border pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-secondary"></div>
+                    <span className="text-[11px] font-mono font-bold uppercase text-foreground">ATTENDEE DP FLIER</span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold bg-muted px-2 py-0.5 rounded text-muted-foreground">
+                    1080 × 1080 PNG
+                  </span>
+                </div>
+
+                {/* Branded DP Canvas Simulation Card */}
+                <div className="relative aspect-square rounded-xl overflow-hidden border border-border bg-neutral-950 text-white flex flex-col justify-between p-5 select-none shadow-inner">
+                  {/* Subtle Background Accent */}
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,88,190,0.25),transparent_60%)] pointer-events-none"></div>
+                  <div className="absolute inset-0 border-[8px] border-secondary/30 rounded-xl pointer-events-none"></div>
+
+                  {/* Frame Header */}
+                  <div className="relative z-10 flex items-center justify-between">
+                    <div className="font-heading font-black text-xs tracking-widest text-secondary uppercase">
+                      EVENTRALLY OFFICIAL PASS
+                    </div>
+                    <div className="text-[10px] font-mono font-bold bg-white/10 px-2 py-0.5 rounded backdrop-blur-xs">
+                      OCT 24, 2026
+                    </div>
+                  </div>
+
+                  {/* Center Attendee Badge & Avatar */}
+                  <div className="relative z-10 flex flex-col items-center text-center my-auto py-2">
+                    <div className="relative mb-3">
+                      <div className="w-24 h-24 rounded-full border-4 border-secondary bg-neutral-800 flex items-center justify-center text-secondary overflow-hidden shadow-lg">
+                        <Users className="w-12 h-12 text-secondary/70" />
+                      </div>
+                      <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-secondary text-white flex items-center justify-center shadow">
+                        <CheckCircle2 className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-mono tracking-widest uppercase text-secondary font-bold">
+                      CONFIRMED ATTENDEE
+                    </span>
+                    <h4 className="font-heading text-lg font-black tracking-tight text-white mt-0.5">
+                      CHIDI OKAFOR
+                    </h4>
+                    <p className="text-[11px] text-neutral-300 font-medium">
+                      LAGOS TECH SUMMIT • VIP ALL ACCESS
+                    </p>
+                  </div>
+
+                  {/* Frame Footer */}
+                  <div className="relative z-10 flex items-center justify-between border-t border-white/15 pt-3 text-[10px] font-mono text-neutral-400">
+                    <span className="font-bold text-white uppercase">LANDMARK CENTRE, LAGOS</span>
+                    <span className="text-secondary font-bold">#LTS2026</span>
+                  </div>
+                </div>
+
+                {/* Viral Distribution Bar */}
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+                    <span className="flex items-center gap-1.5 font-bold text-foreground">
+                      <Share2 className="w-3.5 h-3.5 text-secondary" /> Viral Share Channels:
+                    </span>
+                    <span className="font-mono text-[10px]">WhatsApp • Stories • X</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link to="/events" className="w-full">
+                      <Button variant="outline" size="sm" className="w-full text-xs font-bold border-border h-9 hover:bg-muted flex items-center justify-center gap-1.5">
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Live Preview</span>
+                      </Button>
+                    </Link>
+                    <Link to="/signup" className="w-full">
+                      <Button size="sm" className="w-full bg-secondary text-secondary-foreground text-xs font-bold h-9 hover:opacity-90 transition-all flex items-center justify-center gap-1.5">
+                        <span>Organize Event</span>
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+
               </div>
             </motion.div>
 

@@ -14,6 +14,7 @@ import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import EventDetails from "./pages/EventDetails";
 import TicketView from "./pages/TicketView";
+import EventsDiscovery from "./pages/EventsDiscovery";
 
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardOverview from "./pages/dashboard/Overview";
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/events" element={<EventsDiscovery />} />
             <Route path="/events/:id" element={<EventDetails />} />
             <Route path="/events/:id/dp" element={<DPAttendeeView />} />
             <Route path="/tickets/:id" element={<TicketView />} />
