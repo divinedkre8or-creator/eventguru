@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { compressImageToBase64 } from "@/lib/imageUtils";
+import { uploadImage } from "@/lib/storageUtils";
 import { ShareEventModal } from "@/components/events/ShareEventModal";
 
 const categories = [
@@ -61,6 +61,7 @@ const CreateEvent = () => {
   
   // Banner Image
   const [bannerDataUrl, setBannerDataUrl] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Schedule
@@ -168,10 +169,13 @@ const CreateEvent = () => {
     }
 
     try {
-      const base64 = await compressImageToBase64(file);
-      setBannerDataUrl(base64);
+      setIsUploadingImage(true);
+      const url = await uploadImage(file, "event-images", "flyers");
+      setBannerDataUrl(url);
     } catch (err) {
       toast({ title: "Upload failed", description: "Failed to process image", variant: "destructive" });
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -346,7 +350,12 @@ const CreateEvent = () => {
               className="border-2 border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center gap-3 relative overflow-hidden group hover:border-primary/50 transition-colors bg-background/50 w-full"
               style={{ minHeight: "150px" }}
             >
-              {bannerDataUrl ? (
+              {isUploadingImage ? (
+                <div className="flex flex-col items-center justify-center gap-2 py-6">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <p className="text-xs font-body text-muted-foreground">Uploading banner image...</p>
+                </div>
+              ) : bannerDataUrl ? (
                 <>
                   <img src={bannerDataUrl} alt="Banner" className="absolute inset-0 w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-background/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">

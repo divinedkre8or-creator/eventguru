@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { compressImageToBase64 } from "@/lib/imageUtils";
+import { uploadImage } from "@/lib/storageUtils";
 
 interface DpTemplate {
   id?: string;
@@ -125,8 +125,9 @@ const DPGenerator = () => {
       return;
     }
     try {
-      const base64 = await compressImageToBase64(file);
-      setTemplate({ ...template, template_image_url: base64 });
+      const url = await uploadImage(file, "dp-templates", "frames");
+      setTemplate({ ...template, template_image_url: url });
+      toast.success("Frame template processed");
     } catch (err) {
       toast.error("Failed to process image");
     }
