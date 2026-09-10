@@ -45,25 +45,27 @@ export const TicketView: React.FC = () => {
         const { data, error: queryError } = await supabase
           .from("registrations")
           .select("*, events(*), ticket_types(*)")
-          .eq("id", id)
-          .single();
+          .or(`id.eq.${id},payment_reference.eq.${id}`)
+          .maybeSingle();
 
         if (queryError) throw queryError;
-        if (!data) throw new Error("Ticket not found");
+        if (!data && !cached) throw new Error("Ticket not found");
 
-        setRegistration(data);
-        setEvent(data.events);
-        setTicketTier(data.ticket_types);
+        if (data) {
+          setRegistration(data);
+          setEvent(data.events);
+          setTicketTier(data.ticket_types);
 
-        // Update offline cache
-        localStorage.setItem(
-          cacheKey,
-          JSON.stringify({
-            registration: data,
-            event: data.events,
-            ticketTier: data.ticket_types,
-          })
-        );
+          // Update offline cache
+          localStorage.setItem(
+            cacheKey,
+            JSON.stringify({
+              registration: data,
+              event: data.events,
+              ticketTier: data.ticket_types,
+            })
+          );
+        }
       } catch (err: any) {
         console.error("Failed to load ticket", err);
         if (!cached) {

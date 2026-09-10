@@ -126,6 +126,26 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
       setCompletedRegId(registrationId);
       setCompletedPaymentRef(paymentRef);
+
+      // Cache ticket offline so any ticket view or refresh will immediately render it
+      try {
+        localStorage.setItem(`eventrally_ticket_${registrationId}`, JSON.stringify({
+          registration: {
+            id: registrationId,
+            full_name: name,
+            email: email,
+            amount_paid: totalAmount,
+            payment_reference: paymentRef,
+            created_at: new Date().toISOString(),
+            checked_in: false,
+          },
+          event,
+          ticketTier: ticket,
+        }));
+      } catch (cErr) {
+        console.warn("Offline ticket caching error:", cErr);
+      }
+
       await sendConfirmationEmail(registrationId, paymentRef);
 
       toast.success("Registration Successful!");
@@ -271,20 +291,6 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
                 </>
               )}
             </div>
-
-            {/* Direct Permapage Link */}
-            {completedRegId && (
-              <div className="text-center pt-1">
-                <Link
-                  to={`/tickets/${completedRegId}`}
-                  onClick={handleModalClose}
-                  className="text-xs font-semibold text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 transition-colors"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  Open Fullscreen Ticket Permapage
-                </Link>
-              </div>
-            )}
           </div>
 
           {/* Modal Footer */}
