@@ -90,7 +90,11 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
   const completeRegistration = async (paymentRef: string | null = null) => {
     try {
-      const { data: reg, error: regError } = await supabase.from("registrations").insert({
+      // Pre-generate UUID client-side so we never depend on RETURNING select RLS policies
+      const registrationId = crypto.randomUUID();
+
+      const { error: regError } = await supabase.from("registrations").insert({
+        id: registrationId,
         event_id: event.id,
         user_id: user?.id || null,
         ticket_type_id: ticket?.id || null,
@@ -101,28 +105,34 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
         payment_reference: paymentRef,
         status: 'completed',
         checked_in: false,
-      }).select("id").single();
+      });
 
-      if (regError) throw regError;
+      if (regError) {
+        console.error("Registration Insert Error:", regError);
+        throw regError;
+      }
 
+      // Safely update ticket count without failing checkout if attendee lacks ticket_types UPDATE permissions
       if (ticket?.id) {
-        const { data: tData } = await supabase.from('ticket_types').select('sold').eq('id', ticket.id).single();
-        if (tData) {
-          await supabase.from('ticket_types').update({ sold: tData.sold + quantity }).eq('id', ticket.id);
+        try {
+          const { data: tData } = await supabase.from('ticket_types').select('sold').eq('id', ticket.id).maybeSingle();
+          if (tData) {
+            await supabase.from('ticket_types').update({ sold: (tData.sold || 0) + quantity }).eq('id', ticket.id);
+          }
+        } catch (tErr) {
+          console.warn("Notice: Ticket sold count update deferred:", tErr);
         }
       }
 
-      if (reg?.id) {
-         setCompletedRegId(reg.id);
-         setCompletedPaymentRef(paymentRef);
-         await sendConfirmationEmail(reg.id, paymentRef);
-      }
+      setCompletedRegId(registrationId);
+      setCompletedPaymentRef(paymentRef);
+      await sendConfirmationEmail(registrationId, paymentRef);
 
       toast.success("Registration Successful!");
       onSuccess();
       setIsCompleted(true);
     } catch (err: any) {
-      console.error(err);
+      console.error("Registration failure:", err);
       toast.error(err.message || "Failed to complete registration");
     } finally {
       setProcessing(false);

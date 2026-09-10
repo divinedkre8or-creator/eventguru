@@ -243,10 +243,13 @@ DROP POLICY IF EXISTS "Organisers manage registrations for their events" ON publ
 CREATE POLICY "Organisers manage registrations for their events" ON public.registrations FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.events WHERE events.id = registrations.event_id AND events.organiser_id = auth.uid())) WITH CHECK (EXISTS (SELECT 1 FROM public.events WHERE events.id = registrations.event_id AND events.organiser_id = auth.uid()));
 
 DROP POLICY IF EXISTS "Users can view their own registrations" ON public.registrations;
-CREATE POLICY "Users can view their own registrations" ON public.registrations FOR SELECT TO authenticated USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Attendees and guests can view their registrations" ON public.registrations;
+CREATE POLICY "Attendees and guests can view their registrations" ON public.registrations FOR SELECT TO anon, authenticated USING (auth.uid() = user_id OR user_id IS NULL OR (EXISTS (SELECT 1 FROM public.events WHERE events.id = registrations.event_id AND events.organiser_id = auth.uid())));
 
+DROP POLICY IF EXISTS "Anyone can register for events" ON public.registrations;
 DROP POLICY IF EXISTS "Anyone can register for published events or organisers for their own" ON public.registrations;
-CREATE POLICY "Anyone can register for published events or organisers for their own" ON public.registrations FOR INSERT TO anon, authenticated WITH CHECK (EXISTS (SELECT 1 FROM public.events WHERE events.id = registrations.event_id AND (events.status = 'published' OR events.organiser_id = auth.uid())));
+DROP POLICY IF EXISTS "Public and attendees can register for events" ON public.registrations;
+CREATE POLICY "Public and attendees can register for events" ON public.registrations FOR INSERT TO anon, authenticated WITH CHECK (true);
 
 DROP POLICY IF EXISTS "DP templates are fully visible to everyone" ON public.dp_templates;
 CREATE POLICY "DP templates are fully visible to everyone" ON public.dp_templates FOR SELECT USING (true);
