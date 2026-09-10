@@ -128,24 +128,24 @@ const Analytics = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12 w-full min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6 w-full min-w-0">
         <div>
           <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
             INSIGHTS & REPORTS
           </div>
-          <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Analytics Hub</h1>
+          <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Analytics Hub</h1>
           <p className="text-muted-foreground text-xs font-medium mt-1">
             Real-time revenue, attendance rates, and ticket sales funnel.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
           <select
             value={selectedEventId}
             onChange={(e) => setSelectedEventId(e.target.value)}
-            className="h-10 rounded-lg border border-border bg-card px-3 text-xs text-foreground font-bold focus:ring-2 focus:ring-primary outline-none"
+            className="h-10 rounded-lg border border-border bg-card px-3 text-xs text-foreground font-bold focus:ring-2 focus:ring-primary outline-none w-full sm:w-auto"
           >
             <option value="all">All Events</option>
             {events.map((evt) => (
@@ -158,7 +158,7 @@ const Analytics = () => {
           <Button
             onClick={handleExportCSV}
             variant="outline"
-            className="border-border text-foreground font-bold text-xs h-10 px-4 rounded-lg hover:bg-muted flex items-center gap-1.5"
+            className="border-border text-foreground font-bold text-xs h-10 px-4 rounded-lg hover:bg-muted flex items-center justify-center gap-1.5 w-full sm:w-auto"
           >
             <Download className="w-4 h-4" /> Export Report
           </Button>
@@ -173,7 +173,7 @@ const Analytics = () => {
       ) : (
         <>
           {/* KPI Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full min-w-0">
             <div className="bg-card border border-border rounded-xl p-5 shadow-xs">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-mono font-bold uppercase text-muted-foreground">Total Revenue</span>
@@ -233,8 +233,8 @@ const Analytics = () => {
                 <p className="text-xs text-muted-foreground">No ticket data available for the selected event filter.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+              <div className="overflow-x-auto w-full max-w-full">
+                <table className="w-full min-w-[620px] text-left border-collapse">
                   <thead>
                     <tr className="border-b border-border bg-muted/30">
                       <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Ticket Name</th>

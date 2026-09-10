@@ -111,7 +111,7 @@ const DashboardLayout = () => {
   }, [isOrganiserOrAdmin, location.pathname, navigate]);
 
   return (
-    <div className="min-h-screen bg-background font-sans flex text-foreground antialiased selection:bg-primary selection:text-primary-foreground">
+    <div className="min-h-screen bg-background font-sans flex text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden w-full max-w-full">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-[260px] flex-col bg-card border-r border-border z-40">
         <div className="h-16 flex items-center px-6 border-b border-border justify-between">
@@ -292,16 +292,16 @@ const DashboardLayout = () => {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 md:ml-[260px] flex flex-col min-h-screen bg-background">
+      <div className="flex-1 md:ml-[260px] flex flex-col min-h-screen min-w-0 w-full max-w-full bg-background overflow-x-hidden">
         {/* Top Header */}
-        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(true)} className="md:hidden text-muted-foreground hover:text-foreground">
+        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-3 sm:px-4 md:px-6 sticky top-0 z-30 w-full min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <button onClick={() => setSidebarOpen(true)} className="md:hidden text-muted-foreground hover:text-foreground p-1">
               <Menu className="w-5 h-5" />
             </button>
 
             {/* Global Search Bar */}
-            <div className="relative w-64 sm:w-96 hidden sm:block">
+            <div className="relative w-48 sm:w-80 md:w-96 hidden sm:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
@@ -311,7 +311,7 @@ const DashboardLayout = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {isAdmin && (
               <Link to="/admin">
                 <Button size="sm" variant="outline" className="hidden sm:flex items-center gap-1.5 text-xs font-bold border-primary/40 text-primary hover:bg-primary/10">
@@ -323,20 +323,20 @@ const DashboardLayout = () => {
 
             {isOrganiserOrAdmin && (
               <Link to="/dashboard/events/create">
-                <Button size="sm" className="bg-primary text-primary-foreground font-bold text-xs h-9 px-4 rounded-lg hover:opacity-90 transition-all flex items-center gap-1.5">
-                  <PlusCircle className="w-4 h-4" />
-                  <span>Create Event</span>
+                <Button size="sm" className="bg-primary text-primary-foreground font-bold text-xs h-9 px-2.5 sm:px-4 rounded-lg hover:opacity-90 transition-all flex items-center gap-1.5">
+                  <PlusCircle className="w-4 h-4 shrink-0" />
+                  <span className="hidden sm:inline">Create Event</span>
                 </Button>
               </Link>
             )}
 
             <ThemeToggle />
 
-            <div className="h-5 w-px bg-border mx-1"></div>
+            <div className="h-5 w-px bg-border mx-0.5 sm:mx-1"></div>
 
             {/* User Profile */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs shrink-0">
                 {firstName.charAt(0).toUpperCase()}
               </div>
               <div className="hidden lg:block text-left">
@@ -346,7 +346,7 @@ const DashboardLayout = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
                 onClick={async () => {
                   await signOut();
                   navigate("/");
@@ -360,7 +360,7 @@ const DashboardLayout = () => {
         </header>
 
         {/* Page Main Content */}
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto pb-24 md:pb-8">
+        <main className="flex-1 p-3 sm:p-4 md:p-8 overflow-y-auto overflow-x-hidden min-w-0 w-full max-w-full pb-24 md:pb-8">
           <Outlet />
         </main>
       </div>

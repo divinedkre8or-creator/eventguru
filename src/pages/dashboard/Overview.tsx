@@ -131,14 +131,14 @@ const Overview = () => {
   ];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12 w-full min-w-0 overflow-x-hidden">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6 w-full min-w-0">
         <div>
           <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
             OVERVIEW
           </div>
-          <h1 className="font-heading text-3xl sm:text-4xl font-black text-foreground tracking-tight">
+          <h1 className="font-heading text-2xl sm:text-4xl font-black text-foreground tracking-tight">
             Welcome back, {firstName}.
           </h1>
           <p className="text-muted-foreground text-xs font-medium mt-1">
@@ -155,7 +155,7 @@ const Overview = () => {
       </div>
 
       {/* KPI Row (4 Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full min-w-0">
         {kpiCards.map((kpi, idx) => (
           <div key={idx} className="bg-card border border-border rounded-lg p-5 flex flex-col justify-between h-[124px] relative overflow-hidden shadow-sm hover:border-primary/40 transition-colors">
             <div className="flex items-center justify-between">
@@ -194,10 +194,10 @@ const Overview = () => {
       </div>
 
       {/* Main Grid: Left Column (Span 8) & Right Column (Span 4) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full min-w-0">
         
         {/* Left Column (Span 8) */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-8 space-y-6 w-full min-w-0">
           
           {/* Featured Event Banner */}
           {featuredEvent ? (

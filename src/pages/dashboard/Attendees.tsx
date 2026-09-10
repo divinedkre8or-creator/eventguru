@@ -85,23 +85,23 @@ const Attendees = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12 w-full min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6 w-full min-w-0">
         <div>
           <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
             AUDIENCE & CRM
           </div>
-          <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Attendee Directory</h1>
+          <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Attendee Directory</h1>
           <p className="text-muted-foreground text-xs font-medium mt-1">Manage guest lists, tickets, and check-in statuses across all events</p>
         </div>
-        <Button onClick={handleExport} disabled={filtered.length === 0} variant="outline" className="border-border text-foreground hover:bg-muted font-bold text-xs h-10 px-4 rounded-lg flex items-center gap-2">
+        <Button onClick={handleExport} disabled={filtered.length === 0} variant="outline" className="w-full sm:w-auto border-border text-foreground hover:bg-muted font-bold text-xs h-10 px-4 rounded-lg flex items-center justify-center gap-2">
           <Download className="w-4 h-4" /> Export CSV
         </Button>
       </div>
 
       {/* KPI Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full min-w-0">
         <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
           <div className="text-xs font-mono font-bold text-muted-foreground uppercase">TOTAL REGISTRATIONS</div>
           <div className="font-heading text-3xl font-black text-foreground mt-1">{totalAttendees.toLocaleString()}</div>
@@ -117,22 +117,22 @@ const Attendees = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full sm:w-96">
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between w-full min-w-0">
+        <div className="relative w-full sm:w-96 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search full name, email, or order reference..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-card border-border text-xs h-10 rounded-lg"
+            className="pl-9 bg-card border-border text-xs h-10 rounded-lg w-full"
           />
         </div>
-        <div className="flex gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+        <div className="flex gap-1.5 overflow-x-auto w-full sm:w-auto pb-1.5 sm:pb-0 scrollbar-none max-w-full shrink-0">
           {["all", "confirmed", "completed", "pending"].map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold capitalize whitespace-nowrap border transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold capitalize whitespace-nowrap border transition-all shrink-0 ${
                 statusFilter === s ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
@@ -156,9 +156,9 @@ const Attendees = () => {
           <p className="text-xs text-muted-foreground max-w-xs mx-auto">No guest records match your search criteria.</p>
         </div>
       ) : (
-        <div className="bg-card rounded-lg border border-border overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+        <div className="bg-card rounded-lg border border-border overflow-hidden shadow-sm w-full min-w-0">
+          <div className="overflow-x-auto w-full max-w-full">
+            <table className="w-full text-left text-xs min-w-[650px]">
               <thead className="bg-muted/50 border-b border-border font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
                 <tr>
                   <th className="p-3.5 pl-4">Guest Name</th>

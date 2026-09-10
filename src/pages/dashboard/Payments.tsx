@@ -111,13 +111,13 @@ const Payments = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12 w-full min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="border-b border-border pb-6">
+      <div className="border-b border-border pb-6 w-full min-w-0">
         <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
           PAYMENTS & PAYOUTS
         </div>
-        <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Financial Center</h1>
+        <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Financial Center</h1>
         <p className="text-muted-foreground text-xs font-medium mt-1">
           Manage your ticket revenue, automated bank payouts, and transaction history.
         </p>
@@ -131,7 +131,7 @@ const Payments = () => {
       ) : (
         <>
           {/* Revenue & Payout Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 w-full min-w-0">
             <div className="bg-card border border-border rounded-xl p-5 shadow-xs space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono font-bold uppercase text-muted-foreground">Total Revenue</span>
@@ -253,11 +253,11 @@ const Payments = () => {
               <div className="p-8 text-center space-y-2">
                 <CreditCard className="w-8 h-8 text-muted-foreground/30 mx-auto" />
                 <p className="text-xs text-muted-foreground">No paid transactions recorded yet.</p>
-                <p className="text-[11px] text-muted-foreground/70">When attendees buy paid tickets via Paystack, sales will appear here automatically.</p>
+                <p className="text-[11px] text-muted-foreground/70">When attendees purchase paid tickets via secure online payment, sales will appear here automatically.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+              <div className="overflow-x-auto w-full max-w-full">
+                <table className="w-full min-w-[620px] text-left border-collapse">
                   <thead>
                     <tr className="border-b border-border bg-muted/30">
                       <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Date</th>

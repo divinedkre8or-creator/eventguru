@@ -188,14 +188,14 @@ const AttendeeOverview = () => {
     : null;
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto font-sans pb-12">
+    <div className="space-y-8 max-w-7xl mx-auto font-sans pb-12 w-full min-w-0 overflow-x-hidden">
       {/* Welcome Banner */}
-      <div className="border-b border-border pb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div className="border-b border-border pb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 w-full min-w-0">
         <div>
           <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-secondary/10 text-secondary px-2.5 py-1 rounded inline-block mb-2">
             ATTENDEE DASHBOARD
           </div>
-          <h1 className="font-heading text-3xl sm:text-4xl font-black text-foreground tracking-tight">
+          <h1 className="font-heading text-2xl sm:text-4xl font-black text-foreground tracking-tight">
             Welcome back, {firstName}.
           </h1>
           <p className="text-muted-foreground text-xs font-medium mt-1">
@@ -203,8 +203,8 @@ const AttendeeOverview = () => {
           </p>
         </div>
 
-        <Link to="/events">
-          <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-10 px-4 rounded-lg flex items-center gap-2 hover:opacity-90 shadow-sm">
+        <Link to="/events" className="w-full sm:w-auto">
+          <Button size="sm" className="w-full sm:w-auto bg-secondary text-secondary-foreground font-bold text-xs h-10 px-4 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 shadow-sm">
             <Compass className="w-4 h-4" /> Explore Events
           </Button>
         </Link>

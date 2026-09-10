@@ -127,21 +127,21 @@ const Campaigns = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12 w-full min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="border-b border-border pb-6">
+      <div className="border-b border-border pb-6 w-full min-w-0">
         <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
           CAMPAIGN STUDIO
         </div>
-        <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Attendee Communications</h1>
+        <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Attendee Communications</h1>
         <p className="text-muted-foreground text-xs font-medium mt-1">
           Send broadcast emails and SMS notifications directly to registered attendees.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 w-full min-w-0">
         {/* Campaign Composer */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="lg:col-span-7 space-y-6 w-full min-w-0">
           <form onSubmit={handleSendCampaign} className="bg-card border border-border rounded-xl p-6 shadow-sm space-y-5">
             <h2 className="font-heading text-lg font-bold text-foreground flex items-center gap-2 border-b border-border pb-4">
               <Send className="w-4 h-4 text-secondary" /> Compose New Broadcast
@@ -260,7 +260,7 @@ const Campaigns = () => {
         </div>
 
         {/* Campaign History & Tips */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-5 space-y-6 w-full min-w-0">
           {/* Information Card */}
           <div className="bg-card border border-border rounded-xl p-5 shadow-sm space-y-3">
             <h3 className="font-heading text-sm font-bold text-foreground flex items-center gap-1.5">

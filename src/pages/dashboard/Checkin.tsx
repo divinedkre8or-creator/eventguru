@@ -89,19 +89,19 @@ const Checkin = () => {
   const checkedInCount = filteredAttendees.filter((a: any) => a.checked_in).length;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12 w-full min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6 w-full min-w-0">
         <div>
           <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
             ON SITE MANAGEMENT
           </div>
-          <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Rapid Check-in</h1>
+          <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Rapid Check-in</h1>
           <p className="text-muted-foreground text-xs font-medium mt-1">Search attendees and process entry badges at the gate</p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="bg-card border border-border px-4 py-2 rounded-lg flex items-center gap-3 text-xs shadow-sm">
+          <div className="bg-card border border-border px-4 py-2 rounded-lg flex items-center gap-3 text-xs shadow-sm w-full sm:w-auto justify-between sm:justify-start">
             <ScanLine className="w-4 h-4 text-chart-green" />
             <div>
               <div className="font-mono font-bold text-foreground">{checkedInCount} / {filteredAttendees.length}</div>
@@ -112,8 +112,8 @@ const Checkin = () => {
       </div>
 
       {/* Control Bar: Event Filter & Search */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-        <div className="md:col-span-4 space-y-1.5">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 w-full min-w-0">
+        <div className="md:col-span-4 space-y-1.5 min-w-0">
           <label className="text-xs font-mono font-bold uppercase text-muted-foreground">SELECT EVENT</label>
           <select 
             className="w-full h-10 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-medium focus:outline-none focus:border-primary"
@@ -129,15 +129,15 @@ const Checkin = () => {
           </select>
         </div>
 
-        <div className="md:col-span-8 space-y-1.5">
+        <div className="md:col-span-8 space-y-1.5 min-w-0">
           <label className="text-xs font-mono font-bold uppercase text-muted-foreground">SEARCH ATTENDEE</label>
-          <div className="relative">
+          <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
               placeholder="Search full name, email address, or order reference..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-10 bg-card border-border text-xs rounded-lg"
+              className="pl-9 h-10 bg-card border-border text-xs rounded-lg w-full"
             />
           </div>
         </div>
@@ -157,40 +157,40 @@ const Checkin = () => {
             <p className="text-xs text-muted-foreground max-w-xs">No confirmed registrations match your current event or search parameters.</p>
           </div>
         ) : (
-          <div className="divide-y divide-border">
+          <div className="divide-y divide-border w-full min-w-0">
             {filteredAttendees.map((a: any) => (
-              <div key={a.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-muted/40 transition-colors">
+              <div key={a.id} className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:bg-muted/40 transition-colors w-full min-w-0">
                 
-                <div className="flex items-center gap-3.5">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-mono font-bold text-xs ${
                     a.checked_in ? 'bg-chart-green/10 text-chart-green border border-chart-green/30' : 'bg-muted text-foreground border border-border'
                   }`}>
                     {a.checked_in ? <CheckCircle2 className="w-5 h-5" /> : a.full_name.charAt(0).toUpperCase()}
                   </div>
                   
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-xs text-foreground">{a.full_name}</h4>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="font-bold text-xs text-foreground truncate">{a.full_name}</h4>
                       {a.checked_in && (
-                        <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-chart-green text-white">
+                        <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-chart-green text-white shrink-0">
                           CHECKED IN
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-muted-foreground flex flex-wrap items-center gap-2 mt-0.5">
-                      <span>{a.email}</span>
+                    <p className="text-[11px] text-muted-foreground flex flex-wrap items-center gap-1.5 sm:gap-2 mt-0.5 break-all">
+                      <span className="truncate max-w-[200px] sm:max-w-none">{a.email}</span>
                       <span>•</span>
                       <span className="font-mono font-bold text-foreground">{(a.ticket_types as any)?.name}</span>
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end">
+                <div className="flex items-center justify-end w-full sm:w-auto shrink-0 pt-1 sm:pt-0">
                   <Button 
                     onClick={() => checkinMutation.mutate({ id: a.id, checked_in: !a.checked_in })}
                     disabled={checkinMutation.isPending}
                     variant={a.checked_in ? "outline" : "default"}
-                    className={`h-9 px-4 text-xs font-bold rounded-lg transition-all ${
+                    className={`w-full sm:w-auto h-9 px-4 text-xs font-bold rounded-lg transition-all ${
                       a.checked_in 
                         ? 'border-border text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30' 
                         : 'bg-primary text-primary-foreground hover:opacity-90'

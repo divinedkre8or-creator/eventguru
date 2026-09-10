@@ -317,20 +317,20 @@ const CreateEvent = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 pb-20">
+    <div className="w-full max-w-2xl mx-auto space-y-6 pb-20 min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <button onClick={() => (step > 1 ? setStep(step - 1) : navigate("/dashboard/events"))} className="p-2 rounded-lg hover:bg-card text-muted-foreground hover:text-foreground transition-colors">
+      <div className="flex items-center gap-3 w-full min-w-0">
+        <button onClick={() => (step > 1 ? setStep(step - 1) : navigate("/dashboard/events"))} className="p-2 rounded-lg hover:bg-card text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div>
-          <h1 className="font-heading text-xl font-extrabold text-foreground">{isEditMode ? "Edit Event" : "Create Event"}</h1>
+        <div className="min-w-0">
+          <h1 className="font-heading text-xl font-extrabold text-foreground truncate">{isEditMode ? "Edit Event" : "Create Event"}</h1>
           <p className="text-muted-foreground text-sm font-body">Step {step} of 3</p>
         </div>
       </div>
 
       {/* Progress */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 w-full">
         {[1, 2, 3].map((s) => (
           <div key={s} className={`h-1 flex-1 rounded-full transition-colors ${s <= step ? "bg-primary" : "bg-border"}`} />
         ))}
@@ -338,12 +338,12 @@ const CreateEvent = () => {
 
       {/* Step 1: Event Details */}
       {step === 1 && (
-        <div className="space-y-5 bg-card rounded-xl border border-border p-5">
+        <div className="space-y-5 bg-card rounded-xl border border-border p-4 sm:p-5 w-full min-w-0">
           {/* Banner Upload */}
           <div className="space-y-2">
             <Label className="font-heading text-sm font-bold">Event Banner</Label>
             <div 
-              className="border-2 border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center gap-3 relative overflow-hidden group hover:border-primary/50 transition-colors bg-background/50"
+              className="border-2 border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center gap-3 relative overflow-hidden group hover:border-primary/50 transition-colors bg-background/50 w-full"
               style={{ minHeight: "150px" }}
             >
               {bannerDataUrl ? (
@@ -380,30 +380,30 @@ const CreateEvent = () => {
 
           <div className="space-y-2">
             <Label className="font-heading text-sm font-bold">Event Title *</Label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Lagos Tech Summit 2026" className="bg-background border-border text-foreground" />
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Lagos Tech Summit 2026" className="bg-background border-border text-foreground w-full" />
           </div>
 
           {/* Dynamic Schedule */}
-          <div className="space-y-3">
+          <div className="space-y-3 w-full min-w-0">
             <div className="flex items-center justify-between">
               <Label className="font-heading text-sm font-bold">Event Schedule *</Label>
             </div>
             {schedule.map((day, i) => (
-              <div key={i} className="flex flex-col sm:flex-row gap-3 items-start sm:items-end bg-background p-3 rounded-lg border border-border">
-                <div className="space-y-1 flex-1 w-full">
+              <div key={i} className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end bg-background p-3 rounded-lg border border-border w-full min-w-0">
+                <div className="space-y-1 flex-1 w-full min-w-0">
                   <Label className="text-xs text-muted-foreground">Date *</Label>
-                  <Input type="date" value={day.date} onChange={(e) => updateScheduleDay(i, "date", e.target.value)} className="bg-background border-border text-foreground" />
+                  <Input type="date" value={day.date} onChange={(e) => updateScheduleDay(i, "date", e.target.value)} className="bg-background border-border text-foreground w-full" />
                 </div>
-                <div className="space-y-1 flex-1 w-full">
+                <div className="space-y-1 flex-1 w-full min-w-0">
                   <Label className="text-xs text-muted-foreground">Start Time *</Label>
-                  <Input type="time" value={day.startTime} onChange={(e) => updateScheduleDay(i, "startTime", e.target.value)} className="bg-background border-border text-foreground" />
+                  <Input type="time" value={day.startTime} onChange={(e) => updateScheduleDay(i, "startTime", e.target.value)} className="bg-background border-border text-foreground w-full" />
                 </div>
-                <div className="space-y-1 flex-1 w-full">
+                <div className="space-y-1 flex-1 w-full min-w-0">
                   <Label className="text-xs text-muted-foreground">End Time</Label>
-                  <Input type="time" value={day.endTime} onChange={(e) => updateScheduleDay(i, "endTime", e.target.value)} className="bg-background border-border text-foreground" />
+                  <Input type="time" value={day.endTime} onChange={(e) => updateScheduleDay(i, "endTime", e.target.value)} className="bg-background border-border text-foreground w-full" />
                 </div>
                 {schedule.length > 1 && (
-                  <Button variant="ghost" size="icon" onClick={() => removeScheduleDay(i)} className="shrink-0 text-muted-foreground hover:text-destructive mb-[2px]">
+                  <Button variant="ghost" size="icon" onClick={() => removeScheduleDay(i)} className="self-end sm:self-auto shrink-0 text-muted-foreground hover:text-destructive mb-[2px]">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 )}
@@ -543,34 +543,34 @@ const CreateEvent = () => {
             <h3 className="font-heading text-lg font-bold text-foreground">{title}</h3>
             {description && <p className="text-muted-foreground text-sm font-medium line-clamp-2">{description}</p>}
 
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground font-medium">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm w-full min-w-0">
+              <div className="flex items-center gap-2 text-muted-foreground font-medium min-w-0">
                 <Calendar className="w-4 h-4 shrink-0" />
                 <span className="truncate">{schedule[0].date ? `${new Date(schedule[0].date).toLocaleDateString()} ${schedule[0].startTime}` : "Not set"}</span>
               </div>
               {venue && (
-                <div className="flex items-center gap-2 text-muted-foreground font-medium">
+                <div className="flex items-center gap-2 text-muted-foreground font-medium min-w-0">
                   <MapPin className="w-4 h-4 shrink-0" />
                   <span className="truncate">{venue}{city ? `, ${city}` : ""}</span>
                 </div>
               )}
-              <div className="flex items-center gap-2 text-muted-foreground font-medium">
+              <div className="flex items-center gap-2 text-muted-foreground font-medium min-w-0">
                 <Tag className="w-4 h-4 shrink-0" />
-                <span className="capitalize">{category.replace("-", " ")}</span>
+                <span className="capitalize truncate">{category.replace("-", " ")}</span>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground font-medium">
+              <div className="flex items-center gap-2 text-muted-foreground font-medium min-w-0">
                 <Ticket className="w-4 h-4 shrink-0" />
-                <span>{isFree ? "Free" : `${tickets.filter(t => t.name.trim()).length} ticket type(s)`}</span>
+                <span className="truncate">{isFree ? "Free" : `${tickets.filter(t => t.name.trim()).length} ticket type(s)`}</span>
               </div>
             </div>
 
             {!isFree && tickets.filter(t => t.name.trim()).length > 0 && (
-              <div className="border-t border-border pt-3 space-y-2">
+              <div className="border-t border-border pt-3 space-y-2 w-full min-w-0">
                 <h4 className="font-heading text-xs font-bold text-muted-foreground uppercase tracking-wider">Tickets</h4>
                 {tickets.filter(t => t.name.trim()).map((t, i) => (
-                  <div key={i} className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-foreground">{t.name}</span>
-                    <span className="font-heading font-bold text-primary">
+                  <div key={i} className="flex items-center justify-between text-sm gap-2">
+                    <span className="font-medium text-foreground truncate">{t.name}</span>
+                    <span className="font-heading font-bold text-primary shrink-0 text-right">
                       NGN {parseFloat(t.price || "0").toLocaleString()} <span className="text-muted-foreground font-medium font-normal">x {t.quantity}</span>
                     </span>
                   </div>
@@ -579,19 +579,19 @@ const CreateEvent = () => {
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 w-full min-w-0">
              {isEditMode ? (
-               <Button onClick={() => handleSubmit("published")} disabled={submitting} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold shadow-xl py-6 text-lg">
+               <Button onClick={() => handleSubmit("published")} disabled={submitting} className="w-full sm:flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold shadow-xl py-6 text-lg">
                  {submitting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
                  Save & Update Event
                </Button>
              ) : (
                <>
-                  <Button onClick={() => handleSubmit("draft")} disabled={submitting} variant="ghost" className="flex-1 border border-border text-foreground hover:bg-secondary font-heading font-bold">
+                  <Button onClick={() => handleSubmit("draft")} disabled={submitting} variant="ghost" className="w-full sm:flex-1 border border-border text-foreground hover:bg-secondary font-heading font-bold h-11">
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
                     Save as Draft
                   </Button>
-                  <Button onClick={() => handleSubmit("published")} disabled={submitting} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold">
+                  <Button onClick={() => handleSubmit("published")} disabled={submitting} className="w-full sm:flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold h-11">
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
                     Publish Event
                   </Button>

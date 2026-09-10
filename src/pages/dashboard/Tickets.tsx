@@ -44,25 +44,25 @@ const Tickets = () => {
   ];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12 w-full min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6 w-full min-w-0">
         <div>
           <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
             COMMERCE & INVENTORY
           </div>
-          <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Ticket Inventory</h1>
+          <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Ticket Inventory</h1>
           <p className="text-muted-foreground text-xs font-medium mt-1">Manage ticket pricing, tiers, and capacity across all events</p>
         </div>
-        <Link to="/dashboard/events/create">
-          <Button className="bg-primary text-primary-foreground font-bold text-xs h-10 px-4 rounded-lg hover:opacity-90 flex items-center gap-1.5 shadow-sm">
+        <Link to="/dashboard/events/create" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto bg-primary text-primary-foreground font-bold text-xs h-10 px-4 rounded-lg hover:opacity-90 flex items-center justify-center gap-1.5 shadow-sm">
             <PlusCircle className="w-4 h-4" /> Add Ticket Tier
           </Button>
         </Link>
       </div>
 
       {/* KPI Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full min-w-0">
         {stats.map((s, idx) => (
           <div key={idx} className="bg-card rounded-lg border border-border p-4 shadow-sm">
             <div className="text-xs font-mono font-bold text-muted-foreground uppercase">{s.label}</div>
@@ -72,13 +72,13 @@ const Tickets = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="relative w-full sm:w-96">
+      <div className="relative w-full sm:w-96 min-w-0">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder="Search tickets by tier name or event..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 bg-card border-border text-xs h-10 rounded-lg"
+          className="pl-9 bg-card border-border text-xs h-10 rounded-lg w-full"
         />
       </div>
 
@@ -96,9 +96,9 @@ const Tickets = () => {
           <p className="text-xs text-muted-foreground max-w-xs mx-auto">Create an event and define ticket tiers to start accepting registrations.</p>
         </div>
       ) : (
-        <div className="bg-card rounded-lg border border-border overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+        <div className="bg-card rounded-lg border border-border overflow-hidden shadow-sm w-full min-w-0">
+          <div className="overflow-x-auto w-full max-w-full">
+            <table className="w-full text-left text-xs min-w-[600px]">
               <thead className="bg-muted/50 border-b border-border font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
                 <tr>
                   <th className="p-3.5 pl-4">Ticket Tier</th>

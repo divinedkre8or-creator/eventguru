@@ -44,41 +44,41 @@ const Events = () => {
   const statuses = ["all", "published", "draft", "completed", "cancelled"];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
+    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12 w-full min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-6 w-full min-w-0">
         <div>
           <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
             MY EVENTS
           </div>
-          <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Event Directory</h1>
+          <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Event Directory</h1>
           <p className="text-muted-foreground text-xs font-medium mt-1">Manage your active, draft, and completed events</p>
         </div>
-        <Link to="/dashboard/events/create">
-          <Button className="bg-primary text-primary-foreground font-bold text-xs h-10 px-4 rounded-lg hover:opacity-90 flex items-center gap-1.5 shadow-sm">
+        <Link to="/dashboard/events/create" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto bg-primary text-primary-foreground font-bold text-xs h-10 px-4 rounded-lg hover:opacity-90 flex items-center justify-center gap-1.5 shadow-sm">
             <PlusCircle className="w-4 h-4" /> Create Event
           </Button>
         </Link>
       </div>
 
       {/* Filters & Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full sm:w-80">
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between w-full min-w-0">
+        <div className="relative w-full sm:w-80 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search events by title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-card border-border text-xs h-10 rounded-lg"
+            className="pl-9 bg-card border-border text-xs h-10 rounded-lg w-full"
           />
         </div>
 
-        <div className="flex gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+        <div className="flex gap-1.5 overflow-x-auto w-full sm:w-auto pb-1.5 sm:pb-0 scrollbar-none max-w-full">
           {statuses.map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold capitalize whitespace-nowrap border transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold capitalize whitespace-nowrap border transition-all shrink-0 ${
                 statusFilter === s
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-card border-border text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -91,18 +91,18 @@ const Events = () => {
       </div>
 
       {/* DP Generator Organiser Prompt Banner */}
-      <div className="bg-gradient-to-r from-secondary/15 via-primary/10 to-secondary/10 border border-secondary/30 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-        <div className="flex items-center gap-3">
+      <div className="bg-gradient-to-r from-secondary/15 via-primary/10 to-secondary/10 border border-secondary/30 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs w-full min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-lg bg-secondary text-secondary-foreground flex items-center justify-center shrink-0 font-bold">
             <Zap className="w-5 h-5" />
           </div>
-          <div>
+          <div className="min-w-0">
             <h3 className="font-heading text-sm font-bold text-foreground">Boost Event Virality with DP Generator</h3>
             <p className="text-xs text-muted-foreground">Attach a custom photo frame to your event so registered attendees generate branded profile pictures automatically.</p>
           </div>
         </div>
-        <Link to="/dashboard/dp">
-          <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-4 rounded-lg shrink-0 hover:opacity-90">
+        <Link to="/dashboard/dp" className="w-full sm:w-auto shrink-0">
+          <Button size="sm" className="w-full sm:w-auto bg-secondary text-secondary-foreground font-bold text-xs h-9 px-4 rounded-lg hover:opacity-90">
             Create DP Frame →
           </Button>
         </Link>
@@ -131,13 +131,13 @@ const Events = () => {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 w-full min-w-0">
           {filtered.map((event: any) => {
             const totalTickets = event.ticket_types?.reduce((sum: number, t: any) => sum + (t.quantity || 0), 0) || 0;
             const totalSold = event.ticket_types?.reduce((sum: number, t: any) => sum + (t.sold || 0), 0) || 0;
 
             return (
-              <div key={event.id} className="bg-card border border-border rounded-lg overflow-hidden flex flex-col justify-between hover:border-primary/40 transition-colors shadow-sm group">
+              <div key={event.id} className="bg-card border border-border rounded-lg overflow-hidden flex flex-col justify-between hover:border-primary/40 transition-colors shadow-sm group w-full min-w-0">
                 <div>
                   <div className="relative aspect-[16/9] bg-muted overflow-hidden">
                     {event.image_url ? (
@@ -188,21 +188,21 @@ const Events = () => {
                     </div>
                   </Link>
 
-                  <div className="flex items-center gap-2">
-                    <Link to={`/dashboard/events/${event.id}/edit`} className="flex-1">
+                  <div className="flex items-center gap-2 w-full min-w-0">
+                    <Link to={`/dashboard/events/${event.id}/edit`} className="flex-1 min-w-0">
                       <Button variant="outline" size="sm" className="w-full text-xs font-bold h-9 border-border justify-center">
-                        <Edit3 className="w-3.5 h-3.5 mr-1.5" /> Edit
+                        <Edit3 className="w-3.5 h-3.5 mr-1.5 shrink-0" /> Edit
                       </Button>
                     </Link>
-                    <Link to={getEventUrl(event)} target="_blank">
-                      <Button variant="outline" size="icon" className="h-9 w-9 border-border text-muted-foreground hover:text-foreground" title="View Public Event Page">
+                    <Link to={getEventUrl(event)} target="_blank" className="shrink-0">
+                      <Button variant="outline" size="icon" className="h-9 w-9 border-border text-muted-foreground hover:text-foreground shrink-0" title="View Public Event Page">
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Button>
                     </Link>
                     <Button 
                       variant="outline" 
                       size="icon" 
-                      className="h-9 w-9 border-border text-muted-foreground hover:text-foreground" 
+                      className="h-9 w-9 border-border text-muted-foreground hover:text-foreground shrink-0" 
                       title="Copy Public Link"
                       onClick={() => {
                         navigator.clipboard.writeText(`${window.location.origin}${getEventUrl(event)}`);

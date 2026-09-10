@@ -182,10 +182,10 @@ const DPGenerator = () => {
           <Loader2 className="animate-spin w-6 h-6 text-primary mr-2" /> Loading DP template...
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full min-w-0">
           
           {/* Canvas Wrapper */}
-          <div className="lg:col-span-8 flex flex-col items-center border border-border bg-card p-6 rounded-lg shadow-sm overflow-hidden">
+          <div className="lg:col-span-8 flex flex-col items-center border border-border bg-card p-3 sm:p-6 rounded-lg shadow-sm overflow-hidden w-full min-w-0">
              
              {!template.template_image_url ? (
                <div className="w-full max-w-[500px] aspect-square border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center bg-muted/30 text-muted-foreground p-6">
@@ -197,51 +197,53 @@ const DPGenerator = () => {
                   </Button>
                </div>
              ) : (
-               <div className="relative border border-border shadow-md rounded overflow-hidden" style={{ width: 500, height: 500, backgroundImage: `url(${template.template_image_url})`, backgroundSize: "cover", backgroundPosition: "center" }}>
-                 
-                 {/* Image Placeholder Bounding Box */}
-                 <Rnd
-                    size={{ width: template.image_width, height: template.image_height }}
-                    position={{ x: template.image_x, y: template.image_y }}
-                    onDragStop={(e, d) => setTemplate({ ...template, image_x: d.x, image_y: d.y })}
-                    onResizeStop={(e, direction, ref, delta, position) => {
-                      setTemplate({
-                        ...template,
-                        image_width: parseInt(ref.style.width),
-                        image_height: parseInt(ref.style.height),
-                        image_x: position.x,
-                        image_y: position.y
-                      });
-                    }}
-                    bounds="parent"
-                    className={`border-2 border-primary border-dashed bg-primary/20 backdrop-blur-[2px] cursor-move flex items-center justify-center ${template.image_rounded ? 'rounded-full' : ''}`}
-                 >
-                   <span className="text-primary font-mono font-black rotate-[-15deg] opacity-80 cursor-move pointer-events-none select-none text-center leading-tight text-xs">
-                     ATTENDEE<br/>PHOTO
-                   </span>
-                 </Rnd>
+               <div className="w-full overflow-x-auto py-2 flex justify-center max-w-full">
+                 <div className="relative border border-border shadow-md rounded overflow-hidden shrink-0" style={{ width: 500, height: 500, backgroundImage: `url(${template.template_image_url})`, backgroundSize: "cover", backgroundPosition: "center" }}>
+                   
+                   {/* Image Placeholder Bounding Box */}
+                   <Rnd
+                      size={{ width: template.image_width, height: template.image_height }}
+                      position={{ x: template.image_x, y: template.image_y }}
+                      onDragStop={(e, d) => setTemplate({ ...template, image_x: d.x, image_y: d.y })}
+                      onResizeStop={(e, direction, ref, delta, position) => {
+                        setTemplate({
+                          ...template,
+                          image_width: parseInt(ref.style.width),
+                          image_height: parseInt(ref.style.height),
+                          image_x: position.x,
+                          image_y: position.y
+                        });
+                      }}
+                      bounds="parent"
+                      className={`border-2 border-primary border-dashed bg-primary/20 backdrop-blur-[2px] cursor-move flex items-center justify-center ${template.image_rounded ? 'rounded-full' : ''}`}
+                   >
+                     <span className="text-primary font-mono font-black rotate-[-15deg] opacity-80 cursor-move pointer-events-none select-none text-center leading-tight text-xs">
+                       ATTENDEE<br/>PHOTO
+                     </span>
+                   </Rnd>
 
-                 {/* Name Placeholder Bounding Box */}
-                 <Rnd
-                    size={{ width: template.name_width, height: template.name_font_size + 10 }}
-                    position={{ x: template.name_x, y: template.name_y }}
-                    onDragStop={(e, d) => setTemplate({ ...template, name_x: d.x, name_y: d.y })}
-                    onResizeStop={(e, direction, ref, delta, position) => {
-                      setTemplate({
-                        ...template,
-                        name_width: parseInt(ref.style.width),
-                        name_x: position.x,
-                        name_y: position.y
-                      });
-                    }}
-                    bounds="parent"
-                    enableResizing={{ top:false, right:true, bottom:false, left:true, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
-                    className="border border-chart-blue border-dashed bg-chart-blue/10 cursor-move flex items-center"
-                 >
-                   <div style={{ color: template.name_color, fontSize: template.name_font_size, fontFamily: template.name_font_family, textAlign: template.name_text_align as any, width: "100%" }} className="font-bold select-none whitespace-nowrap cursor-move pointer-events-none">
-                     Attendee Name
-                   </div>
-                 </Rnd>
+                   {/* Name Placeholder Bounding Box */}
+                   <Rnd
+                      size={{ width: template.name_width, height: template.name_font_size + 10 }}
+                      position={{ x: template.name_x, y: template.name_y }}
+                      onDragStop={(e, d) => setTemplate({ ...template, name_x: d.x, name_y: d.y })}
+                      onResizeStop={(e, direction, ref, delta, position) => {
+                        setTemplate({
+                          ...template,
+                          name_width: parseInt(ref.style.width),
+                          name_x: position.x,
+                          name_y: position.y
+                        });
+                      }}
+                      bounds="parent"
+                      enableResizing={{ top:false, right:true, bottom:false, left:true, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false }}
+                      className="border border-chart-blue border-dashed bg-chart-blue/10 cursor-move flex items-center"
+                   >
+                     <div style={{ color: template.name_color, fontSize: template.name_font_size, fontFamily: template.name_font_family, textAlign: template.name_text_align as any, width: "100%" }} className="font-bold select-none whitespace-nowrap cursor-move pointer-events-none">
+                       Attendee Name
+                     </div>
+                   </Rnd>
+                 </div>
                </div>
              )}
              

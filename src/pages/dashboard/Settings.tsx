@@ -94,13 +94,13 @@ const Settings = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto font-sans pb-12">
+    <div className="space-y-6 max-w-4xl mx-auto font-sans pb-12 w-full min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="border-b border-border pb-6">
+      <div className="border-b border-border pb-6 w-full min-w-0">
         <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
           ACCOUNT PREFERENCES
         </div>
-        <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Organiser Settings</h1>
+        <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Organiser Settings</h1>
         <p className="text-muted-foreground text-xs font-medium mt-1">
           Manage your personal profile, security credentials, and system preferences.
         </p>
@@ -134,11 +134,11 @@ const Settings = () => {
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end w-full sm:w-auto">
           <Button
             type="submit"
             disabled={savingProfile}
-            className="bg-primary text-primary-foreground font-bold text-xs h-9 px-5 rounded-lg flex items-center gap-1.5"
+            className="w-full sm:w-auto bg-primary text-primary-foreground font-bold text-xs h-9 px-5 rounded-lg flex items-center justify-center gap-1.5"
           >
             {savingProfile ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
             Save Profile Changes
@@ -176,12 +176,12 @@ const Settings = () => {
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end w-full sm:w-auto">
           <Button
             type="submit"
             disabled={updatingPassword}
             variant="outline"
-            className="border-border text-foreground font-bold text-xs h-9 px-5 rounded-lg flex items-center gap-1.5"
+            className="w-full sm:w-auto border-border text-foreground font-bold text-xs h-9 px-5 rounded-lg flex items-center justify-center gap-1.5"
           >
             {updatingPassword ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Lock className="w-3.5 h-3.5" />}
             Update Password
