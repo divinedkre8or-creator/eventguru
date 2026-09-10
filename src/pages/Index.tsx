@@ -128,7 +128,7 @@ const Index = () => {
               variants={itemVariants} 
               className="text-base sm:text-lg text-muted-foreground max-w-lg leading-relaxed font-medium"
             >
-              Everything you need to host unforgettable events. Set up ticket sales in 2 minutes, get paid directly to your bank account via Paystack, and turn your attendees into a viral marketing team with custom 1-click event fliers.
+              Everything you need to host unforgettable events. Set up ticket sales in 2 minutes, get paid directly to your bank account with automated bank settlement, and turn your attendees into a viral marketing team with custom 1-click event fliers.
             </motion.p>
 
             <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mt-2">
@@ -228,7 +228,7 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
               {[
                 { icon: Ticket, title: "Launch in 2 Minutes", desc: "Create free passes, VIP tables, early bird pricing, and promo codes in minutes." },
-                { icon: Wallet, title: "Instant Bank Payouts", desc: "Collect payments seamlessly via Paystack. Your money goes straight to your account." },
+                { icon: Wallet, title: "Instant Bank Payouts", desc: "Collect payments seamlessly with automated multi-channel checkout. Your money goes straight to your account." },
                 { icon: ImageIcon, title: "Viral DP Generator", desc: "Attendees get custom branded event fliers in 1 click to post on WhatsApp and X." },
                 { icon: ScanLine, title: "1-Second Gate Scan", desc: "Scan digital passes on any phone camera or laptop. Fast queues, zero fake tickets." },
                 { icon: ShieldCheck, title: "Offline Pass Passes", desc: "Attendees open their tickets and QR codes even with zero phone signal at the gate." },
@@ -320,7 +320,7 @@ const Index = () => {
                   <div className="w-1 h-1 rounded-full bg-border"></div>
                   <div className="flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5 text-secondary" />
-                    <span>Instant Paystack payouts</span>
+                    <span>Instant automated bank payouts</span>
                   </div>
                   <div className="w-1 h-1 rounded-full bg-border"></div>
                   <div className="flex items-center gap-1">
@@ -369,7 +369,7 @@ const Index = () => {
                   { value: "100%", label: "Free For Free Events" },
                   { value: "<1s", label: "Gate QR Verification" },
                   { value: "₦0", label: "Upfront Setup Fees" },
-                  { value: "Direct", label: "Bank Payouts via Paystack" },
+                  { value: "Direct", label: "Automated Bank Payouts" },
                 ].map((stat, idx) => (
                   <div key={idx} className="flex flex-col gap-1 pl-4 first:pl-0 border-l-0">
                     <span className="font-heading text-3xl sm:text-4xl font-black text-foreground tracking-tighter">{stat.value}</span>

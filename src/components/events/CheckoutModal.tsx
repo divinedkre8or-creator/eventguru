@@ -14,6 +14,8 @@ import { Link } from "react-router-dom";
 import { getEventDpUrl } from "@/lib/slugUtils";
 import { DigitalTicketCard } from "@/components/tickets/DigitalTicketCard";
 import { TicketActions } from "@/components/tickets/TicketActions";
+import { getActiveGatewayPublicKey, calculatePaymentBreakdown } from "@/lib/platformSettings";
+import { sendTicketConfirmationEmail } from "@/lib/emailService";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -35,33 +37,54 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
   const [completedRegId, setCompletedRegId] = useState<string | null>(null);
   const [completedPaymentRef, setCompletedPaymentRef] = useState<string | null>(null);
 
-  // Use a dummy test key as requested if env var isn't set
-  const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "pk_test_dummykey1234567890";
+  // Dynamic gateway public key resolved from Super Admin configuration
+  const gatewayPublicKey = getActiveGatewayPublicKey();
 
-  const originalAmount = (ticket?.price || 0) * quantity;
-  const totalAmount = discountPercentage > 0 
-    ? originalAmount * (1 - discountPercentage / 100) 
-    : originalAmount;
-  const isFree = totalAmount === 0;
+  // Rigorous calculation ensuring subtotal, quantity, discount, and minor units are exact
+  const breakdown = calculatePaymentBreakdown({
+    unitPrice: ticket?.price || 0,
+    quantity,
+    discountPercentage,
+  });
+
+  const totalAmount = breakdown.totalAmount;
+  const isFree = breakdown.isFree;
 
   const config = {
-    reference: (new Date()).getTime().toString(),
+    reference: `EVR-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
     email: email,
-    amount: totalAmount * 100, // Paystack expects kobo/cents
-    publicKey: PAYSTACK_KEY,
+    amount: breakdown.amountInMinorUnits, // Gateway minor units (e.g. kobo)
+    publicKey: gatewayPublicKey,
     currency: 'NGN', 
   };
 
   const initializePayment = usePaystackPayment(config);
 
-  const sendConfirmationEmail = async (registrationId: string) => {
+  const sendConfirmationEmail = async (registrationId: string, paymentRef: string | null) => {
     try {
-      const { data, error } = await supabase.functions.invoke('send-ticket', {
-        body: { registrationId }
+      // 1. Direct Resend dispatch using configured Super Admin API key
+      const venueStr = [event.venue, event.city, event.country].filter(Boolean).join(", ") || "Venue TBA";
+      const dateStr = event.date ? new Date(event.date).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'TBA';
+
+      await sendTicketConfirmationEmail({
+        attendeeName: name,
+        attendeeEmail: email,
+        eventTitle: event.title || "Event",
+        eventDate: dateStr,
+        venueName: venueStr,
+        ticketName: ticket?.name || "Standard Pass",
+        orderReference: paymentRef || registrationId.slice(0, 8).toUpperCase(),
+        amountPaid: totalAmount,
+        eventUrl: window.location.origin + `/events/${event.slug || event.id}`,
+        dpUrl: window.location.origin + getEventDpUrl(event),
       });
-      if (error) throw new Error(error.message);
+
+      // 2. Also trigger Supabase Edge Function as secondary background pipeline
+      await supabase.functions.invoke('send-ticket', {
+        body: { registrationId }
+      }).catch((err) => console.warn("Edge function fallback notice:", err));
     } catch (err) {
-      console.error("Failed to send email via Supabase Edge Function", err);
+      console.error("Failed to execute ticket email dispatch:", err);
     }
   };
 
@@ -92,7 +115,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
       if (reg?.id) {
          setCompletedRegId(reg.id);
          setCompletedPaymentRef(paymentRef);
-         await sendConfirmationEmail(reg.id);
+         await sendConfirmationEmail(reg.id, paymentRef);
       }
 
       toast.success("Registration Successful!");
@@ -286,29 +309,25 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
         </div>
 
         <form onSubmit={handleCheckout} className="p-6 space-y-5">
-          <div className="bg-muted/50 p-4 rounded-xl border border-border">
-            <div className="flex justify-between items-center text-[13px] text-muted-foreground mb-2">
-              <span>{ticket.name} Ticket</span>
-              <div className="flex items-center gap-2">
-                {discountPercentage > 0 && ticket.price > 0 && (
-                   <span className="line-through text-[11px] opacity-70">
-                     NGN {ticket.price.toLocaleString()}
-                   </span>
-                )}
-                <span>
-                  {ticket.price === 0 ? "Free" : `NGN ${discountPercentage > 0 ? (ticket.price * (1 - discountPercentage / 100)).toLocaleString() : ticket.price.toLocaleString()}`}
-                </span>
-              </div>
+          <div className="bg-muted/50 p-4 rounded-xl border border-border space-y-2">
+            <div className="flex justify-between items-center text-[13px] text-muted-foreground">
+              <span>{ticket.name} {quantity > 1 ? `(${quantity}x @ ₦${breakdown.unitPrice.toLocaleString()})` : "Ticket"}</span>
+              <span className="font-medium text-foreground">
+                {breakdown.unitPrice === 0 ? "Free" : `₦${breakdown.subtotal.toLocaleString()}`}
+              </span>
             </div>
-            {discountPercentage > 0 && (
-               <div className="flex justify-between items-center text-[11px] font-bold text-secondary mb-2 mt-1 py-1 px-2 bg-secondary/10 rounded w-max">
-                 {discountPercentage}% COUPON APPLIED
-               </div>
+
+            {breakdown.discountAmount > 0 && (
+              <div className="flex justify-between items-center text-xs text-secondary font-medium">
+                <span>Discount ({breakdown.discountPercentage}% off)</span>
+                <span>-₦{breakdown.discountAmount.toLocaleString()}</span>
+              </div>
             )}
+
             <div className="flex justify-between items-center border-t border-border pt-2 mt-2">
               <span className="font-bold text-sm text-foreground">Total Amount</span>
               <span className="font-heading font-bold text-lg text-secondary">
-                {isFree ? "Free" : `NGN ${totalAmount.toLocaleString()}`}
+                {isFree ? "Free" : `₦${breakdown.totalAmount.toLocaleString()}`}
               </span>
             </div>
           </div>
@@ -383,7 +402,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
             
             <div className="mt-4 flex items-center justify-center gap-2 text-muted-foreground text-[11px]">
                <ShieldCheck className="w-4 h-4 text-chart-green" />
-               <span>{isFree ? "Secure registration pipeline" : "Payments processing secured by Paystack"}</span>
+               <span>{isFree ? "Secure registration pipeline" : "Payments processing secured by 256-bit bank-grade encryption"}</span>
             </div>
           </div>
         </form>

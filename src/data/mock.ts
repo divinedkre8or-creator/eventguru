@@ -9,7 +9,7 @@ export const features = [
   { title: "Analytics Hub", description: "Revenue tracking, attendee insights, registration funnels, and post-event reports.", icon: "chart" },
   { title: "Campaigns", description: "Email and SMS campaigns with templates, scheduling, and automated triggers.", icon: "mail" },
   { title: "Form Builder", description: "Custom registration forms with conditional logic and multiple field types.", icon: "form" },
-  { title: "Payments", description: "Paystack & Flutterwave integration with split payments and automated payouts.", icon: "wallet" },
+  { title: "Payments", description: "Direct card and bank transfer checkout with split payments and automated bank payouts.", icon: "wallet" },
   { title: "Attendee CRM", description: "Full attendee management with tags, notes, communication history, and exports.", icon: "users" },
 ];
 

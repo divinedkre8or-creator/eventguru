@@ -332,7 +332,7 @@ export const EventsDiscovery: React.FC = () => {
             Hosting your own gathering?
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
-            Set up ticket tiers in 2 minutes, get paid directly via Paystack, and turn attendees into your viral promo team.
+            Set up ticket tiers in 2 minutes, get paid directly with automated bank settlements, and turn attendees into your viral promo team.
           </p>
           <div className="pt-2">
             <Link to="/signup">
