@@ -36,7 +36,7 @@ const Login = () => {
       <header className="w-full border-b border-border bg-card/90 backdrop-blur-md">
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="font-heading font-black text-lg sm:text-xl text-primary tracking-tighter uppercase flex items-center gap-1">
-            MYEVENTGURU<span className="text-[10px] text-muted-foreground align-top">™</span>
+            EVENTRALLY
           </Link>
           <ThemeToggle />
         </div>
@@ -124,7 +124,7 @@ const Login = () => {
 
       {/* Footer */}
       <footer className="border-t border-border py-6 px-4 text-center text-xs text-muted-foreground">
-        © 2026 Eventguru. All rights reserved.
+        © 2026 EventRally. All rights reserved.
       </footer>
     </div>
   );

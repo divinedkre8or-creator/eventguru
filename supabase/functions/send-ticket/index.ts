@@ -65,8 +65,8 @@ serve(async (req) => {
     const venueName = [registration.events?.venue, registration.events?.city, registration.events?.country].filter(Boolean).join(", ") || "Venue TBA";
     const eventDate = registration.events?.date ? new Date(registration.events.date).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'TBA';
 
-    const dpUrl = `https://myeventguru.com/events/${eventSlug}/dp`;
-    const eventUrl = `https://myeventguru.com/events/${eventSlug}`;
+    const dpUrl = `https://eventrally.com/events/${eventSlug}/dp`;
+    const eventUrl = `https://eventrally.com/events/${eventSlug}`;
 
     console.log(`Sending ticket for ${eventTitle} to ${registration.email}`);
 
@@ -77,14 +77,14 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "MyEventGuru Tickets <tickets@myeventguru.com>",
+        from: "EventRally Tickets <tickets@eventrally.com>",
         to: registration.email,
         subject: `Your Official Ticket for ${eventTitle}`,
         html: `
           <div style="font-family: Arial, sans-serif; padding: 24px; color: #0A0D12; max-width: 600px; margin: 0 auto; border: 1px solid #E2E8F0; border-radius: 16px; background-color: #ffffff;">
             
             <div style="border-bottom: 2px solid #F5A623; padding-bottom: 16px; margin-bottom: 20px; text-align: center;">
-              <h2 style="font-size: 20px; font-weight: 900; letter-spacing: -0.5px; margin: 0; color: #0A0D12;">MYEVENTGURU</h2>
+              <h2 style="font-size: 20px; font-weight: 900; letter-spacing: -0.5px; margin: 0; color: #0A0D12;">EVENTRALLY</h2>
               <span style="font-size: 11px; font-family: monospace; color: #64748B; text-transform: uppercase;">OFFICIAL TICKET CONFIRMATION</span>
             </div>
 
@@ -111,7 +111,7 @@ serve(async (req) => {
             </div>
 
             <div style="text-align: center; margin-top: 30px; font-size: 11px; color: #94A3B8;">
-               &copy; 2026 MyEventGuru &bull; Africa's Event Operating System
+               &copy; 2026 EventRally &bull; Where Everyone's Going.
             </div>
           </div>
         `

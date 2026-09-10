@@ -32,7 +32,7 @@ const Signup = () => {
     if (error) {
       toast({ variant: "destructive", title: "Signup failed", description: error });
     } else if (session) {
-      toast({ title: "Welcome to MyEventGuru!", description: "Account created and logged in successfully." });
+      toast({ title: "Welcome to EventRally!", description: "Account created and logged in successfully." });
       navigate("/dashboard");
     } else {
       toast({ title: "Account created", description: "Please check your inbox or confirm your email to log in." });
@@ -46,7 +46,7 @@ const Signup = () => {
       <header className="w-full border-b border-border bg-card/90 backdrop-blur-md">
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="font-heading font-black text-lg sm:text-xl text-primary tracking-tighter uppercase flex items-center gap-1">
-            MYEVENTGURU<span className="text-[10px] text-muted-foreground align-top">™</span>
+            EVENTRALLY
           </Link>
           <ThemeToggle />
         </div>
@@ -60,7 +60,7 @@ const Signup = () => {
             <div className="flex items-center gap-2 justify-center">
               <div className="w-2.5 h-2.5 bg-secondary rounded-xs"></div>
               <span className="text-secondary font-mono text-[11px] font-bold tracking-widest uppercase">
-                JOIN EVENTGURU
+                JOIN EVENTRALLY
               </span>
             </div>
             <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">
@@ -173,7 +173,7 @@ const Signup = () => {
 
       {/* Footer */}
       <footer className="border-t border-border py-6 px-4 text-center text-xs text-muted-foreground">
-        © 2026 Eventguru. All rights reserved.
+        © 2026 EventRally. All rights reserved.
       </footer>
     </div>
   );

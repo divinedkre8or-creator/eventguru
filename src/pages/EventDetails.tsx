@@ -165,7 +165,7 @@ const EventDetails = () => {
       <nav className="bg-card/90 backdrop-blur-md sticky top-0 z-50 border-b border-border">
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="font-heading font-black text-lg sm:text-xl text-primary tracking-tighter uppercase flex items-center gap-1">
-            MYEVENTGURU<span className="text-[10px] text-muted-foreground align-top">™</span>
+            EVENTRALLY
           </Link>
 
           <div className="flex items-center gap-3">
@@ -390,11 +390,11 @@ const EventDetails = () => {
       <footer className="bg-card border-t border-border py-10 px-4 sm:px-6">
         <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
-            <span className="font-heading font-black text-foreground text-sm uppercase">MYEVENTGURU™</span>
+            <span className="font-heading font-black text-foreground text-sm uppercase">EVENTRALLY</span>
             <span>•</span>
-            <span>Africa's Event Operating System</span>
+            <span>Where Everyone's Going.</span>
           </div>
-          <div>© 2026 MYEVENTGURU. All rights reserved.</div>
+          <div>© 2026 EVENTRALLY. All rights reserved.</div>
         </div>
       </footer>
 

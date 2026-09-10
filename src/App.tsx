@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import EventDetails from "./pages/EventDetails";
+import TicketView from "./pages/TicketView";
 
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardOverview from "./pages/dashboard/Overview";
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/events/:id" element={<EventDetails />} />
             <Route path="/events/:id/dp" element={<DPAttendeeView />} />
+            <Route path="/tickets/:id" element={<TicketView />} />
 
             {/* Dashboard (Organisers & Attendees) */}
             <Route path="/dashboard" element={

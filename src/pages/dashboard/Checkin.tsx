@@ -73,8 +73,17 @@ const Checkin = () => {
   });
 
   const filteredAttendees = attendees.filter((a: any) => {
-    const q = searchQuery.toLowerCase();
-    return a.full_name?.toLowerCase().includes(q) || a.email?.toLowerCase().includes(q) || a.payment_reference?.toLowerCase().includes(q);
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return true;
+    const cleanId = (a.id || "").replace(/-/g, "").toLowerCase();
+    const cleanQ = q.replace(/^evr-?/i, "").replace(/-/g, "").toLowerCase();
+    return (
+      a.full_name?.toLowerCase().includes(q) ||
+      a.email?.toLowerCase().includes(q) ||
+      a.payment_reference?.toLowerCase().includes(q) ||
+      a.id?.toLowerCase().includes(q) ||
+      (cleanQ.length >= 4 && cleanId.startsWith(cleanQ))
+    );
   });
 
   const checkedInCount = filteredAttendees.filter((a: any) => a.checked_in).length;

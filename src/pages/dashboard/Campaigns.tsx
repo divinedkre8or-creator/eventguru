@@ -267,7 +267,7 @@ const Campaigns = () => {
               <CheckCircle2 className="w-4 h-4 text-chart-green" /> Deliverability Guarantee
             </h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Broadcasts are routed directly to attendees registered under your events. Emails are formatted automatically with branded MyEventGuru headers.
+              Broadcasts are routed directly to attendees registered under your events. Emails are formatted automatically with branded EventRally headers.
             </p>
           </div>
 

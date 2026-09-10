@@ -84,7 +84,7 @@ const AdminEvents = () => {
         </div>
         <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">Platform Events</h1>
         <p className="text-muted-foreground text-xs font-medium mt-1">
-          Monitor and manage all public and private events created across MyEventGuru.
+          Monitor and manage all public and private events created across EventRally.
         </p>
       </div>
 

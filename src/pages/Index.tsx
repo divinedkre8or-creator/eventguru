@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { 
   CalendarDays, Ticket, Users, ScanLine, BarChart3, Mail, ChevronRight, 
   ArrowUpRight, Calendar, MapPin, CheckCircle2, ShieldCheck, Globe, Star,
-  Loader2, Zap, Award, Image as ImageIcon
+  Loader2, Zap, Award, Image as ImageIcon, Wallet
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,7 +62,7 @@ const Index = () => {
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link to="/" className="font-heading font-black text-lg sm:text-xl text-primary tracking-tighter uppercase flex items-center gap-1">
-              MYEVENTGURU<span className="text-[10px] text-muted-foreground align-top">™</span>
+              EVENTRALLY
             </Link>
             <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-muted-foreground">
               <a className="hover:text-foreground transition-colors flex items-center gap-1" href="#features">
@@ -109,7 +109,7 @@ const Index = () => {
             <motion.div variants={itemVariants} className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 bg-secondary rounded-xs"></div>
               <span className="text-secondary font-mono text-[11px] font-bold tracking-widest uppercase">
-                THE AFRICAN EVENT OPERATING SYSTEM
+                THE EVENT PLATFORM FOR CREATORS & ORGANIZERS
               </span>
             </motion.div>
 
@@ -117,9 +117,9 @@ const Index = () => {
               variants={itemVariants} 
               className="font-heading text-3xl sm:text-5xl lg:text-[54px] leading-[1.15] font-black tracking-tight text-foreground uppercase"
             >
-              Plan, Sell, Manage, & Grow Your Events{" "}
+              Pack your venue. Sell out tickets.{" "}
               <span className="relative inline-block text-secondary underline decoration-secondary decoration-[3.5px] underline-offset-[8px]">
-                from one place
+                Get paid instantly.
               </span>
             </motion.h1>
 
@@ -129,21 +129,21 @@ const Index = () => {
               variants={itemVariants} 
               className="text-base sm:text-lg text-muted-foreground max-w-lg leading-relaxed font-medium"
             >
-              EventGuru is Africa's premier all-in-one event operating system—built to help creators, organizers, and brands publish events, sell tickets, manage attendees, and drive revenue across the continent.
+              Everything you need to host unforgettable events. Set up ticket sales in 2 minutes, get paid directly to your bank account via Paystack, and turn your attendees into a viral marketing team with custom 1-click event fliers.
             </motion.p>
 
             <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mt-2">
               <Link to="/signup">
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                   <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-sm h-12 px-6 rounded-lg hover:opacity-90 transition-all shadow-md">
-                    Start Your First Event
+                    Create Your Event Free
                   </Button>
                 </motion.div>
               </Link>
               <a href="#events">
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                   <Button variant="outline" size="lg" className="border-border text-foreground font-bold text-sm h-12 px-6 rounded-lg hover:bg-muted transition-all flex items-center gap-2">
-                    Explore Events <ArrowUpRight className="w-4 h-4" />
+                    Explore Live Events <ArrowUpRight className="w-4 h-4" />
                   </Button>
                 </motion.div>
               </a>
@@ -158,29 +158,54 @@ const Index = () => {
                 <div className="w-8 h-8 rounded-full bg-chart-purple/10 border-2 border-background flex items-center justify-center font-bold text-[10px] text-chart-purple">★</div>
               </div>
               <p className="text-xs text-muted-foreground font-medium">
-                Be among the first organizers on <span className="font-bold text-foreground">MyEventGuru</span> — early access is live now.
+                Trusted by organizers across Nigeria & Africa. Free events are <span className="font-bold text-foreground">100% free forever</span>.
               </p>
             </motion.div>
           </motion.div>
 
-          {/* Hero Graphic Standalone */}
+          {/* Hero Graphic Showcase with Floating Metric Badges */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.96, y: 25 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.25, ease: "easeOut" }}
-            className="w-full flex items-center justify-center"
+            className="w-full flex items-center justify-center relative"
           >
-            <motion.img 
-              src="/heroimg.webp" 
-              alt="MyEventGuru Platform Showcase" 
-              whileHover={{ y: -4, scale: 1.01 }}
-              transition={{ duration: 0.3 }}
-              className="w-full h-auto max-h-[560px] object-contain rounded-2xl shadow-2xl transition-all"
-            />
+            <div className="relative w-full max-w-[560px]">
+              {/* Floating Badge 1: Live Ticket Revenue */}
+              <div className="absolute -top-4 -left-2 sm:-left-6 z-20 bg-card/95 backdrop-blur-md border border-border px-3.5 py-2.5 rounded-xl shadow-xl flex items-center gap-3 animate-in fade-in zoom-in-95 duration-500">
+                <div className="w-9 h-9 rounded-lg bg-chart-green/15 text-chart-green flex items-center justify-center font-bold">
+                  <Wallet className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono font-bold uppercase text-muted-foreground">TICKET REVENUE</div>
+                  <div className="font-heading text-sm font-black text-foreground">₦2,450,000 <span className="text-[10px] text-chart-green font-mono font-bold">PAID</span></div>
+                </div>
+              </div>
+
+              {/* Floating Badge 2: Rapid Gate Check-In */}
+              <div className="absolute -bottom-4 -right-2 sm:-right-6 z-20 bg-card/95 backdrop-blur-md border border-border px-3.5 py-2.5 rounded-xl shadow-xl flex items-center gap-3 animate-in fade-in zoom-in-95 duration-500">
+                <div className="w-9 h-9 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center font-bold">
+                  <ScanLine className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono font-bold uppercase text-muted-foreground">GATE SCANNER</div>
+                  <div className="font-heading text-sm font-black text-foreground">1-Sec QR Entry <span className="text-[10px] text-secondary font-mono font-bold">LIVE</span></div>
+                </div>
+              </div>
+
+              {/* Main Dashboard Preview Image */}
+              <motion.img 
+                src="/heroimg.webp" 
+                alt="EventRally Organizer Dashboard Showcase" 
+                whileHover={{ y: -4, scale: 1.01 }}
+                transition={{ duration: 0.3 }}
+                className="w-full h-auto max-h-[560px] object-contain rounded-2xl shadow-2xl transition-all border border-border/60 bg-card"
+              />
+            </div>
           </motion.div>
         </section>
 
-        {/* Inverted Contrast Features Grid Section (Black in Light Mode, White in Dark Mode) */}
+        {/* Inverted Contrast Features Grid Section */}
         <section id="features" className="bg-neutral-950 text-neutral-100 dark:bg-white dark:text-neutral-950 border-y border-neutral-800 dark:border-neutral-200 py-16 px-4 sm:px-6 transition-colors duration-300">
           <div className="max-w-[1440px] mx-auto">
             <motion.div 
@@ -188,22 +213,27 @@ const Index = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4 }}
-              className="flex items-center gap-2 mb-8 justify-center sm:justify-start"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8"
             >
-              <div className="w-2.5 h-2.5 rounded-xs bg-secondary"></div>
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-600">
-                CORE PLATFORM MODULES
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-xs bg-secondary"></div>
+                <span className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-600">
+                  BUILT FOR SMOOTH EVENTS FROM START TO FINISH
+                </span>
+              </div>
+              <span className="text-xs text-neutral-400 dark:text-neutral-600 font-mono">
+                ZERO COMPLICATED SETUPS
               </span>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
               {[
-                { icon: CalendarDays, title: "Event Creation", desc: "Create stunning event pages in minutes with our smart event builder." },
-                { icon: Ticket, title: "Ticketing Engine", desc: "Flexible ticket types, early bird pricing, promos, bundles and more." },
-                { icon: ImageIcon, title: "DP Generator", desc: "Let attendees generate custom branded profile picture fliers in 1 click." },
-                { icon: ScanLine, title: "Rapid Check-In", desc: "Lightning fast QR check-in, gate security, and live attendance tracking." },
-                { icon: BarChart3, title: "Analytics Hub", desc: "Powerful analytics to track sales, engagement, and revenue in real time." },
-                { icon: Mail, title: "Email & SMS", desc: "Run targeted marketing campaigns that drive engagement and conversions." },
+                { icon: Ticket, title: "Launch in 2 Minutes", desc: "Create free passes, VIP tables, early bird pricing, and promo codes in minutes." },
+                { icon: Wallet, title: "Instant Bank Payouts", desc: "Collect payments seamlessly via Paystack. Your money goes straight to your account." },
+                { icon: ImageIcon, title: "Viral DP Generator", desc: "Attendees get custom branded event fliers in 1 click to post on WhatsApp and X." },
+                { icon: ScanLine, title: "1-Second Gate Scan", desc: "Scan digital passes on any phone camera or laptop. Fast queues, zero fake tickets." },
+                { icon: ShieldCheck, title: "Offline Pass Passes", desc: "Attendees open their tickets and QR codes even with zero phone signal at the gate." },
+                { icon: BarChart3, title: "Live Sales Numbers", desc: "Track ticket revenue, check-in percentages, and attendance live as it happens." },
               ].map((mod, idx) => (
                 <motion.div 
                   key={idx} 
@@ -227,7 +257,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* DP Generator Spotlight Section */}
+        {/* DP Generator Spotlight Section (Enhanced Hot Feature) */}
         <section className="bg-card border-b border-border py-16 px-4 sm:px-6 relative overflow-hidden">
           <div className="max-w-[1440px] mx-auto">
             
@@ -239,7 +269,7 @@ const Index = () => {
               className="max-w-3xl space-y-5"
             >
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[11px] font-mono font-bold tracking-wider uppercase">
-                <Award className="w-3.5 h-3.5" /> HOT FEATURE
+                <Award className="w-3.5 h-3.5" /> HOT FEATURE • VIRAL EVENT MARKETING
               </div>
 
               <h2 className="font-heading text-3xl sm:text-4xl font-black text-foreground uppercase tracking-tight leading-tight">
@@ -247,18 +277,23 @@ const Index = () => {
               </h2>
 
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Our built-in Display Picture (DP) Generator lets organizers upload a custom event photo frame. When attendees register, they generate branded profile pictures in 1-click to share across WhatsApp, Instagram, X (Twitter), and LinkedIn.
+                Stop wasting money on social media ads that people scroll past. The most trusted promotion is a friend posting, <strong className="text-foreground">"I'm attending!"</strong> With EventRally, upload your official event frame once. The second an attendee registers, they generate a personalized, branded picture flier in 1-click to share across WhatsApp Status, Instagram, and X.
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                 <div className="p-4 rounded-xl border border-border bg-background space-y-1">
-                  <div className="font-heading text-base font-bold text-foreground">1-Click Generation</div>
-                  <p className="text-xs text-muted-foreground">Attendees upload their photo and get a crisp branded flier instantly.</p>
+                  <div className="font-heading text-sm font-bold text-foreground">Zero Design Skills Needed</div>
+                  <p className="text-xs text-muted-foreground">No Photoshop or designer fees. The system automatically places attendee photos and names into your frame.</p>
                 </div>
 
                 <div className="p-4 rounded-xl border border-border bg-background space-y-1">
-                  <div className="font-heading text-base font-bold text-foreground">Zero Design Skills Needed</div>
-                  <p className="text-xs text-muted-foreground">Organizers position name badges and frames visually in minutes.</p>
+                  <div className="font-heading text-sm font-bold text-foreground">1-Click Mobile Downloads</div>
+                  <p className="text-xs text-muted-foreground">Attendees grab their ready-to-post, high-res flier in seconds right after checkout.</p>
+                </div>
+
+                <div className="p-4 rounded-xl border border-border bg-background space-y-1">
+                  <div className="font-heading text-sm font-bold text-foreground">Free Word-of-Mouth Hype</div>
+                  <p className="text-xs text-muted-foreground">When 200 attendees post your flier, your event reaches over 10,000 friends organically—driving fresh ticket sales.</p>
                 </div>
               </div>
             </motion.div>
@@ -278,14 +313,14 @@ const Index = () => {
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 bg-secondary"></div>
                 <span className="text-secondary font-mono text-[11px] font-bold tracking-widest uppercase">
-                  BUILT FOR EVERY EVENT
+                  RELIABLE EVENT INFRASTRUCTURE
                 </span>
               </div>
               <h2 className="font-heading text-3xl sm:text-4xl font-black text-foreground uppercase tracking-tight leading-tight">
-                ONE PLATFORM.<br/>EVERY POSSIBLE EVENT.
+                BUILT FOR SOLD-OUT EVENTS OF ANY SIZE.
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-                From tech summits and music festivals to corporate galas and campus expos, EventGuru gives African organizers the tools to deliver world-class experiences.
+                Whether you're hosting an intimate 50-person creator workshop, a 500-seat corporate summit, or a 5,000-person concert, EventRally gives organizers the speed, control, and reliability to run without stress.
               </p>
             </motion.div>
 
@@ -298,10 +333,10 @@ const Index = () => {
             >
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 divide-x divide-border">
                 {[
-                  { value: "8", label: "Core Modules" },
-                  { value: "60+", label: "Platform Features" },
-                  { value: "99.9%", label: "Platform Uptime" },
-                  { value: "Africa", label: "Built For" },
+                  { value: "100%", label: "Free For Free Events" },
+                  { value: "<1s", label: "Gate QR Verification" },
+                  { value: "₦0", label: "Upfront Setup Fees" },
+                  { value: "Direct", label: "Bank Payouts via Paystack" },
                 ].map((stat, idx) => (
                   <div key={idx} className="flex flex-col gap-1 pl-4 first:pl-0 border-l-0">
                     <span className="font-heading text-3xl sm:text-4xl font-black text-foreground tracking-tighter">{stat.value}</span>
@@ -356,7 +391,7 @@ const Index = () => {
               </div>
               <div className="text-center space-y-1">
                 <h3 className="font-heading text-lg font-bold text-foreground">No Events Yet</h3>
-                <p className="text-xs text-muted-foreground max-w-sm">Be the first to create an event on MyEventGuru. Your event will be featured right here.</p>
+                <p className="text-xs text-muted-foreground max-w-sm">Be the first to create an event on EventRally. Your event will be featured right here.</p>
               </div>
               <Link to="/signup">
                 <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-5 rounded-lg">
@@ -432,19 +467,19 @@ const Index = () => {
             className="max-w-2xl mx-auto space-y-4 relative z-10"
           >
             <span className="text-[10px] font-mono font-bold uppercase tracking-widest bg-secondary/10 text-secondary px-3 py-1 rounded inline-block">
-              READY TO ELEVATE YOUR EVENTS?
+              START SELLING TICKETS IN 2 MINUTES
             </span>
             <h2 className="font-heading text-4xl sm:text-5xl font-black uppercase tracking-tight text-foreground">
-              Start Building Unforgettable Experiences.
+              Ready to sell out your next event?
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
-              Start managing your events with MyEventGuru — create, sell tickets, and check in attendees seamlessly.
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+              Publish your event page, set up tickets in minutes, and turn your attendees into your biggest promoters. Free events are 100% free forever.
             </p>
             <div className="pt-4">
               <Link to="/signup">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="inline-block">
                   <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-sm h-12 px-8 rounded-lg hover:opacity-90 transition-all shadow-md">
-                    Create Your Free Account →
+                    Create Your Event Free →
                   </Button>
                 </motion.div>
               </Link>
@@ -457,11 +492,11 @@ const Index = () => {
       <footer className="bg-card border-t border-border py-10 px-4 sm:px-6">
         <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
-            <span className="font-heading font-black text-foreground text-sm uppercase">MYEVENTGURU™</span>
+            <span className="font-heading font-black text-foreground text-sm uppercase">EVENTRALLY</span>
             <span>•</span>
-            <span>Africa's Event Operating System</span>
+            <span>Where Everyone's Going.</span>
           </div>
-          <div>© 2026 MYEVENTGURU. All rights reserved.</div>
+          <div>© 2026 EVENTRALLY. All rights reserved.</div>
         </div>
       </footer>
     </div>

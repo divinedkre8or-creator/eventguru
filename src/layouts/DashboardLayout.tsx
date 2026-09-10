@@ -96,7 +96,7 @@ const DashboardLayout = () => {
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-[260px] flex-col bg-card border-r border-border z-40">
         <div className="h-16 flex items-center px-6 border-b border-border justify-between">
           <Link to="/" className="font-heading font-black text-lg text-primary tracking-tighter uppercase flex items-center gap-1.5">
-            MYEVENTGURU<span className="text-[10px] text-muted-foreground align-top">™</span>
+            EVENTRALLY
           </Link>
         </div>
 
@@ -129,8 +129,8 @@ const DashboardLayout = () => {
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
-                <Ticket className="w-4 h-4 shrink-0" />
-                <span className="truncate">My Registered Events</span>
+                <LayoutDashboard className="w-4 h-4 shrink-0" />
+                <span className="truncate">Dashboard</span>
               </Link>
               <Link
                 to="/dashboard/settings"
@@ -206,8 +206,8 @@ const DashboardLayout = () => {
                 <Zap className="w-3.5 h-3.5" />
               </div>
               <div>
-                <div className="font-bold text-foreground">{isAdmin ? "Super Admin" : "Pro Organizer"}</div>
-                <div className="text-[10px] text-muted-foreground">{isAdmin ? "Full Access" : "Active Plan"}</div>
+                <div className="font-bold text-foreground">{isAdmin ? "Super Admin" : isOrganiserOrAdmin ? "Pro Organizer" : "Attendee"}</div>
+                <div className="text-[10px] text-muted-foreground">{isAdmin ? "Full Access" : isOrganiserOrAdmin ? "Active Plan" : "Rally Member"}</div>
               </div>
             </div>
           </div>
@@ -221,7 +221,7 @@ const DashboardLayout = () => {
           <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border flex flex-col shadow-2xl">
             <div className="h-16 px-5 border-b border-border flex items-center justify-between">
               <span className="font-heading font-black text-lg text-primary tracking-tight">
-                MyEventGuru<span className="text-[10px] text-muted-foreground">™</span>
+                EventRally
               </span>
               <button onClick={() => setSidebarOpen(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="w-5 h-5" />
@@ -294,12 +294,14 @@ const DashboardLayout = () => {
               </Link>
             )}
 
-            <Link to="/dashboard/events/create">
-              <Button size="sm" className="bg-primary text-primary-foreground font-bold text-xs h-9 px-4 rounded-lg hover:opacity-90 transition-all flex items-center gap-1.5">
-                <PlusCircle className="w-4 h-4" />
-                <span>Create Event</span>
-              </Button>
-            </Link>
+            {isOrganiserOrAdmin && (
+              <Link to="/dashboard/events/create">
+                <Button size="sm" className="bg-primary text-primary-foreground font-bold text-xs h-9 px-4 rounded-lg hover:opacity-90 transition-all flex items-center gap-1.5">
+                  <PlusCircle className="w-4 h-4" />
+                  <span>Create Event</span>
+                </Button>
+              </Link>
+            )}
 
             <ThemeToggle />
 
@@ -312,7 +314,7 @@ const DashboardLayout = () => {
               </div>
               <div className="hidden lg:block text-left">
                 <div className="text-xs font-bold text-foreground leading-tight">{fullName}</div>
-                <div className="text-[10px] text-muted-foreground">{isAdmin ? "Super Admin" : "Organizer"}</div>
+                <div className="text-[10px] text-muted-foreground">{isAdmin ? "Super Admin" : isOrganiserOrAdmin ? "Organizer" : "Attendee"}</div>
               </div>
               <Button
                 variant="ghost"

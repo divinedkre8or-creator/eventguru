@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const AdminSettings = () => {
-  const [platformName, setPlatformName] = useState("MyEventGuru");
-  const [supportEmail, setSupportEmail] = useState("support@myeventguru.com");
+  const [platformName, setPlatformName] = useState("EventRally");
+  const [supportEmail, setSupportEmail] = useState("support@eventrally.com");
   const [platformFee, setPlatformFee] = useState("2.5");
   const [currency, setCurrency] = useState("NGN");
   const [maintenanceMode, setMaintenanceMode] = useState(false);

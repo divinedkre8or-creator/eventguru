@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { X, Loader2, Mail, CreditCard, ShieldCheck, CheckCircle2, Sparkles, Image as ImageIcon, ArrowRight } from "lucide-react";
+import { 
+  X, Loader2, Mail, CreditCard, ShieldCheck, CheckCircle2, 
+  Sparkles, Image as ImageIcon, ArrowRight, Wallet, ExternalLink 
+} from "lucide-react";
 import { usePaystackPayment } from "react-paystack";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +12,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { getEventDpUrl } from "@/lib/slugUtils";
+import { DigitalTicketCard } from "@/components/tickets/DigitalTicketCard";
+import { TicketActions } from "@/components/tickets/TicketActions";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -27,6 +32,8 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
   const [quantity, setQuantity] = useState(1);
   const [processing, setProcessing] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [completedRegId, setCompletedRegId] = useState<string | null>(null);
+  const [completedPaymentRef, setCompletedPaymentRef] = useState<string | null>(null);
 
   // Use a dummy test key as requested if env var isn't set
   const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "pk_test_dummykey1234567890";
@@ -83,6 +90,8 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
       }
 
       if (reg?.id) {
+         setCompletedRegId(reg.id);
+         setCompletedPaymentRef(paymentRef);
          await sendConfirmationEmail(reg.id);
       }
 
@@ -129,71 +138,156 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
   if (!isOpen) return null;
 
-  // Post-Registration Celebration & DP Generator Prompt Modal
+  // Post-Registration Digital Ticket Hub & Attendee Wallet Bridge
   if (isCompleted) {
+    const registrationData = {
+      id: completedRegId || "EVR-CONFIRMED",
+      full_name: name,
+      email: email,
+      amount_paid: totalAmount,
+      payment_reference: completedPaymentRef,
+      created_at: new Date().toISOString(),
+      checked_in: false,
+    };
+
+    const domTicketId = "checkout-success-ticket";
+    const isLoggedIn = !!user;
+
     return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-md p-4 font-sans">
-        <div className="bg-card border border-secondary/30 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-foreground p-6 text-center space-y-6">
-          <div className="w-16 h-16 rounded-2xl bg-chart-green/10 border border-chart-green/30 text-chart-green flex items-center justify-center mx-auto shadow-md">
-            <CheckCircle2 className="w-10 h-10 animate-bounce" />
-          </div>
-
-          <div className="space-y-2">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-widest bg-chart-green/10 text-chart-green px-3 py-1 rounded-full inline-block">
-              REGISTRATION CONFIRMED
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 font-sans">
+        <div className="bg-card border border-border rounded-2xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-foreground">
+          {/* Modal Header */}
+          <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-card shrink-0">
+            <div>
+              <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider text-chart-green">
+                <CheckCircle2 className="w-3.5 h-3.5" /> REGISTRATION CONFIRMED
+              </div>
+              <h2 className="font-heading text-lg sm:text-xl font-black text-foreground tracking-tight mt-0.5">
+                You're Going, {name.split(" ")[0]}!
+              </h2>
             </div>
-            <h2 className="font-heading text-2xl font-black tracking-tight text-foreground">You're All Set, {name.split(" ")[0]}!</h2>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Your ticket for <strong className="text-foreground">{event.title}</strong> has been registered.
-            </p>
+            <button
+              onClick={handleModalClose}
+              className="p-2 rounded-full hover:bg-muted text-muted-foreground transition-colors"
+              aria-label="Close modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
-          {/* Highlighting the DP Generator Feature */}
-          <div className="bg-gradient-to-br from-secondary/15 via-primary/5 to-secondary/10 border border-secondary/30 rounded-xl p-5 text-left space-y-3 relative overflow-hidden shadow-inner">
-            <div className="flex items-center gap-2">
-              <ImageIcon className="w-4 h-4 text-secondary" />
-              <span className="font-mono text-xs font-bold text-secondary uppercase tracking-wider">OFFICIAL EVENT DP</span>
+          {/* Scrollable Content Body */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
+            {/* Digital Ticket Pass */}
+            <DigitalTicketCard
+              registration={registrationData}
+              event={event}
+              ticketTier={ticket}
+              elementId={domTicketId}
+            />
+
+            {/* Action Toolbar */}
+            <TicketActions
+              registration={registrationData}
+              event={event}
+              ticketTierName={ticket?.name || "Standard Pass"}
+              ticketDomId={domTicketId}
+            />
+
+            {/* Attendee Wallet & Dashboard Acquisition Card */}
+            <div className="bg-muted/40 border border-border/80 rounded-xl p-4 space-y-2.5">
+              <div className="flex items-center gap-1.5">
+                <Wallet className="w-4 h-4 text-secondary" />
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-secondary">
+                  {isLoggedIn ? "TICKET WALLET" : "KEEP ALL TICKETS IN ONE PLACE"}
+                </span>
+              </div>
+
+              {isLoggedIn ? (
+                <>
+                  <h3 className="font-heading text-sm font-bold text-foreground">
+                    Ticket added to your EventRally Wallet (+100 Rally XP)
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    View your countdown, verify your gate QR pass, and track all your event milestones in your dashboard.
+                  </p>
+                  <Link to="/dashboard" onClick={handleModalClose} className="block pt-1">
+                    <Button className="w-full bg-primary text-primary-foreground font-bold text-xs h-10 rounded-lg hover:opacity-90 flex items-center justify-center gap-2 shadow-sm">
+                      <span>View in Attendee Dashboard</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <h3 className="font-heading text-sm font-bold text-foreground">
+                    Never search through email at the door
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Create your free Attendee Wallet to keep all your tickets in one place, track check-ins, and build your Rally Score.
+                  </p>
+                  <Link
+                    to={`/signup?email=${encodeURIComponent(email)}&redirect=/dashboard`}
+                    onClick={handleModalClose}
+                    className="block pt-1"
+                  >
+                    <Button className="w-full bg-primary text-primary-foreground font-bold text-xs h-10 rounded-lg hover:opacity-90 flex items-center justify-center gap-2 shadow-sm">
+                      <span>Claim Ticket & Create Free Wallet</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
-            <h3 className="font-heading text-base font-bold text-foreground">Generate Your Custom DP Frame</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Let your friends and network know you are attending! Create your personalized event picture flier in 1-click.
-            </p>
 
-            <Link to={getEventDpUrl(event)} onClick={handleModalClose}>
-              <Button className="w-full bg-secondary text-secondary-foreground font-bold text-xs h-11 rounded-lg hover:opacity-90 shadow-md flex items-center justify-center gap-2 mt-2">
-                <ImageIcon className="w-4 h-4" /> Create My Event DP <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+            {/* Direct Permapage Link */}
+            {completedRegId && (
+              <div className="text-center pt-1">
+                <Link
+                  to={`/tickets/${completedRegId}`}
+                  onClick={handleModalClose}
+                  className="text-xs font-semibold text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  Open Fullscreen Ticket Permapage
+                </Link>
+              </div>
+            )}
           </div>
 
-          <button
-            onClick={handleModalClose}
-            className="text-xs font-bold text-muted-foreground hover:text-foreground transition-colors pt-2 block mx-auto"
-          >
-            Close & Return to Event
-          </button>
+          {/* Modal Footer */}
+          <div className="p-3 bg-card border-t border-border flex items-center justify-between shrink-0">
+            <span className="text-[10px] font-mono text-muted-foreground">
+              TICKET REF: {completedPaymentRef || "CONFIRMED"}
+            </span>
+            <button
+              onClick={handleModalClose}
+              className="text-xs font-bold text-muted-foreground hover:text-foreground transition-colors px-3 py-1"
+            >
+              Done
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-[DM_Sans]">
-      <div className="bg-white rounded-[24px] w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-sans">
+      <div className="bg-card rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-foreground">
         
-        <div className="flex items-center justify-between p-6 border-b border-[rgba(10,13,18,0.07)]">
+        <div className="flex items-center justify-between p-6 border-b border-border">
           <div>
-            <h2 className="font-heading font-bold text-[20px] text-[var(--ink-hex)]">Checkout</h2>
-            <p className="text-[#6B7280] text-[13px] mt-0.5">{event.title}</p>
+            <h2 className="font-heading font-bold text-xl text-foreground">Checkout</h2>
+            <p className="text-muted-foreground text-[13px] mt-0.5">{event.title}</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-[rgba(10,13,18,0.05)] text-[#6B7280] transition-colors">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-muted text-muted-foreground transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleCheckout} className="p-6 space-y-5">
-          <div className="bg-[#F9FAFB] p-4 rounded-[12px] border border-[rgba(10,13,18,0.07)]">
-            <div className="flex justify-between items-center text-[13px] text-[#4B5563] mb-2">
+          <div className="bg-muted/50 p-4 rounded-xl border border-border">
+            <div className="flex justify-between items-center text-[13px] text-muted-foreground mb-2">
               <span>{ticket.name} Ticket</span>
               <div className="flex items-center gap-2">
                 {discountPercentage > 0 && ticket.price > 0 && (
@@ -207,13 +301,13 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
               </div>
             </div>
             {discountPercentage > 0 && (
-               <div className="flex justify-between items-center text-[11px] font-bold text-[var(--amber-hex)] mb-2 mt-1 py-1 px-2 bg-[rgba(245,166,35,0.1)] rounded w-max">
+               <div className="flex justify-between items-center text-[11px] font-bold text-secondary mb-2 mt-1 py-1 px-2 bg-secondary/10 rounded w-max">
                  {discountPercentage}% COUPON APPLIED
                </div>
             )}
-            <div className="flex justify-between items-center border-t border-[rgba(10,13,18,0.05)] pt-2 mt-2">
-              <span className="font-bold text-[14px] text-[var(--ink-hex)]">Total Amount</span>
-              <span className="font-heading font-bold text-[18px] text-[var(--amber-hex)]">
+            <div className="flex justify-between items-center border-t border-border pt-2 mt-2">
+              <span className="font-bold text-sm text-foreground">Total Amount</span>
+              <span className="font-heading font-bold text-lg text-secondary">
                 {isFree ? "Free" : `NGN ${totalAmount.toLocaleString()}`}
               </span>
             </div>
@@ -221,47 +315,47 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[13px] font-bold text-[#4B5563]">Full Name *</Label>
+              <Label className="text-[13px] font-bold text-muted-foreground">Full Name *</Label>
               <Input 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
                 placeholder="John Doe" 
-                className="bg-white focus-visible:ring-[var(--amber-hex)] border-[rgba(10,13,18,0.1)] rounded-[10px]"
+                className="bg-background focus-visible:ring-secondary border-border rounded-lg"
                 required
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[13px] font-bold text-[#4B5563]">Email Address *</Label>
+              <Label className="text-[13px] font-bold text-muted-foreground">Email Address *</Label>
               <Input 
                 type="email"
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 placeholder="john@example.com" 
-                className="bg-white focus-visible:ring-[var(--amber-hex)] border-[rgba(10,13,18,0.1)] rounded-[10px]"
+                className="bg-background focus-visible:ring-secondary border-border rounded-lg"
                 required
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[13px] font-bold text-[#4B5563]">Phone Number <span className="text-xs text-muted-foreground font-normal">(Optional)</span></Label>
+              <Label className="text-[13px] font-bold text-muted-foreground">Phone Number <span className="text-xs text-muted-foreground font-normal">(Optional)</span></Label>
               <Input 
                 type="tel"
                 value={phone} 
                 onChange={(e) => setPhone(e.target.value)} 
                 placeholder="+234..." 
-                className="bg-white focus-visible:ring-[var(--amber-hex)] border-[rgba(10,13,18,0.1)] rounded-[10px]"
+                className="bg-background focus-visible:ring-secondary border-border rounded-lg"
               />
             </div>
 
             {/* Ticket Quantity selector only if not free */}
             {!isFree && (
               <div className="space-y-1.5">
-                 <Label className="text-[13px] font-bold text-[#4B5563]">Quantity</Label>
+                 <Label className="text-[13px] font-bold text-muted-foreground">Quantity</Label>
                  <select 
                    value={quantity} 
                    onChange={(e) => setQuantity(parseInt(e.target.value))}
-                   className="flex h-10 w-full rounded-[10px] border border-[rgba(10,13,18,0.1)] bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber-hex)]"
+                   className="flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                  >
                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
                       <option key={n} value={n}>{n}</option>
@@ -275,7 +369,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
             <Button 
               type="submit" 
               disabled={processing} 
-              className="w-full bg-[var(--ink-hex)] text-white hover:bg-[var(--ink-hex)]/90 h-[48px] rounded-[12px] font-heading font-bold text-[15px] shadow-lg flex items-center justify-center gap-2"
+              className="w-full bg-primary text-primary-foreground hover:opacity-90 h-12 rounded-xl font-heading font-bold text-[15px] shadow-lg flex items-center justify-center gap-2"
             >
               {processing ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -287,8 +381,8 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
               )}
             </Button>
             
-            <div className="mt-4 flex items-center justify-center gap-2 text-[#6B7280] text-[11px]">
-               <ShieldCheck className="w-4 h-4 text-[var(--teal-hex)]" />
+            <div className="mt-4 flex items-center justify-center gap-2 text-muted-foreground text-[11px]">
+               <ShieldCheck className="w-4 h-4 text-chart-green" />
                <span>{isFree ? "Secure registration pipeline" : "Payments processing secured by Paystack"}</span>
             </div>
           </div>
