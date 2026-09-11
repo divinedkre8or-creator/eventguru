@@ -144,7 +144,7 @@ const AttendeeOverview = () => {
         setLoadingTrending(true);
         const { data, error } = await supabase
           .from("events")
-          .select("id, title, date, venue, city, category, image_url, is_free, slug")
+          .select("id, title, date, venue, city, category, image_url, is_free")
           .eq("status", "published")
           .order("date", { ascending: true })
           .limit(4);

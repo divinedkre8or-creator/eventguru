@@ -7,6 +7,8 @@ import { Eye, EyeOff, CalendarDays, Megaphone, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -42,11 +44,16 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans text-foreground antialiased">
+      <SEOHead
+        title="Create Your Event Free — Organizer Sign Up"
+        description="Create your free EventRally account. Set up tickets in minutes, automate door check-in, and turn your attendees into a viral marketing team."
+        canonicalPath="/signup"
+      />
       {/* Top Bar */}
       <header className="w-full border-b border-border bg-card/90 backdrop-blur-md">
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="font-heading font-black text-lg sm:text-xl text-primary tracking-tighter uppercase flex items-center gap-1">
-            EVENTRALLY
+          <Link to="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
+            <BrandLogo />
           </Link>
           <ThemeToggle />
         </div>

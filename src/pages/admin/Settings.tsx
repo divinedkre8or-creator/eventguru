@@ -12,7 +12,6 @@ import { getPlatformSettings, savePlatformSettings, PlatformSettings } from "@/l
 const AdminSettings = () => {
   const [settings, setSettings] = useState<PlatformSettings>(getPlatformSettings());
   const [showPublicKey, setShowPublicKey] = useState(false);
-  const [showSecretKey, setShowSecretKey] = useState(false);
   const [showResendKey, setShowResendKey] = useState(false);
   
   // Test email state
@@ -139,27 +138,6 @@ const AdminSettings = () => {
                 </button>
               </div>
               <p className="text-[10px] text-muted-foreground">Used securely on the frontend checkout modal to initialize attendee payments.</p>
-            </div>
-
-            <div className="space-y-1.5 min-w-0 sm:col-span-2">
-              <Label className="text-xs font-bold text-foreground">Gateway Secret Key (Optional Server Webhook)</Label>
-              <div className="relative">
-                <Input
-                  type={showSecretKey ? "text" : "password"}
-                  value={settings.gateway_secret_key}
-                  onChange={(e) => setSettings({ ...settings, gateway_secret_key: e.target.value })}
-                  placeholder="sk_live_... or sk_test_..."
-                  className="bg-background border-border text-xs h-10 rounded-lg pr-10 font-mono"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowSecretKey(!showSecretKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showSecretKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-              <p className="text-[10px] text-muted-foreground">Used on backend webhook handlers to verify incoming settlement events.</p>
             </div>
 
             <div className="space-y-1.5 min-w-0">

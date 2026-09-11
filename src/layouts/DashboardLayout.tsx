@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 interface NavGroup {
   groupName: string;
@@ -112,11 +114,16 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-background font-sans flex text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden w-full max-w-full">
+      <SEOHead
+        title="Organizer Workspace"
+        description="EventRally event management, ticketing, and attendee growth workspace."
+        noIndex={true}
+      />
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-[260px] flex-col bg-card border-r border-border z-40">
         <div className="h-16 flex items-center px-6 border-b border-border justify-between">
-          <Link to="/" className="font-heading font-black text-lg text-primary tracking-tighter uppercase flex items-center gap-1.5">
-            EVENTRALLY
+          <Link to="/" className="flex items-center gap-1.5 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
+            <BrandLogo />
           </Link>
         </div>
 
@@ -228,9 +235,9 @@ const DashboardLayout = () => {
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
           <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border flex flex-col shadow-2xl">
             <div className="h-16 px-5 border-b border-border flex items-center justify-between">
-              <span className="font-heading font-black text-lg text-primary tracking-tight">
-                EventRally
-              </span>
+              <Link to="/" className="flex items-center gap-1.5" onClick={() => setSidebarOpen(false)} aria-label="EventRally Home">
+                <BrandLogo />
+              </Link>
               <button onClick={() => setSidebarOpen(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="w-5 h-5" />
               </button>

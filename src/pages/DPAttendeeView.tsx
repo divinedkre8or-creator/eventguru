@@ -11,6 +11,8 @@ import { KenteStripe } from "@/components/KenteStripe";
 import { toast } from "sonner";
 import { compressImageToBase64 } from "@/lib/imageUtils";
 import { slugify } from "@/lib/slugUtils";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const DPAttendeeView = () => {
   const { id } = useParams<{ id: string }>();
@@ -122,7 +124,26 @@ const DPAttendeeView = () => {
 
   return (
     <div className="min-h-screen bg-background font-[DM_Sans] transition-colors duration-300">
+      <SEOHead
+        title={(template?.events as any)?.title ? `Official Event Flier — ${(template.events as any).title}` : "Official Event Flier Generator"}
+        description={`Generate your personalized 'I am attending' social flier for ${(template?.events as any)?.title || "this event"} on EventRally.`}
+        ogImage={template?.template_image_url || "/ER full logo.png"}
+      />
       <KenteStripe />
+
+      {/* Top Header */}
+      <header className="border-b border-border bg-card/90 backdrop-blur-md">
+        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
+            <BrandLogo />
+          </Link>
+          <Link to={`/events/${id}`}>
+            <Button variant="ghost" size="sm" className="text-xs font-bold text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="w-3.5 h-3.5 mr-1" /> View Event Details
+            </Button>
+          </Link>
+        </div>
+      </header>
 
       <main className="container max-w-4xl mx-auto px-4 py-8 pb-20">
         <div className="flex flex-col md:flex-row items-center gap-8 justify-center">

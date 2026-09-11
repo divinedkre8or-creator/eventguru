@@ -55,7 +55,7 @@ const Checkin = () => {
     mutationFn: async ({ id, checked_in }: { id: string; checked_in: boolean }) => {
       const { error } = await supabase
         .from("registrations")
-        .update({ checked_in })
+        .update({ checked_in, checked_in_at: checked_in ? new Date().toISOString() : null })
         .eq("id", id);
       if (error) throw error;
       return { id, checked_in };

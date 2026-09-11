@@ -11,11 +11,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
-import { getEventDpUrl } from "@/lib/slugUtils";
+import { getEventDpUrl, getEventUrl } from "@/lib/slugUtils";
 import { DigitalTicketCard } from "@/components/tickets/DigitalTicketCard";
 import { TicketActions } from "@/components/tickets/TicketActions";
 import { getActiveGatewayPublicKey, calculatePaymentBreakdown } from "@/lib/platformSettings";
 import { sendTicketConfirmationEmail } from "@/lib/emailService";
+import { submitRegistration, RegistrationRejectedError } from "@/lib/registrationService";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -75,7 +76,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
         ticketName: ticket?.name || "Standard Pass",
         orderReference: paymentRef || registrationId.slice(0, 8).toUpperCase(),
         amountPaid: totalAmount,
-        eventUrl: window.location.origin + `/events/${event.slug || event.id}`,
+        eventUrl: window.location.origin + getEventUrl(event),
         dpUrl: window.location.origin + getEventDpUrl(event),
       });
 
@@ -90,39 +91,20 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
   const completeRegistration = async (paymentRef: string | null = null) => {
     try {
-      // Pre-generate UUID client-side so we never depend on RETURNING select RLS policies
-      const registrationId = crypto.randomUUID();
-
-      const { error: regError } = await supabase.from("registrations").insert({
-        id: registrationId,
-        event_id: event.id,
-        user_id: user?.id || null,
-        ticket_type_id: ticket?.id || null,
-        full_name: name,
+      // Route through the secure server entrypoint (with live-safe fallback).
+      // The server verifies payment for paid tickets and records the row; the
+      // helper returns the authoritative registration id and amount.
+      const { registrationId, amountPaid } = await submitRegistration({
+        eventId: event.id,
+        ticketTypeId: ticket?.id || null,
+        fullName: name,
         email: email,
         phone: phone || null,
-        amount_paid: totalAmount,
-        payment_reference: paymentRef,
-        status: 'completed',
-        checked_in: false,
+        quantity,
+        amountPaid: totalAmount,
+        paymentReference: paymentRef,
+        userId: user?.id || null,
       });
-
-      if (regError) {
-        console.error("Registration Insert Error:", regError);
-        throw regError;
-      }
-
-      // Safely update ticket count without failing checkout if attendee lacks ticket_types UPDATE permissions
-      if (ticket?.id) {
-        try {
-          const { data: tData } = await supabase.from('ticket_types').select('sold').eq('id', ticket.id).maybeSingle();
-          if (tData) {
-            await supabase.from('ticket_types').update({ sold: (tData.sold || 0) + quantity }).eq('id', ticket.id);
-          }
-        } catch (tErr) {
-          console.warn("Notice: Ticket sold count update deferred:", tErr);
-        }
-      }
 
       setCompletedRegId(registrationId);
       setCompletedPaymentRef(paymentRef);
@@ -134,7 +116,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
             id: registrationId,
             full_name: name,
             email: email,
-            amount_paid: totalAmount,
+            amount_paid: amountPaid,
             payment_reference: paymentRef,
             created_at: new Date().toISOString(),
             checked_in: false,
@@ -153,7 +135,11 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
       setIsCompleted(true);
     } catch (err: any) {
       console.error("Registration failure:", err);
-      toast.error(err.message || "Failed to complete registration");
+      if (err instanceof RegistrationRejectedError) {
+        toast.error(err.message);
+      } else {
+        toast.error(err?.message || "Failed to complete registration");
+      }
     } finally {
       setProcessing(false);
     }
@@ -180,6 +166,11 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
     if (isFree) {
       completeRegistration(null);
     } else {
+      if (!gatewayPublicKey) {
+        toast.error("Online payments are not configured yet. Please contact the event organiser.");
+        setProcessing(false);
+        return;
+      }
       initializePayment({ onSuccess: onSuccessPayment, onClose: onClosePayment });
     }
   };

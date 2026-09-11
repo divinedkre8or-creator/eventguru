@@ -10,6 +10,62 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { getEventUrl } from "@/lib/slugUtils";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+
+const FAQ_ITEMS = [
+  {
+    question: "What is EventRally?",
+    answer:
+      "EventRally is an all-in-one event operating system and ticketing platform that combines ticket sales, 1-second gate QR check-in, and viral attendee marketing into one unified dashboard.",
+  },
+  {
+    question: "Is EventRally free for free events?",
+    answer:
+      "Yes, EventRally is 100% free for free events with unlimited registrations, zero monthly subscription fees, and no upfront listing charges.",
+  },
+  {
+    question: "How does the Viral DP (Display Picture) Generator work?",
+    answer:
+      "Organizers upload their official event frame once. When an attendee secures a ticket or visits the event link, they upload their photo to instantly generate a branded social flier ready to share on WhatsApp, Instagram, and X.",
+  },
+  {
+    question: "How do automated ticket payouts work?",
+    answer:
+      "Ticket revenues are collected through multi-channel checkout with automated bank settlement, transferring ticket proceeds directly to the organizer's designated bank account.",
+  },
+  {
+    question: "How does 1-second gate QR check-in work at venues with weak internet?",
+    answer:
+      "EventRally includes an offline digital wallet that caches admission passes directly on attendees' phones, while the door scanner operates quickly on any phone camera without gate delays.",
+  },
+];
+
+const HOMEPAGE_SCHEMA = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "EventRally",
+    url: "https://eventrally.com",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://eventrally.com/events?q={search_term_string}",
+      "query-input": "required name=search_term_string",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ_ITEMS.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  },
+];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -52,6 +108,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden">
+      <SEOHead
+        title="Event Management, Ticketing & Viral Growth Platform"
+        description="Sell out tickets, automate door check-in, and turn attendees into a viral marketing team with custom event fliers. Free for free events."
+        canonicalPath="/"
+        schema={HOMEPAGE_SCHEMA}
+      />
       {/* Navigation Header */}
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
@@ -61,21 +123,18 @@ const Index = () => {
       >
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link to="/" className="font-heading font-black text-lg sm:text-xl text-primary tracking-tighter uppercase flex items-center gap-1">
-              EVENTRALLY
+            <Link to="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
+              <BrandLogo />
             </Link>
             <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-muted-foreground">
               <a className="hover:text-foreground transition-colors flex items-center gap-1" href="#features">
                 Features <ChevronRight className="w-3 h-3 rotate-90" />
               </a>
-              <a className="hover:text-foreground transition-colors flex items-center gap-1" href="#how-it-works">
-                Solutions <ChevronRight className="w-3 h-3 rotate-90" />
-              </a>
               <Link to="/events" className="hover:text-foreground transition-colors">
                 Explore Events
               </Link>
-              <a className="hover:text-foreground transition-colors" href="#pricing">
-                Pricing
+              <a className="hover:text-foreground transition-colors" href="#faq">
+                FAQ
               </a>
             </nav>
           </div>
@@ -490,6 +549,36 @@ const Index = () => {
           )}
         </section>
 
+        {/* AEO Frequently Asked Questions Section */}
+        <section id="faq" className="max-w-[1440px] mx-auto px-4 sm:px-6 py-20 border-t border-border">
+          <div className="max-w-3xl mx-auto space-y-10">
+            <div className="text-center space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[11px] font-mono font-bold tracking-wider uppercase">
+                <span>FREQUENTLY ASKED QUESTIONS</span>
+              </div>
+              <h2 className="font-heading text-3xl sm:text-4xl font-black text-foreground uppercase tracking-tight">
+                Everything you need to know about EventRally
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Clear, direct answers for event organizers, conference conveners, and attendees.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {FAQ_ITEMS.map((item, idx) => (
+                <div key={idx} className="p-6 rounded-xl border border-border bg-card shadow-2xs space-y-2">
+                  <h3 className="font-heading text-base sm:text-lg font-bold text-foreground">
+                    {item.question}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {item.answer}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Theme-Aware Dark Mode Friendly Footer CTA Section */}
         <section className="bg-card border-t border-border py-20 px-4 sm:px-6 text-center relative overflow-hidden">
           <motion.div 
@@ -524,8 +613,8 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-card border-t border-border py-10 px-4 sm:px-6">
         <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <span className="font-heading font-black text-foreground text-sm uppercase">EVENTRALLY</span>
+          <div className="flex items-center gap-3">
+            <BrandLogo className="h-6" imgClassName="h-6" />
             <span>•</span>
             <span>Where Everyone's Going.</span>
           </div>

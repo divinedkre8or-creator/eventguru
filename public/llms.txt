@@ -1,0 +1,32 @@
+# EventRally
+
+> The modern event operating system and ticketing platform with integrated viral attendee marketing.
+
+## Overview
+EventRally (https://eventrally.com) is a web-based event management, ticketing, and attendee growth platform designed for conference conveners, festival promoters, community organizers, and creator workshops.
+
+Unlike conventional ticketing engines, EventRally includes an automated Display Picture (DP) generator that creates personalized, branded social fliers for attendees upon registration, turning attendees into peer advocates across WhatsApp, Instagram, LinkedIn, and X.
+
+## Core Capabilities
+- **Ticketing & Registration**: Multi-tier tickets (Early Bird, Regular, VIP, Table), promo discount codes, 20-second checkout, and 100% free registration for non-commercial events.
+- **Viral DP Generator**: Custom branded frame overlays rendered automatically with attendee photos and names for 1-click social sharing.
+- **Offline Pass Wallet**: Scannable QR code admission passes cached locally on attendee mobile devices, functional without internet connectivity at the venue gate.
+- **Gate Check-In Scanner**: 1-second camera QR verification terminal running directly in the browser on any phone, tablet, or laptop.
+- **Automated Payouts**: Direct multi-channel payment processing with automated bank settlement.
+- **Attendee Broadcasts**: Direct communication channel for organizers to broadcast venue notices, schedule changes, and event updates.
+
+## Pricing Structure
+- **Free Events**: 100% free forever with unlimited attendees and zero platform fees.
+- **Paid Events**: Low percentage transaction fee per paid ticket. Zero monthly subscription fees or upfront listing costs.
+
+## Canonical URLs
+- Home: https://eventrally.com/
+- Explore Events: https://eventrally.com/events
+- Organizer Signup: https://eventrally.com/signup
+- Login: https://eventrally.com/login
+
+## Technical Specifications
+- Frontend: React, Vite, TailwindCSS, Framer Motion
+- Backend / Database: Supabase (PostgreSQL with Row Level Security)
+- Architecture: Client-Side Single Page Application (SPA)
+- Payment Gateway Support: Multi-channel checkout with dynamic gateway configuration

@@ -54,9 +54,12 @@ const FeedbackList = () => {
     resolved: "text-chart-green bg-chart-green/10 border-chart-green/20",
   };
 
-                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-muted text-foreground border border-border">
-                      {item.type}
-                    </span>
+  const typeIcons: Record<string, string> = {
+    bug: "🐛",
+    suggestion: "💡",
+    complaint: "⚠️",
+    support: "🛟",
+  };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">

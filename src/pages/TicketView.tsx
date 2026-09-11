@@ -10,6 +10,10 @@ import {
   Wallet, Sparkles, CheckCircle2, AlertCircle
 } from "lucide-react";
 import { formatTicketCode } from "@/lib/ticketUtils";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const TicketView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,13 +46,36 @@ export const TicketView: React.FC = () => {
       }
 
       try {
-        const { data, error: queryError } = await supabase
-          .from("registrations")
-          .select("*, events(*), ticket_types(*)")
-          .or(`id.eq.${id},payment_reference.eq.${id}`)
-          .maybeSingle();
+        let data: any = null;
 
-        if (queryError) throw queryError;
+        // 1. Secure lookup via the get-ticket edge function. This is the path
+        //    that works for not-logged-in guests once the RLS lockdown removes
+        //    world-readable guest rows.
+        try {
+          const { data: fnData, error: fnError } = await supabase.functions.invoke("get-ticket", {
+            body: { id },
+          });
+          if (!fnError && fnData?.ok && fnData.registration) {
+            data = fnData.registration;
+          }
+        } catch {
+          // fall through to the direct query
+        }
+
+        // 2. Fallback: hardened exact-match query (UUID -> id, else payment_reference).
+        //    Replaces the previous string-interpolated .or() filter. Post-migration
+        //    this only returns rows the caller is actually allowed to see.
+        if (!data) {
+          const lookupColumn = UUID_RE.test(id ?? "") ? "id" : "payment_reference";
+          const { data: qData, error: queryError } = await supabase
+            .from("registrations")
+            .select("*, events(*), ticket_types(*)")
+            .eq(lookupColumn, id ?? "")
+            .maybeSingle();
+          if (queryError) throw queryError;
+          data = qData;
+        }
+
         if (!data && !cached) throw new Error("Ticket not found");
 
         if (data) {
@@ -117,13 +144,19 @@ export const TicketView: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased py-8 px-4 flex flex-col items-center justify-center selection:bg-primary selection:text-primary-foreground">
+      <SEOHead
+        title={event?.title ? `Admission Pass — ${event.title}` : "Official Admission Pass"}
+        description="Official attendee entry pass with secure gate check-in QR code on EventRally."
+        noIndex={true}
+      />
       {/* Top Header Navigation */}
       <div className="w-full max-w-md flex items-center justify-between mb-6">
         <Link
           to="/"
-          className="font-heading font-black text-base tracking-tighter text-foreground uppercase flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+          aria-label="EventRally Home"
         >
-          EVENTRALLY
+          <BrandLogo />
         </Link>
         <div className="flex items-center gap-2">
           <span className="text-[11px] font-mono font-bold uppercase bg-muted text-muted-foreground px-2.5 py-1 rounded-md">

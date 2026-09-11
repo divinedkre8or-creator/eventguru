@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { getEventUrl } from "@/lib/slugUtils";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const CATEGORIES = [
   { id: "all", label: "All Events" },
@@ -74,14 +76,47 @@ export const EventsDiscovery: React.FC = () => {
     });
   }, [events, searchQuery, selectedCategory, priceFilter]);
 
+  const itemListSchema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      itemListElement: filteredEvents.slice(0, 10).map((event, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Event",
+          name: event.title,
+          startDate: event.date,
+          url: `https://eventrally.com${getEventUrl(event)}`,
+          location: {
+            "@type": "Place",
+            name: event.venue || event.city || "Venue TBA",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: event.city || "Lagos",
+              addressCountry: event.country || "NG",
+            },
+          },
+        },
+      })),
+    }),
+    [filteredEvents]
+  );
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased flex flex-col selection:bg-primary selection:text-primary-foreground">
+      <SEOHead
+        title="Explore Live Events, Tech Summits & Concerts"
+        description="Find and register for trending tech conferences, music festivals, campus conventions, and networking mixers across Africa on EventRally."
+        canonicalPath="/events"
+        schema={itemListSchema}
+      />
       {/* Navigation Header */}
       <header className="w-full bg-card/90 backdrop-blur-md border-b border-border sticky top-0 z-50">
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link to="/" className="font-heading font-black text-lg sm:text-xl text-primary tracking-tighter uppercase flex items-center gap-1">
-              EVENTRALLY
+            <Link to="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
+              <BrandLogo />
             </Link>
             <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-muted-foreground">
               <Link to="/events" className="text-foreground font-bold">
@@ -347,8 +382,8 @@ export const EventsDiscovery: React.FC = () => {
       {/* Footer */}
       <footer className="bg-card border-t border-border py-8 px-4 sm:px-6">
         <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <span className="font-heading font-black text-foreground text-sm uppercase">EVENTRALLY</span>
+          <div className="flex items-center gap-3">
+            <BrandLogo className="h-6" imgClassName="h-6" />
             <span>•</span>
             <span>Where Everyone's Going.</span>
           </div>

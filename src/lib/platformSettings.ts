@@ -9,7 +9,6 @@ export interface PlatformSettings {
   
   // Payment Gateway Configuration
   gateway_public_key: string;
-  gateway_secret_key: string;
   gateway_provider: string; // e.g. "paystack", "direct_gateway"
   gateway_environment: "live" | "test";
   platform_fee_percent: number; // e.g. 2.5
@@ -33,7 +32,6 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   currency: "NGN",
   
   gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
-  gateway_secret_key: "",
   gateway_provider: "secure_gateway",
   gateway_environment: "test",
   platform_fee_percent: 2.5,
@@ -87,13 +85,16 @@ export function savePlatformSettings(updated: Partial<PlatformSettings>): Platfo
 
 /**
  * Helper to fetch the active public gateway key.
+ * Returns an empty string when unconfigured so the checkout can surface a
+ * clear "payments not configured" message instead of silently opening the
+ * gateway with an invalid placeholder key.
  */
 export function getActiveGatewayPublicKey(): string {
   const settings = getPlatformSettings();
   if (settings.gateway_public_key && settings.gateway_public_key.trim() !== "") {
     return settings.gateway_public_key.trim();
   }
-  return import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "pk_test_dummykey1234567890";
+  return import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "";
 }
 
 export interface PaymentBreakdownInput {

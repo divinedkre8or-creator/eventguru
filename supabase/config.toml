@@ -1,1 +1,23 @@
-project_id = "kwqsznzhaoukhixrikci"
+# Supabase CLI configuration.
+#
+# ── FLAG (resolved during security hardening) ────────────────────────────────
+# This file previously read  project_id = "kwqsznzhaoukhixrikci"  which does NOT
+# match the live project this application talks to. The live project ref is
+# "edpnvsakkudorleqqhxv" (per the deployment URL https://edpnvsakkudorleqqhxv.supabase.co
+# supplied by the project owner). It has been corrected below so that
+# `supabase link` and `supabase functions deploy` target the correct project.
+# Verify with `supabase projects list` before your first deploy.
+# ─────────────────────────────────────────────────────────────────────────────
+project_id = "edpnvsakkudorleqqhxv"
+
+# Secure registration entrypoint. Must be callable by not-logged-in guests
+# (checkout supports guest purchases), so JWT verification is disabled at the
+# gateway; the function itself derives any authenticated user from the caller's
+# token and verifies payment server-side.
+[functions.complete-registration]
+verify_jwt = false
+
+# Public ticket lookup by exact id / payment_reference. Must be callable by
+# not-logged-in guests opening their ticket link.
+[functions.get-ticket]
+verify_jwt = false

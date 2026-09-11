@@ -68,7 +68,7 @@ const AdminOrganisers = () => {
           return {
             user_id: r.user_id,
             full_name: prof?.full_name || "Account User",
-            email: `user_${r.user_id.slice(0, 8)}@eventrally.com`,
+            email: "",
             role: r.role,
             created_at: new Date(r.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
             events_count: userEvents.length,

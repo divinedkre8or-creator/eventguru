@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { CheckoutModal } from "@/components/events/CheckoutModal";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { slugify, getEventUrl, getEventDpUrl } from "@/lib/slugUtils";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -159,13 +161,68 @@ const EventDetails = () => {
     }
   }
 
+  // Build rich schema.org Event structured data
+  const eventSchema = event
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        name: event.title,
+        description: parsedDesc.slice(0, 250) || `${event.title} on EventRally`,
+        startDate: event.date,
+        ...(event.end_date ? { endDate: event.end_date } : {}),
+        eventStatus: "https://schema.org/EventScheduled",
+        eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+        location: {
+          "@type": "Place",
+          name: event.venue || event.city || "Venue TBA",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: event.city || "Lagos",
+            addressCountry: event.country || "NG",
+          },
+        },
+        image: event.image_url ? [event.image_url] : ["https://eventrally.com/ER%20full%20logo.png"],
+        organizer: {
+          "@type": "Organization",
+          name: "EventRally Organizer",
+          url: "https://eventrally.com",
+        },
+        offers:
+          event.ticket_types && event.ticket_types.length > 0
+            ? event.ticket_types.map((t: any) => ({
+                "@type": "Offer",
+                name: t.name,
+                price: t.price || 0,
+                priceCurrency: "NGN",
+                availability: t.quantity > (t.sold || 0) ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+                url: typeof window !== "undefined" ? window.location.href : `https://eventrally.com${getEventUrl(event)}`,
+              }))
+            : {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "NGN",
+                availability: "https://schema.org/InStock",
+                url: typeof window !== "undefined" ? window.location.href : `https://eventrally.com${getEventUrl(event)}`,
+              },
+      }
+    : undefined;
+
   return (
     <div className="min-h-screen bg-background font-sans text-foreground antialiased">
+      {event && (
+        <SEOHead
+          title={`${event.title} — Tickets & Schedule`}
+          description={parsedDesc ? parsedDesc.slice(0, 150) : `Get tickets, schedule details, and venue directions for ${event.title} on EventRally.`}
+          ogImage={event.image_url || "/ER full logo.png"}
+          canonicalPath={getEventUrl(event)}
+          schema={eventSchema}
+        />
+      )}
       {/* Navigation */}
       <nav className="bg-card/90 backdrop-blur-md sticky top-0 z-50 border-b border-border">
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="font-heading font-black text-lg sm:text-xl text-primary tracking-tighter uppercase flex items-center gap-1">
-            EVENTRALLY
+          <Link to="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
+            <BrandLogo />
           </Link>
 
           <div className="flex items-center gap-3">
@@ -389,8 +446,8 @@ const EventDetails = () => {
       {/* Footer */}
       <footer className="bg-card border-t border-border py-10 px-4 sm:px-6">
         <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <span className="font-heading font-black text-foreground text-sm uppercase">EVENTRALLY</span>
+          <div className="flex items-center gap-3">
+            <BrandLogo className="h-6" imgClassName="h-6" />
             <span>•</span>
             <span>Where Everyone's Going.</span>
           </div>

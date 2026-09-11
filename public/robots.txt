@@ -1,8 +1,15 @@
+# EventRally Robots Configuration
 User-agent: Googlebot
 Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /tickets/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /tickets/
 
 User-agent: Twitterbot
 Allow: /
@@ -10,5 +17,37 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+# Generative & Answer Engine Crawlers
+User-agent: GPTBot
+Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /tickets/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /tickets/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /tickets/
+
+User-agent: Applebot
+Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /tickets/
+
 User-agent: *
 Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /tickets/
+
+# Sitemaps and AI Documentation
+Sitemap: https://eventrally.com/sitemap.xml
+# LLMs specification: https://eventrally.com/llms.txt
