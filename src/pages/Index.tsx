@@ -146,7 +146,7 @@ const Index = () => {
             </Link>
             <Link to="/signup">
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-                <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-3 sm:px-4 rounded-lg hover:opacity-90 transition-all shadow-sm">
+                <Button variant="secondary" size="sm" className="font-bold text-xs h-9 px-3 sm:px-4 rounded-lg shadow-sm">
                   Organize an Event
                 </Button>
               </motion.div>
@@ -193,7 +193,7 @@ const Index = () => {
             <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mt-2">
               <Link to="/signup">
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                  <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-sm h-12 px-6 rounded-lg hover:opacity-90 transition-all shadow-md">
+                  <Button variant="secondary" size="lg" className="font-bold text-sm h-12 px-6 rounded-lg shadow-md">
                     Create Your Event Free
                   </Button>
                 </motion.div>
@@ -364,7 +364,7 @@ const Index = () => {
                 <div>
                   <Link to="/signup">
                     <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="inline-block">
-                      <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-sm h-12 px-7 rounded-lg hover:opacity-90 transition-all shadow-md flex items-center gap-2">
+                      <Button variant="secondary" size="lg" className="font-bold text-sm h-12 px-7 rounded-lg shadow-md flex items-center gap-2">
                         <PlusCircle className="w-4 h-4" />
                         <span>Organize an Event</span>
                       </Button>
@@ -486,7 +486,7 @@ const Index = () => {
                 <p className="text-xs text-muted-foreground max-w-sm">Be the first to create an event on EventRally. Your event will be featured right here.</p>
               </div>
               <Link to="/signup">
-                <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-5 rounded-lg">
+                <Button variant="secondary" size="sm" className="font-bold text-xs h-9 px-5 rounded-lg shadow-sm">
                   Create Your First Event →
                 </Button>
               </Link>
@@ -537,7 +537,7 @@ const Index = () => {
                     <div className="flex items-center justify-between pt-3 border-t border-border text-xs">
                       <span className="font-mono font-bold text-foreground">{event.is_free ? 'Free' : 'Paid'}</span>
                       <Link to={getEventUrl(event)}>
-                        <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-8 px-3 rounded">
+                        <Button variant="secondary" size="sm" className="font-bold text-xs h-8 px-3 rounded shadow-xs">
                           View Event
                         </Button>
                       </Link>
@@ -600,7 +600,7 @@ const Index = () => {
             <div className="pt-4">
               <Link to="/signup">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="inline-block">
-                  <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-sm h-12 px-8 rounded-lg hover:opacity-90 transition-all shadow-md">
+                  <Button variant="secondary" size="lg" className="font-bold text-sm h-12 px-8 rounded-lg shadow-md">
                     Create Your Event Free →
                   </Button>
                 </motion.div>

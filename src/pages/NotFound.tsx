@@ -27,7 +27,7 @@ const NotFound = () => {
           </p>
         </div>
         <Link to="/">
-          <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-sm h-11 px-6 rounded-lg hover:opacity-90 transition-all shadow-md">
+          <Button variant="secondary" size="lg" className="font-bold text-sm h-11 px-6 rounded-lg shadow-md">
             Return to EventRally Home
           </Button>
         </Link>

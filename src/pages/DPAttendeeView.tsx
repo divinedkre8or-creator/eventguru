@@ -158,18 +158,18 @@ const DPAttendeeView = () => {
              <div className="space-y-4 pt-4 border-t border-border">
                 <div className="space-y-2">
                    <Label className="font-bold text-foreground text-sm">Upload Your Best Photo</Label>
-                   {!attendeePhoto ? (
-                      <Button onClick={() => document.getElementById("photo-upload")?.click()} variant="outline" className="w-full h-24 border-dashed border-2 bg-secondary text-muted-foreground hover:text-foreground">
-                         <div className="flex flex-col items-center">
-                           <ImageIcon className="w-6 h-6 mb-2 text-primary" />
-                           <span className="text-xs">Click to choose image</span>
-                         </div>
-                      </Button>
-                   ) : (
-                      <Button onClick={() => document.getElementById("photo-upload")?.click()} variant="outline" className="w-full bg-secondary border-border">
-                         Change Photo
-                      </Button>
-                   )}
+                    {!attendeePhoto ? (
+                       <Button onClick={() => document.getElementById("photo-upload")?.click()} variant="outline" className="w-full h-24 border-dashed border-2 bg-muted/20 hover:bg-muted/40 text-muted-foreground hover:text-foreground">
+                          <div className="flex flex-col items-center">
+                            <ImageIcon className="w-6 h-6 mb-2 text-primary" />
+                            <span className="text-xs">Click to choose image</span>
+                          </div>
+                       </Button>
+                    ) : (
+                       <Button onClick={() => document.getElementById("photo-upload")?.click()} variant="outline" className="w-full border-border hover:bg-muted">
+                          Change Photo
+                       </Button>
+                    )}
                    <input id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
                 </div>
 

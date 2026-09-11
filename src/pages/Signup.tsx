@@ -159,8 +159,9 @@ const Signup = () => {
 
             <Button
               type="submit"
+              variant="secondary"
               disabled={submitting}
-              className="w-full bg-secondary text-secondary-foreground hover:opacity-90 font-bold text-sm h-11 rounded-lg transition-all shadow-sm mt-2"
+              className="w-full font-bold text-sm h-11 rounded-lg transition-all shadow-sm mt-2"
             >
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Account"}
             </Button>

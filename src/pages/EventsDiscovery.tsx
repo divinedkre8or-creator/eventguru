@@ -142,7 +142,7 @@ export const EventsDiscovery: React.FC = () => {
                   Log in
                 </Link>
                 <Link to="/signup">
-                  <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-3 sm:px-4 rounded-lg hover:opacity-90 transition-all shadow-sm">
+                  <Button variant="secondary" size="sm" className="font-bold text-xs h-9 px-3 sm:px-4 rounded-lg shadow-sm">
                     Host an Event
                   </Button>
                 </Link>
@@ -346,7 +346,7 @@ export const EventsDiscovery: React.FC = () => {
                         <span className="font-mono font-black text-sm text-foreground">{priceLabel}</span>
                       </div>
                       <Link to={getEventUrl(event)}>
-                        <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-4 rounded-lg hover:opacity-90 flex items-center gap-1 shadow-xs">
+                        <Button variant="secondary" size="sm" className="font-bold text-xs h-9 px-4 rounded-lg flex items-center gap-1 shadow-xs">
                           <span>Get Ticket</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </Button>

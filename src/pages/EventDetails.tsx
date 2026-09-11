@@ -106,7 +106,7 @@ const EventDetails = () => {
         <h1 className="font-heading text-4xl font-black text-foreground tracking-tight">Event not found</h1>
         <p className="text-muted-foreground text-sm font-medium">The event you are looking for does not exist or has been removed.</p>
         <Link to="/">
-          <Button className="bg-secondary text-secondary-foreground font-bold px-6 py-3 rounded-lg hover:opacity-90 transition-all">
+          <Button variant="secondary" className="font-bold px-6 py-3 rounded-lg shadow-sm">
             Return Home
           </Button>
         </Link>
@@ -237,7 +237,7 @@ const EventDetails = () => {
                   Log In
                 </Link>
                 <Link to="/signup">
-                  <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-4 rounded-lg hover:opacity-90 transition-all shadow-sm">
+                  <Button variant="secondary" size="sm" className="font-bold text-xs h-9 px-4 rounded-lg shadow-sm">
                     Get Started Free
                   </Button>
                 </Link>
@@ -381,11 +381,12 @@ const EventDetails = () => {
                       <p className="text-xs text-muted-foreground line-clamp-2">{ticket.description || "Access ticket to event"}</p>
                       
                       <Button 
+                        variant="secondary"
                         onClick={() => {
                           setSelectedTicket(ticket);
                           setIsCheckoutOpen(true);
                         }}
-                        className="w-full bg-secondary text-secondary-foreground font-bold text-xs h-10 rounded-lg hover:opacity-90 shadow-sm flex items-center justify-center gap-2 mt-1"
+                        className="w-full font-bold text-xs h-10 rounded-lg shadow-sm flex items-center justify-center gap-2 mt-1"
                       >
                         <Tag className="w-3.5 h-3.5" />
                         {is_free || discountedPrice === 0 ? "Register For Event" : "Buy Ticket"}
@@ -407,7 +408,7 @@ const EventDetails = () => {
                      <h3 className="font-bold text-sm text-foreground mb-1">Get Your Display Picture</h3>
                      <p className="text-xs text-muted-foreground mb-4">Generate a custom DP flier for this event to let your network know you are attending!</p>
                      <Link to={getEventDpUrl(event)}>
-                        <Button className="w-full bg-secondary text-secondary-foreground font-bold text-xs h-10 rounded-lg shadow-sm hover:opacity-90 transition-all">
+                        <Button variant="secondary" className="w-full font-bold text-xs h-10 rounded-lg shadow-sm">
                            Create My DP
                         </Button>
                      </Link>

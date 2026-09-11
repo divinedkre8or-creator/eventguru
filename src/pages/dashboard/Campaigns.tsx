@@ -243,8 +243,9 @@ const Campaigns = () => {
             {/* Submit */}
             <Button
               type="submit"
+              variant="secondary"
               disabled={sending || loadingCount}
-              className="w-full bg-secondary text-secondary-foreground font-bold text-xs h-11 rounded-lg hover:opacity-90 flex items-center justify-center gap-2 shadow-sm"
+              className="w-full font-bold text-xs h-11 rounded-lg flex items-center justify-center gap-2 shadow-sm"
             >
               {sending ? (
                 <>

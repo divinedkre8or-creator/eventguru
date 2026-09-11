@@ -204,7 +204,7 @@ const AttendeeOverview = () => {
         </div>
 
         <Link to="/events" className="w-full sm:w-auto">
-          <Button size="sm" className="w-full sm:w-auto bg-secondary text-secondary-foreground font-bold text-xs h-10 px-4 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 shadow-sm">
+          <Button variant="secondary" size="sm" className="w-full sm:w-auto font-bold text-xs h-10 px-4 rounded-lg flex items-center justify-center gap-2 shadow-sm">
             <Compass className="w-4 h-4" /> Explore Events
           </Button>
         </Link>
@@ -231,7 +231,7 @@ const AttendeeOverview = () => {
               </p>
             </div>
             <Link to="/events" className="shrink-0">
-              <Button size="lg" className="bg-secondary text-secondary-foreground font-bold text-xs sm:text-sm h-11 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2">
+              <Button variant="secondary" size="lg" className="font-bold text-xs sm:text-sm h-11 px-6 rounded-lg shadow-sm flex items-center gap-2">
                 <Compass className="w-4 h-4" />
                 <span>Explore Live Events</span>
               </Button>
@@ -292,7 +292,7 @@ const AttendeeOverview = () => {
                       <div className="flex items-center justify-between pt-2 border-t border-border text-xs">
                         <span className="font-mono font-bold text-foreground text-[11px]">{evt.is_free ? "Free" : "Paid"}</span>
                         <Link to={getEventUrl(evt)}>
-                          <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-[11px] h-7 px-2.5 rounded">
+                          <Button variant="secondary" size="sm" className="font-bold text-[11px] h-7 px-2.5 rounded shadow-xs">
                             Get Ticket
                           </Button>
                         </Link>
@@ -449,7 +449,7 @@ const AttendeeOverview = () => {
                   </div>
                 )}
                 <Link to={getEventUrl(nextEvent)}>
-                  <Button size="sm" className="bg-secondary text-secondary-foreground font-bold text-xs h-9 px-4 rounded-lg">
+                  <Button variant="secondary" size="sm" className="font-bold text-xs h-9 px-4 rounded-lg shadow-sm">
                     View Details <ChevronRight className="w-3.5 h-3.5 ml-1" />
                   </Button>
                 </Link>

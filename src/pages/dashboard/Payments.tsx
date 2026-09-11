@@ -150,10 +150,11 @@ const Payments = () => {
                 ₦{payoutRequested ? 0 : totalGross.toLocaleString()}
               </div>
               <Button
+                variant="secondary"
                 onClick={handleRequestPayout}
                 disabled={payoutRequested || totalGross === 0}
                 size="sm"
-                className="w-full bg-secondary text-secondary-foreground font-bold text-xs h-8 rounded-lg mt-2"
+                className="w-full font-bold text-xs h-8 rounded-lg mt-2 shadow-xs"
               >
                 {payoutRequested ? "Payout Pending" : "Request Payout"}
               </Button>
@@ -233,7 +234,7 @@ const Payments = () => {
                 <Button type="button" variant="outline" onClick={() => setIsEditingBank(false)} className="text-xs font-bold h-9">
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-secondary text-secondary-foreground text-xs font-bold h-9">
+                <Button type="submit" variant="secondary" className="text-xs font-bold h-9 shadow-xs">
                   Save Bank Account
                 </Button>
               </div>

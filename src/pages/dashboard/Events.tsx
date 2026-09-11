@@ -102,7 +102,7 @@ const Events = () => {
           </div>
         </div>
         <Link to="/dashboard/dp" className="w-full sm:w-auto shrink-0">
-          <Button size="sm" className="w-full sm:w-auto bg-secondary text-secondary-foreground font-bold text-xs h-9 px-4 rounded-lg hover:opacity-90">
+          <Button variant="secondary" size="sm" className="w-full sm:w-auto font-bold text-xs h-9 px-4 rounded-lg shadow-sm">
             Create DP Frame →
           </Button>
         </Link>

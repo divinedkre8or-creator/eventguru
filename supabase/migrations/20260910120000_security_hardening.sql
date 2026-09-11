@@ -3,14 +3,16 @@
 -- EventRally security hardening.
 --
 -- ============================================================================
--- !! DEPLOY ORDER MATTERS — APPLY THIS *AFTER* THE EDGE FUNCTIONS ARE LIVE !!
---   1. Set secrets:   supabase secrets set PAYSTACK_SECRET_KEY=sk_live_...
---   2. Deploy funcs:  supabase functions deploy complete-registration
---                     supabase functions deploy get-ticket
---   3. THEN apply this migration.
--- Applying this before the functions exist will block all public ticket
--- purchases and guest ticket lookups, because those paths move to the service
--- role. See supabase/DEPLOY_RUNBOOK.md.
+-- DEPLOY NOTE — this SQL is safe to run on its own.
+--   Free events keep working immediately (a narrow free-only INSERT policy
+--   stays open). PAID checkout and guest ticket links move to the edge
+--   functions, so deploy those to keep paid flows working:
+--     1. Set secret:   supabase secrets set PAYSTACK_SECRET_KEY=sk_live_...
+--     2. Deploy funcs: supabase functions deploy complete-registration
+--                      supabase functions deploy get-ticket
+--   Order between this SQL and the functions no longer matters for free
+--   events; paid checkout simply fails closed (no forged tickets) until the
+--   complete-registration function is live. See supabase/DEPLOY_RUNBOOK.md.
 -- ============================================================================
 --
 -- This migration:
@@ -72,15 +74,37 @@ END;
 $$;
 
 -- ----------------------------------------------------------------------------
--- B1. Remove the blanket public INSERT on registrations.
+-- B1. Replace the blanket public INSERT with a FREE-ONLY insert.
 --
 -- Was: WITH CHECK (true) for anon+authenticated, which let the browser forge
--- rows with status='completed' and an arbitrary amount_paid. Public/guest
--- registration now flows exclusively through the complete-registration edge
--- function (service role). Organisers keep INSERT for their own events via the
--- pre-existing "Organisers manage registrations for their events" FOR ALL policy.
+-- rows with status='completed' and an arbitrary amount_paid (a free ticket to a
+-- paid event, or a "paid" ticket without paying).
+--
+-- Now: the public may only insert genuinely FREE registrations (the referenced
+-- ticket's price is 0, and amount_paid is 0). PAID registrations must go through
+-- the complete-registration edge function (service role), which verifies the
+-- payment with Paystack first. Net effect: free events keep working with NO
+-- backend deploy, while paid events fail closed until the function is live.
+-- Organisers keep full INSERT for their own events via the pre-existing
+-- "Organisers manage registrations for their events" FOR ALL policy.
 -- ----------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Public and attendees can register for events" ON public.registrations;
+CREATE POLICY "Public can register for free tickets"
+  ON public.registrations
+  FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (
+    amount_paid = 0
+    AND status = 'completed'
+    AND checked_in = false
+    AND (
+      ticket_type_id IS NULL
+      OR EXISTS (
+        SELECT 1 FROM public.ticket_types t
+        WHERE t.id = ticket_type_id AND t.price = 0
+      )
+    )
+  );
 
 -- ----------------------------------------------------------------------------
 -- B2. Fix the world-readable guest-registration SELECT leak.

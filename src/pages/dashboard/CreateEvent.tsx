@@ -365,7 +365,7 @@ const CreateEvent = () => {
                 </>
               ) : (
                 <>
-                  <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-muted-foreground">
+                  <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
                     <ImagePlus className="w-6 h-6" />
                   </div>
                   <div className="text-center">
@@ -447,7 +447,7 @@ const CreateEvent = () => {
                   key={cat}
                   onClick={() => setCategory(cat)}
                   className={`px-3 py-1.5 rounded-full text-xs font-heading font-bold capitalize transition-colors ${
-                    category === cat ? "bg-primary text-primary-foreground" : "bg-background border border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    category === cat ? "bg-primary text-primary-foreground" : "bg-background border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
                   {cat.replace("-", " ")}
@@ -596,7 +596,7 @@ const CreateEvent = () => {
                </Button>
              ) : (
                <>
-                  <Button onClick={() => handleSubmit("draft")} disabled={submitting} variant="ghost" className="w-full sm:flex-1 border border-border text-foreground hover:bg-secondary font-heading font-bold h-11">
+                  <Button onClick={() => handleSubmit("draft")} disabled={submitting} variant="outline" className="w-full sm:flex-1 border border-border text-foreground hover:bg-muted font-heading font-bold h-11">
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
                     Save as Draft
                   </Button>

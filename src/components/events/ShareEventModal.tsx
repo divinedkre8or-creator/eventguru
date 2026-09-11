@@ -57,7 +57,7 @@ export function ShareEventModal({ isOpen, onClose, eventUrl, eventTitle }: Share
             value={eventUrl} 
             className="flex-1 bg-background border-border font-body text-sm text-foreground"
           />
-          <Button onClick={handleCopy} size="icon" className="shrink-0 bg-amber text-ink hover:bg-amber/90">
+          <Button onClick={handleCopy} variant="secondary" size="icon" className="shrink-0 shadow-xs">
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </Button>
         </div>
