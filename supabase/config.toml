@@ -21,3 +21,15 @@ verify_jwt = false
 # not-logged-in guests opening their ticket link.
 [functions.get-ticket]
 verify_jwt = false
+
+# Email broadcast sender for the Campaign Studio. JWT verification is REQUIRED at
+# the gateway so the function can trust auth.uid() as the organiser identity and
+# enforce campaign ownership + the freemium email cap server-side.
+[functions.send-campaign]
+verify_jwt = true
+
+# Public one-click unsubscribe endpoint linked from campaign emails. Must be
+# callable by anyone opening the link from their mail client (no login), so JWT
+# verification is disabled; the per-recipient token authorises the suppression.
+[functions.unsubscribe]
+verify_jwt = false

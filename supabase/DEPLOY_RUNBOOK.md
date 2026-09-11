@@ -157,5 +157,6 @@ in the browser bundle):
 - **Optional DB hardening** (commented at the bottom of the migration): require real
   email verification (drop the auto-confirm trigger), and a unique index on
   `payment_reference`. Enable deliberately — see the migration comments.
-- **Admin Disputes / Campaigns / payout figures** remain UI mocks (not DB-backed);
-  no policy work was needed and none was done.
+- **Admin Disputes / payout figures** remain UI mocks (not DB-backed); no policy
+  work was needed and none was done. **Organiser Campaigns is now DB-backed** —
+  see `supabase/CAMPAIGN_STUDIO_RUNBOOK.md` for its migration + secrets.
