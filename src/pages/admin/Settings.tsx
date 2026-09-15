@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { 
   Settings as SettingsIcon, Shield, Save, Key, AlertTriangle, 
-  CheckCircle2, CreditCard, Mail, Eye, EyeOff, Send, Loader2, MessageSquare, Phone 
+  CheckCircle2, CreditCard, Mail, Eye, EyeOff, Send, Loader2, MessageSquare, Phone, 
+  Database as DatabaseIcon, Copy, ExternalLink, RefreshCw 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,9 +15,45 @@ import {
   PlatformSettings 
 } from "@/lib/platformSettings";
 
+const SQL_MIGRATION_SCRIPT = `-- Supabase SQL Setup for EventRally Platform Settings
+-- Run this once in your Supabase SQL Editor: https://supabase.com/dashboard/project/edpnvsakkudorleqqhxv/sql/new
+
+CREATE TABLE IF NOT EXISTS public.platform_settings (
+  id TEXT PRIMARY KEY DEFAULT 'global_settings',
+  settings JSONB NOT NULL DEFAULT '{}'::jsonb,
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.platform_settings ENABLE ROW LEVEL SECURITY;
+
+-- Allow public read access (for checkout gateway keys and announcements)
+DROP POLICY IF EXISTS "Public read platform_settings" ON public.platform_settings;
+CREATE POLICY "Public read platform_settings"
+  ON public.platform_settings
+  FOR SELECT
+  USING (true);
+
+-- Allow authenticated users / admins to write settings
+DROP POLICY IF EXISTS "Admin write platform_settings" ON public.platform_settings;
+CREATE POLICY "Admin write platform_settings"
+  ON public.platform_settings
+  FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- Seed initial row
+INSERT INTO public.platform_settings (id, settings, updated_at)
+VALUES ('global_settings', '{}'::jsonb, now())
+ON CONFLICT (id) DO NOTHING;
+`;
+
 const AdminSettings = () => {
   const [settings, setSettings] = useState<PlatformSettings>(getPlatformSettings());
   const [loadingRemote, setLoadingRemote] = useState(true);
+  const [isDbSynced, setIsDbSynced] = useState<boolean | null>(null);
+  const [dbError, setDbError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showPublicKey, setShowPublicKey] = useState(false);
   const [showResendKey, setShowResendKey] = useState(false);
@@ -30,19 +67,40 @@ const AdminSettings = () => {
   const [testSmsPhone, setTestSmsPhone] = useState("");
   const [sendingTestSms, setSendingTestSms] = useState(false);
 
+  const checkDbStatus = async () => {
+    setLoadingRemote(true);
+    const result = await fetchRemotePlatformSettings();
+    setSettings(result.settings);
+    setIsDbSynced(result.isDatabasePersisted);
+    setDbError(result.error || null);
+    setLoadingRemote(false);
+  };
+
   useEffect(() => {
-    fetchRemotePlatformSettings().then((remote) => {
-      setSettings(remote);
-      setLoadingRemote(false);
-    });
+    checkDbStatus();
   }, []);
+
+  const handleCopySql = () => {
+    navigator.clipboard.writeText(SQL_MIGRATION_SCRIPT);
+    toast.success("Supabase SQL setup script copied to clipboard! Paste it into the Supabase SQL Editor.");
+  };
 
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      await persistPlatformSettings(settings);
-      toast.success("Platform settings, Paystack gateway keys, Resend email, and Termii SMS saved and synced permanently to database!");
+      const res = await persistPlatformSettings(settings);
+      setIsDbSynced(res.isDatabasePersisted);
+      setDbError(res.error || null);
+      
+      if (res.isDatabasePersisted) {
+        toast.success("Platform configuration saved and synced permanently to Supabase cloud database!");
+      } else {
+        toast.warning(
+          "Saved to local browser, but remote database table was not reachable. Run the SQL setup script to enable permanent cloud persistence across redeployments.",
+          { duration: 7000 }
+        );
+      }
     } catch (err: any) {
       toast.error(err.message || "Failed to persist platform settings");
     } finally {
@@ -167,6 +225,74 @@ const AdminSettings = () => {
         <p className="text-muted-foreground text-xs font-medium mt-1">
           Global system settings, payment gateway keys, automated Resend email delivery, fee schedules, and maintenance mode.
         </p>
+      </div>
+
+      {/* Cloud Database Sync Status Banner */}
+      <div className="w-full min-w-0">
+        {loadingRemote ? (
+          <div className="bg-muted/40 border border-border rounded-xl p-4 flex items-center gap-3 text-xs text-muted-foreground">
+            <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />
+            <span>Verifying Supabase database connection and syncing live platform settings...</span>
+          </div>
+        ) : isDbSynced ? (
+          <div className="bg-chart-green/10 border border-chart-green/30 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-chart-green animate-pulse shrink-0" />
+              <div>
+                <span className="font-bold text-foreground">Cloud Database Synced & Active: </span>
+                <span className="text-muted-foreground">All credentials and configurations are permanently stored in Supabase Postgres and synced across all devices & deployments.</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={checkDbStatus}
+              className="text-[11px] font-bold text-foreground/80 hover:text-foreground flex items-center gap-1 shrink-0 self-start sm:self-center"
+            >
+              <RefreshCw className="w-3 h-3" /> Re-check Sync
+            </button>
+          </div>
+        ) : (
+          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-5 space-y-3">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <div className="text-xs font-bold text-foreground flex items-center gap-2">
+                  Database Table Missing: Settings Currently Saved in Browser Only
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  The <code className="bg-background/80 px-1 py-0.5 rounded text-foreground font-mono">public.platform_settings</code> table has not been initialized in your Supabase project yet. Because of this, keys will disappear if you clear cache or redeploy. Run the setup SQL script once in your Supabase SQL Editor to enable permanent cloud persistence.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-destructive/20">
+              <Button
+                type="button"
+                onClick={handleCopySql}
+                variant="outline"
+                className="bg-background border-border text-xs font-bold h-8 px-3 rounded-lg flex items-center gap-1.5 shadow-2xs hover:bg-muted"
+              >
+                <Copy className="w-3.5 h-3.5 text-primary" /> Copy Supabase SQL Setup Script
+              </Button>
+              <a
+                href="https://supabase.com/dashboard/project/edpnvsakkudorleqqhxv/sql/new"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline bg-primary/10 px-3 h-8 rounded-lg"
+              >
+                <ExternalLink className="w-3.5 h-3.5" /> Open Supabase SQL Editor
+              </a>
+              <Button
+                type="button"
+                onClick={checkDbStatus}
+                variant="ghost"
+                className="text-xs font-bold h-8 px-3 rounded-lg text-muted-foreground hover:text-foreground ml-auto"
+              >
+                <RefreshCw className="w-3 h-3 mr-1" /> Re-check Connection
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSaveSettings} className="space-y-6 w-full min-w-0">

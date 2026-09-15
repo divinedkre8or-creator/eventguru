@@ -57,6 +57,12 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
 
 let memorySettingsCache: PlatformSettings | null = null;
 
+export interface PlatformSettingsFetchResult {
+  settings: PlatformSettings;
+  isDatabasePersisted: boolean;
+  error?: string;
+}
+
 /**
  * Synchronous getter: Retrieves settings from memory / localStorage cache with environment defaults.
  */
@@ -104,30 +110,66 @@ export function savePlatformSettings(updated: Partial<PlatformSettings>): Platfo
 
 /**
  * Asynchronously fetches persistent platform settings from Supabase database.
- * Syncs the local storage and memory cache automatically.
+ * Syncs the local storage and memory cache automatically without clobbering existing valid keys.
  */
-export async function fetchRemotePlatformSettings(): Promise<PlatformSettings> {
+export async function fetchRemotePlatformSettings(): Promise<PlatformSettingsFetchResult> {
+  const local = getPlatformSettings();
   try {
     const { data, error } = await (supabase.from as any)("platform_settings")
       .select("settings")
       .eq("id", "global_settings")
       .maybeSingle();
 
-    if (!error && data?.settings) {
-      const merged = savePlatformSettings(data.settings);
-      return merged;
+    if (error) {
+      console.warn("Notice: Remote platform settings query returned:", error.message);
+      return {
+        settings: local,
+        isDatabasePersisted: false,
+        error: error.message,
+      };
     }
-  } catch (err) {
+
+    if (data?.settings) {
+      // Intelligently merge remote settings with any non-empty local fields
+      const merged: PlatformSettings = {
+        ...local,
+        ...data.settings,
+        // If remote has empty gateway key but local has one, keep local (and vice-versa)
+        gateway_public_key: data.settings.gateway_public_key || local.gateway_public_key || "",
+        resend_api_key: data.settings.resend_api_key || local.resend_api_key || "",
+        termii_api_key: data.settings.termii_api_key || local.termii_api_key || "",
+      };
+      savePlatformSettings(merged);
+      return {
+        settings: merged,
+        isDatabasePersisted: true,
+      };
+    }
+
+    return {
+      settings: local,
+      isDatabasePersisted: true,
+    };
+  } catch (err: any) {
     console.warn("Notice: Remote platform settings sync deferred:", err);
+    return {
+      settings: local,
+      isDatabasePersisted: false,
+      error: err.message || "Failed to reach Supabase database",
+    };
   }
-  return getPlatformSettings();
 }
 
 /**
  * Asynchronously saves platform settings to Supabase database (persisted permanently across devices)
  * and syncs local storage.
  */
-export async function persistPlatformSettings(updated: Partial<PlatformSettings>): Promise<{ success: boolean; settings: PlatformSettings; error?: string }> {
+export async function persistPlatformSettings(updated: Partial<PlatformSettings>): Promise<{
+  success: boolean;
+  settings: PlatformSettings;
+  isDatabasePersisted: boolean;
+  error?: string;
+}> {
   const merged = savePlatformSettings(updated);
   try {
     const { error } = await (supabase.from as any)("platform_settings")
@@ -141,13 +183,27 @@ export async function persistPlatformSettings(updated: Partial<PlatformSettings>
       );
 
     if (error) {
-      console.warn("Database upsert notice for platform_settings:", error);
-      return { success: true, settings: merged, error: error.message };
+      console.warn("Database upsert error for platform_settings:", error);
+      return {
+        success: true,
+        settings: merged,
+        isDatabasePersisted: false,
+        error: error.message || "Database write failed",
+      };
     }
-    return { success: true, settings: merged };
+    return {
+      success: true,
+      settings: merged,
+      isDatabasePersisted: true,
+    };
   } catch (err: any) {
     console.warn("Remote settings write deferred:", err);
-    return { success: true, settings: merged };
+    return {
+      success: true,
+      settings: merged,
+      isDatabasePersisted: false,
+      error: err.message || "Network exception during database write",
+    };
   }
 }
 
