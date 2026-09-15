@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   Mail, Send, MessageSquare, Users, Loader2, AlertCircle,
-  Wallet, Gauge, Crown, ShieldCheck, Lock,
+  Wallet, Gauge, Crown, ShieldCheck, Plus, Sparkles,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { FREE_EMAIL_MONTHLY_LIMIT, getCurrentUsagePeriod } from "@/lib/campaignConstants";
+import { MessagingWalletModal } from "@/components/campaigns/MessagingWalletModal";
 
 // The campaigns/wallet/usage tables are newer than the generated Supabase types,
-// so we access them through an untyped handle (consistent with the codebase's
-// existing use of `any` around dynamic Supabase queries). Regenerate types with
-// `supabase gen types` after the migration is applied to restore full typing.
+// so we access them through an untyped handle.
 const db = supabase as any;
 
 interface EventOption {
@@ -43,6 +42,8 @@ const STATUS_STYLES: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
 };
 
+const SMS_UNIT_PRICE_NAIRA = 6.5;
+
 const Campaigns = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -52,6 +53,7 @@ const Campaigns = () => {
   const [channel, setChannel] = useState<"email" | "sms">("email");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
 
   // --- Organiser events (target selector) -----------------------------------
   const { data: events = [] } = useQuery({
@@ -67,26 +69,43 @@ const Campaigns = () => {
     },
   });
 
-  // --- Approx recipient count for the selected target -----------------------
-  // (Display only; the server dedupes and drops unsubscribed at send time.)
-  const { data: recipientCount = 0, isLoading: loadingCount } = useQuery({
-    queryKey: ["campaign-recipient-count-v2", user?.id, selectedEventId, events.length],
+  // --- Recipient counts for email vs phone ----------------------------------
+  const { data: audience = { emailCount: 0, phoneCount: 0 }, isLoading: loadingCount } = useQuery({
+    queryKey: ["campaign-recipient-counts-v3", user?.id, selectedEventId, events.length],
     enabled: !!user?.id,
-    queryFn: async (): Promise<number> => {
+    queryFn: async () => {
+      let targetEventIds: string[] = [];
       if (selectedEventId === "all") {
-        const eventIds = events.map((e) => e.id);
-        if (eventIds.length === 0) return 0;
-        const { count } = await supabase
-          .from("registrations")
-          .select("*", { count: "exact", head: true })
-          .in("event_id", eventIds);
-        return count || 0;
+        targetEventIds = events.map((e) => e.id);
+        if (targetEventIds.length === 0) return { emailCount: 0, phoneCount: 0 };
+      } else {
+        targetEventIds = [selectedEventId];
       }
-      const { count } = await supabase
+
+      const { data: regs } = await supabase
         .from("registrations")
-        .select("*", { count: "exact", head: true })
-        .eq("event_id", selectedEventId);
-      return count || 0;
+        .select("email, phone_number, phone")
+        .in("event_id", targetEventIds);
+
+      let emailCount = 0;
+      let phoneCount = 0;
+      const seenEmails = new Set<string>();
+      const seenPhones = new Set<string>();
+
+      for (const r of (regs as any[]) || []) {
+        const em = (r.email || "").trim().toLowerCase();
+        if (em && !seenEmails.has(em)) {
+          seenEmails.add(em);
+          emailCount++;
+        }
+        const rawPhone = (r.phone_number || r.phone || "").trim().replace(/[\s\-\(\)]/g, "");
+        if (rawPhone && rawPhone.length >= 10 && !seenPhones.has(rawPhone)) {
+          seenPhones.add(rawPhone);
+          phoneCount++;
+        }
+      }
+
+      return { emailCount, phoneCount };
     },
   });
 
@@ -139,6 +158,15 @@ const Campaigns = () => {
   const emailAtLimit = !isPro && emailRemaining <= 0;
   const usagePct = Math.min(100, Math.round((emailUsed / FREE_EMAIL_MONTHLY_LIMIT) * 100));
 
+  const targetCount = channel === "email" ? audience.emailCount : audience.phoneCount;
+  const currentSmsBalance = Number(wallet?.sms_balance) || 0;
+  const estimatedSmsCost = targetCount * SMS_UNIT_PRICE_NAIRA;
+  const hasEnoughSmsBalance = currentSmsBalance >= estimatedSmsCost;
+
+  // SMS character length and segments calculation
+  const smsCharLength = message.length;
+  const smsSegments = Math.max(1, Math.ceil(smsCharLength / 160));
+
   const eventTitleFor = (id: string | null) =>
     !id ? "All Attendees" : events.find((e) => e.id === id)?.title || "Event";
 
@@ -153,7 +181,7 @@ const Campaigns = () => {
           organiser_id: user.id,
           event_id: selectedEventId === "all" ? null : selectedEventId,
           channel,
-          subject: subject.trim(),
+          subject: channel === "email" ? subject.trim() : null,
           body: message.trim(),
           status: "draft",
         })
@@ -165,8 +193,6 @@ const Campaigns = () => {
         body: { campaignId: created.id },
       });
 
-      // The function returns HTTP 200 {ok:false, message} for business rejections
-      // (limit reached, not configured, etc.) and only errors on auth/infra faults.
       if (error) throw new Error("Could not reach the campaign sender. Please try again shortly.");
       if (!data?.ok) throw new Error(data?.message || "The campaign could not be sent.");
       return data as { sent: number; failed: number; total: number };
@@ -174,14 +200,15 @@ const Campaigns = () => {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["campaigns-history-v2", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["campaign-email-usage-v2", user?.id, period] });
+      queryClient.invalidateQueries({ queryKey: ["campaign-wallet-v2", user?.id] });
       setSubject("");
       setMessage("");
       const failedNote = result.failed > 0 ? ` (${result.failed} failed)` : "";
-      toast.success(`Broadcast sent to ${result.sent} recipient${result.sent === 1 ? "" : "s"}${failedNote}.`);
+      toast.success(`${channel === "email" ? "Email" : "SMS"} broadcast sent to ${result.sent} recipient${result.sent === 1 ? "" : "s"}${failedNote}.`);
     },
     onError: (err: any) => {
-      // A failed attempt still leaves an audit row; refresh so it shows.
       queryClient.invalidateQueries({ queryKey: ["campaigns-history-v2", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["campaign-wallet-v2", user?.id] });
       toast.error(err?.message || "Failed to send campaign.");
     },
   });
@@ -189,11 +216,7 @@ const Campaigns = () => {
   const handleSendCampaign = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (channel === "sms") {
-      toast.info("SMS campaigns are coming soon. Fund your wallet once SMS goes live.");
-      return;
-    }
-    if (!subject.trim()) {
+    if (channel === "email" && !subject.trim()) {
       toast.error("Please enter an email subject.");
       return;
     }
@@ -201,12 +224,21 @@ const Campaigns = () => {
       toast.error("Please compose a message body.");
       return;
     }
-    if (recipientCount === 0) {
-      toast.error("No attendees found in the selected target audience.");
+    if (targetCount === 0) {
+      toast.error(
+        channel === "email"
+          ? "No attendees with email addresses found in the selected target."
+          : "No attendees with phone numbers found in the selected target."
+      );
       return;
     }
-    if (emailAtLimit) {
+    if (channel === "email" && emailAtLimit) {
       toast.error(`You've used all ${FREE_EMAIL_MONTHLY_LIMIT} free emails this month. Upgrade to Pro or wait for next month.`);
+      return;
+    }
+    if (channel === "sms" && !hasEnoughSmsBalance) {
+      toast.error(`Insufficient SMS balance (₦${currentSmsBalance.toLocaleString()} available vs ₦${estimatedSmsCost.toLocaleString()} required). Please fund your wallet.`);
+      setIsWalletModalOpen(true);
       return;
     }
     sendMutation.mutate();
@@ -223,7 +255,7 @@ const Campaigns = () => {
         </div>
         <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Attendee Communications</h1>
         <p className="text-muted-foreground text-xs font-medium mt-1">
-          Send broadcast emails to people registered for your events. Every message includes a one-click unsubscribe to keep you compliant.
+          Reach your attendees via verified Email and SMS notifications. Every email includes one-click unsubscribe, and SMS broadcasts deliver instantly.
         </p>
       </div>
 
@@ -260,8 +292,8 @@ const Campaigns = () => {
                   </span>
                 ) : (
                   <span>
-                    up to <strong className="text-foreground font-mono">{recipientCount}</strong> recipient{recipientCount === 1 ? "" : "s"}{" "}
-                    <span className="text-muted-foreground/70">(unsubscribed & duplicates removed at send)</span>
+                    Audience: <strong className="text-foreground font-mono">{audience.emailCount}</strong> with email ·{" "}
+                    <strong className="text-foreground font-mono">{audience.phoneCount}</strong> with phone
                   </span>
                 )}
               </div>
@@ -294,33 +326,28 @@ const Campaigns = () => {
                   }`}
                 >
                   <MessageSquare className="w-4 h-4" /> SMS Notification
-                  <span className="absolute -top-2 -right-2 text-[8px] font-mono font-bold uppercase bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded-full">
-                    Soon
+                  <span className="text-[9px] font-mono font-bold uppercase bg-chart-green/20 text-chart-green px-1.5 py-0.2 rounded-full">
+                    Active
                   </span>
                 </button>
               </div>
-              {channel === "sms" && (
-                <div className="flex items-start gap-2 text-[11px] text-muted-foreground bg-muted/50 border border-border rounded-lg p-2.5">
-                  <Lock className="w-3.5 h-3.5 mt-0.5 shrink-0 text-secondary" />
-                  <span>
-                    SMS marketing is prepaid and launching soon. You'll fund your wallet with credits, then reach attendees who shared a phone number.
-                  </span>
-                </div>
-              )}
             </div>
 
-            {/* Subject / Title */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground font-mono uppercase tracking-wider">
-                {channel === "email" ? "Email Subject *" : "SMS Header"}
-              </label>
-              <Input
-                placeholder={channel === "email" ? "Important updates regarding your event..." : "Event Reminder:"}
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="bg-background border-border text-xs h-10 rounded-lg"
-              />
-            </div>
+            {/* Subject / Title (Only for Email) */}
+            {channel === "email" && (
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground font-mono uppercase tracking-wider">
+                  Email Subject *
+                </label>
+                <Input
+                  placeholder="Important updates regarding your event..."
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="bg-background border-border text-xs h-10 rounded-lg"
+                  required
+                />
+              </div>
+            )}
 
             {/* Message Body */}
             <div className="space-y-1.5">
@@ -331,45 +358,59 @@ const Campaigns = () => {
                 <span className="text-[10px] text-muted-foreground">Supports variables: <code>{"{{name}}"}</code></span>
               </div>
               <Textarea
-                placeholder="Write your message here... Hello {{name}}, thank you for registering!"
+                placeholder={
+                  channel === "email"
+                    ? "Write your email message here... Hello {{name}}, thank you for registering!"
+                    : "Event Reminder: Hello {{name}}, doors open in 2 hours. Venue: Landmark Centre, Lagos."
+                }
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="bg-background border-border text-xs min-h-[140px] rounded-lg leading-relaxed"
+                className="bg-background border-border text-xs min-h-[130px] rounded-lg leading-relaxed"
+                required
               />
+              {/* Live SMS Counter */}
+              {channel === "sms" && (
+                <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground pt-1">
+                  <span>
+                    {smsCharLength} / 160 characters ({smsSegments} segment{smsSegments > 1 ? "s" : ""})
+                  </span>
+                  <span className="font-bold text-foreground">
+                    Est. Cost: ₦{(targetCount * SMS_UNIT_PRICE_NAIRA * smsSegments).toLocaleString()} ({targetCount} phones)
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Submit */}
-            {channel === "sms" ? (
-              <Button
-                type="submit"
-                variant="secondary"
-                disabled
-                className="w-full font-bold text-xs h-11 rounded-lg flex items-center justify-center gap-2 shadow-sm opacity-70"
-              >
-                <Lock className="w-4 h-4" /> SMS Broadcasts — Coming Soon
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                variant="secondary"
-                disabled={sending || loadingCount || emailAtLimit}
-                className="w-full font-bold text-xs h-11 rounded-lg flex items-center justify-center gap-2 shadow-sm"
-              >
-                {sending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Sending Broadcast...
-                  </>
-                ) : emailAtLimit ? (
-                  <>
-                    <AlertCircle className="w-4 h-4" /> Monthly Free Limit Reached
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" /> Send Email Broadcast
-                  </>
-                )}
-              </Button>
-            )}
+            <Button
+              type="submit"
+              variant="secondary"
+              disabled={
+                sending || 
+                loadingCount || 
+                (channel === "email" && emailAtLimit) || 
+                (channel === "sms" && (!hasEnoughSmsBalance || targetCount === 0))
+              }
+              className="w-full font-bold text-xs h-11 rounded-lg flex items-center justify-center gap-2 shadow-sm"
+            >
+              {sending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Dispatching Broadcast...
+                </>
+              ) : channel === "email" && emailAtLimit ? (
+                <>
+                  <AlertCircle className="w-4 h-4" /> Monthly Free Limit Reached
+                </>
+              ) : channel === "sms" && !hasEnoughSmsBalance ? (
+                <>
+                  <Wallet className="w-4 h-4" /> Insufficient SMS Wallet Balance
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" /> Send {channel === "email" ? "Email Broadcast" : `SMS Broadcast (${targetCount} Attendees)`}
+                </>
+              )}
+            </Button>
           </form>
         </div>
 
@@ -410,7 +451,7 @@ const Campaigns = () => {
                   <strong className="text-foreground font-mono">{emailRemaining}</strong> left
                 </p>
                 <p className="text-[11px] text-muted-foreground/70 leading-relaxed">
-                  Resets on the 1st. Need more reach? Pro removes the monthly cap and unlocks campaign analytics.
+                  Resets on the 1st. Need more reach? Pro removes the monthly cap.
                 </p>
               </>
             )}
@@ -418,22 +459,33 @@ const Campaigns = () => {
 
           {/* Wallet (SMS credits) */}
           <div className="bg-card border border-border rounded-xl p-5 shadow-sm space-y-3">
-            <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
-              <Wallet className="w-4 h-4 text-secondary" /> SMS Wallet
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                <Wallet className="w-4 h-4 text-secondary" /> SMS Messaging Wallet
+              </h3>
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-chart-green/10 text-chart-green">
+                Pay As You Go
+              </span>
+            </div>
             <div className="flex items-end justify-between">
               <div>
                 <div className="font-heading text-2xl font-black text-foreground tabular-nums">
-                  ₦{(wallet?.sms_balance || 0).toLocaleString()}
+                  ₦{currentSmsBalance.toLocaleString()}
                 </div>
-                <div className="text-[11px] text-muted-foreground">prepaid SMS balance</div>
+                <div className="text-[11px] text-muted-foreground">
+                  ~{Math.floor(currentSmsBalance / SMS_UNIT_PRICE_NAIRA).toLocaleString()} SMS units available
+                </div>
               </div>
-              <Button variant="outline" size="sm" disabled className="text-xs font-bold opacity-70">
-                <Lock className="w-3.5 h-3.5 mr-1.5" /> Fund — Soon
+              <Button
+                type="button"
+                onClick={() => setIsWalletModalOpen(true)}
+                className="bg-primary text-primary-foreground text-xs font-bold h-9 px-3.5 rounded-lg flex items-center gap-1.5 shadow-sm hover:opacity-90"
+              >
+                <Plus className="w-3.5 h-3.5" /> Fund Wallet
               </Button>
             </div>
             <p className="text-[11px] text-muted-foreground/70 leading-relaxed">
-              Wallet funding opens when SMS goes live. Credits are prepaid and priced per message — separate from your free email allowance.
+              Credits never expire. Top up in bundles of 250, 750, or 2,500 units via Paystack to send instant mobile SMS reminders.
             </p>
           </div>
 
@@ -491,6 +543,21 @@ const Campaigns = () => {
           </div>
         </div>
       </div>
+
+      {/* Messaging Wallet Modal */}
+      {user?.id && (
+        <MessagingWalletModal
+          isOpen={isWalletModalOpen}
+          onClose={() => setIsWalletModalOpen(false)}
+          organiserId={user.id}
+          userEmail={user.email || ""}
+          userName={user.user_metadata?.full_name || "Event Organiser"}
+          currentBalance={currentSmsBalance}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ["campaign-wallet-v2", user?.id] });
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -79,10 +79,9 @@ serve(async (req) => {
     if (campaign.status !== "draft" && campaign.status !== "failed") {
       return reject("already_processed", `This campaign is '${campaign.status}' and cannot be sent again.`);
     }
-    if (campaign.channel === "sms") {
-      await admin.from("campaigns").update({ status: "failed", error: "SMS not yet available" }).eq("id", campaignId);
-      return reject("sms_unavailable", "SMS campaigns are coming soon. Fund your wallet once SMS goes live.");
-    }
+    const TERMII_API_KEY = Deno.env.get("TERMII_API_KEY");
+    const TERMII_SENDER_ID = Deno.env.get("TERMII_SENDER_ID") || "EventRally";
+    const SMS_UNIT_PRICE_NAIRA = 6.5; // Retail price per SMS charged to organiser wallet
 
     await admin.from("campaigns").update({ status: "sending", error: null }).eq("id", campaignId);
 
@@ -110,82 +109,119 @@ serve(async (req) => {
       return reject("no_recipients", "You have no events with registrations yet.");
     }
 
-    // 5. Load registrations & deduplicate
+    // 5. Load registrations & deduplicate based on channel
+    const isSms = campaign.channel === "sms";
+
     const { data: regs, error: regErr } = await admin
       .from("registrations")
-      .select("id, full_name, email")
+      .select("id, full_name, email, phone_number, phone")
       .in("event_id", eventIds);
     if (regErr) {
       await admin.from("campaigns").update({ status: "failed", error: regErr.message }).eq("id", campaignId);
       return json({ ok: false, reason: "server_error", message: regErr.message }, 500);
     }
 
-    const { data: unsubs } = await admin
-      .from("email_unsubscribes")
-      .select("email")
-      .eq("organiser_id", organiserId);
-    const suppressed = new Set((unsubs || []).map((u: any) => (u.email || "").toLowerCase().trim()));
-
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const seen = new Set<string>();
     const recipients: { registration_id: string; contact: string; name: string }[] = [];
-    for (const r of regs || []) {
-      const email = (r.email || "").toLowerCase().trim();
-      if (!email || !emailRe.test(email)) continue;
-      if (suppressed.has(email)) continue;
-      if (seen.has(email)) continue;
-      seen.add(email);
-      recipients.push({ registration_id: r.id, contact: email, name: r.full_name || "" });
+
+    if (isSms) {
+      // Clean and normalize phone numbers (e.g. 08012345678 -> 2348012345678)
+      for (const r of regs || []) {
+        const rawPhone = (r.phone_number || r.phone || "").trim().replace(/[\s\-\(\)]/g, "");
+        if (!rawPhone || rawPhone.length < 10) continue;
+        let normalized = rawPhone;
+        if (normalized.startsWith("0")) {
+          normalized = "234" + normalized.slice(1);
+        } else if (normalized.startsWith("+")) {
+          normalized = normalized.slice(1);
+        }
+        if (seen.has(normalized)) continue;
+        seen.add(normalized);
+        recipients.push({ registration_id: r.id, contact: normalized, name: r.full_name || "" });
+      }
+    } else {
+      const { data: unsubs } = await admin
+        .from("email_unsubscribes")
+        .select("email")
+        .eq("organiser_id", organiserId);
+      const suppressed = new Set((unsubs || []).map((u: any) => (u.email || "").toLowerCase().trim()));
+
+      for (const r of regs || []) {
+        const email = (r.email || "").toLowerCase().trim();
+        if (!email || !emailRe.test(email)) continue;
+        if (suppressed.has(email)) continue;
+        if (seen.has(email)) continue;
+        seen.add(email);
+        recipients.push({ registration_id: r.id, contact: email, name: r.full_name || "" });
+      }
     }
 
     if (recipients.length === 0) {
-      await admin.from("campaigns").update({ status: "failed", error: "No eligible recipients", recipient_count: 0 }).eq("id", campaignId);
-      return reject("no_recipients", "No eligible recipients (all unsubscribed or missing email).");
+      const msg = isSms 
+        ? "No eligible recipients with registered phone numbers found."
+        : "No eligible recipients (all unsubscribed or missing email).";
+      await admin.from("campaigns").update({ status: "failed", error: msg, recipient_count: 0 }).eq("id", campaignId);
+      return reject("no_recipients", msg);
     }
 
-    // 6. Check free limits vs Pro
+    // 6. Quota & Wallet Balance Checks
     const period = new Date().toISOString().slice(0, 7); // YYYY-MM
     const { data: wallet } = await admin
       .from("organiser_wallets")
-      .select("plan")
+      .select("sms_balance, plan")
       .eq("organiser_id", organiserId)
       .maybeSingle();
     const plan = wallet?.plan || "free";
+    const currentSmsBalance = Number(wallet?.sms_balance) || 0;
 
-    const { data: usageRow } = await admin
-      .from("organiser_email_usage")
-      .select("sent_count")
-      .eq("organiser_id", organiserId)
-      .eq("period", period)
-      .maybeSingle();
-    const usedThisMonth = usageRow?.sent_count || 0;
+    if (isSms) {
+      const requiredCost = recipients.length * SMS_UNIT_PRICE_NAIRA;
+      if (currentSmsBalance < requiredCost) {
+        const msg = `Insufficient SMS balance. This send requires ₦${requiredCost.toLocaleString()} (${recipients.length} SMS units), but your wallet balance is ₦${currentSmsBalance.toLocaleString()}. Please top up your wallet.`;
+        await admin.from("campaigns").update({ status: "failed", error: msg, recipient_count: recipients.length }).eq("id", campaignId);
+        return reject("insufficient_funds", msg, { required: requiredCost, balance: currentSmsBalance });
+      }
 
-    if (plan !== "pro" && usedThisMonth + recipients.length > FREE_LIMIT) {
-      const remaining = Math.max(0, FREE_LIMIT - usedThisMonth);
-      await admin
-        .from("campaigns")
-        .update({ status: "failed", error: "Monthly free email limit exceeded", recipient_count: recipients.length })
-        .eq("id", campaignId);
-      return reject(
-        "limit_exceeded",
-        `This send needs ${recipients.length} emails but only ${remaining} of your ${FREE_LIMIT} free monthly emails remain. Upgrade to Pro or contact support.`,
-        { limit: FREE_LIMIT, used: usedThisMonth, remaining, needed: recipients.length },
-      );
+      if (!TERMII_API_KEY) {
+        await admin.from("campaigns").update({ status: "failed", error: "TERMII_API_KEY is not configured", recipient_count: recipients.length }).eq("id", campaignId);
+        return reject("sms_not_configured", "SMS delivery service is being connected. Please set the TERMII_API_KEY secret.");
+      }
+    } else {
+      const { data: usageRow } = await admin
+        .from("organiser_email_usage")
+        .select("sent_count")
+        .eq("organiser_id", organiserId)
+        .eq("period", period)
+        .maybeSingle();
+      const usedThisMonth = usageRow?.sent_count || 0;
+
+      if (plan !== "pro" && usedThisMonth + recipients.length > FREE_LIMIT) {
+        const remaining = Math.max(0, FREE_LIMIT - usedThisMonth);
+        await admin
+          .from("campaigns")
+          .update({ status: "failed", error: "Monthly free email limit exceeded", recipient_count: recipients.length })
+          .eq("id", campaignId);
+        return reject(
+          "limit_exceeded",
+          `This send needs ${recipients.length} emails but only ${remaining} of your ${FREE_LIMIT} free monthly emails remain. Upgrade to Pro or contact support.`,
+          { limit: FREE_LIMIT, used: usedThisMonth, remaining, needed: recipients.length },
+        );
+      }
+
+      if (!RESEND_API_KEY) {
+        await admin
+          .from("campaigns")
+          .update({ status: "failed", error: "Email not configured (RESEND_API_KEY missing)", recipient_count: recipients.length })
+          .eq("id", campaignId);
+        return reject(
+          "email_not_configured",
+          "Email sending is not configured yet. Set the RESEND_API_KEY secret.",
+        );
+      }
     }
 
-    // 7. Verify Resend configuration
-    if (!RESEND_API_KEY) {
-      await admin
-        .from("campaigns")
-        .update({ status: "failed", error: "Email not configured (RESEND_API_KEY missing)", recipient_count: recipients.length })
-        .eq("id", campaignId);
-      return reject(
-        "email_not_configured",
-        "Email sending is not configured yet. Set the RESEND_API_KEY secret.",
-      );
-    }
-
-    // 8. Stash recipients with unsubscribe tokens
+    // 7. Stash recipients with tracking tokens
     const rows = recipients.map((r) => ({
       campaign_id: campaignId,
       registration_id: r.registration_id,
@@ -203,45 +239,95 @@ serve(async (req) => {
       return json({ ok: false, reason: "server_error", message: insErr?.message || "Failed to stage recipients" }, 500);
     }
 
-    // 9. Dispatch emails via Resend
-    const subject = campaign.subject || "A message from your event organiser";
+    // 8. Dispatch based on channel
     let sent = 0;
     let failed = 0;
     const sentIds: string[] = [];
 
-    for (const rec of inserted as any[]) {
-      const unsubUrl = `${SUPABASE_URL}/functions/v1/unsubscribe?t=${rec.unsubscribe_token}`;
-      const emailHtml = buildHtml(campaign.body, rec.name, subject, unsubUrl);
-      try {
-        const res = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: FROM,
-            to: [rec.contact],
-            subject,
-            html: emailHtml,
-            reply_to: REPLY_TO,
-            headers: { 
-              "List-Unsubscribe": `<${unsubUrl}>`, 
-              "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" 
-            },
-          }),
-        });
-        if (res.ok) {
-          sent++;
-          sentIds.push(rec.id);
-        } else {
-          const errBody = await res.json().catch(() => ({}));
+    if (isSms) {
+      // Dispatch SMS via Termii
+      for (const rec of inserted as any[]) {
+        const smsContent = campaign.body.replace(/\{\{name\}\}/gi, rec.name || "there");
+        try {
+          const res = await fetch("https://api.ng.termii.com/api/sms/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              to: rec.contact,
+              from: TERMII_SENDER_ID,
+              sms: smsContent,
+              type: "plain",
+              channel: "generic",
+              api_key: TERMII_API_KEY,
+            }),
+          });
+          const termiiRes = await res.json().catch(() => ({}));
+          if (res.ok && termiiRes.code === "ok") {
+            sent++;
+            sentIds.push(rec.id);
+          } else {
+            failed++;
+            await admin.from("campaign_recipients").update({ 
+              status: "failed", 
+              error: termiiRes.message || `Termii Error (HTTP ${res.status})` 
+            }).eq("id", rec.id);
+          }
+        } catch (e) {
           failed++;
-          await admin.from("campaign_recipients").update({ status: "failed", error: (errBody as any)?.message || `Resend HTTP ${res.status}` }).eq("id", rec.id);
+          await admin.from("campaign_recipients").update({ status: "failed", error: (e as Error).message }).eq("id", rec.id);
         }
-      } catch (e) {
-        failed++;
-        await admin.from("campaign_recipients").update({ status: "failed", error: (e as Error).message }).eq("id", rec.id);
+      }
+
+      // Deduct spent funds from wallet
+      if (sent > 0) {
+        const amountDebited = sent * SMS_UNIT_PRICE_NAIRA;
+        const newBalance = Math.max(0, currentSmsBalance - amountDebited);
+        await admin.from("organiser_wallets").update({ sms_balance: newBalance, updated_at: new Date().toISOString() }).eq("organiser_id", organiserId);
+        await admin.from("wallet_transactions").insert({
+          organiser_id: organiserId,
+          type: "debit",
+          amount: amountDebited,
+          balance_after: newBalance,
+          description: `SMS Broadcast: ${sent} messages sent (₦${amountDebited.toFixed(2)})`,
+        });
+      }
+    } else {
+      // Dispatch emails via Resend
+      const subject = campaign.subject || "A message from your event organiser";
+      for (const rec of inserted as any[]) {
+        const unsubUrl = `${SUPABASE_URL}/functions/v1/unsubscribe?t=${rec.unsubscribe_token}`;
+        const emailHtml = buildHtml(campaign.body, rec.name, subject, unsubUrl);
+        try {
+          const res = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: FROM,
+              to: [rec.contact],
+              subject,
+              html: emailHtml,
+              reply_to: REPLY_TO,
+              headers: { 
+                "List-Unsubscribe": `<${unsubUrl}>`, 
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" 
+              },
+            }),
+          });
+          if (res.ok) {
+            sent++;
+            sentIds.push(rec.id);
+          } else {
+            const errBody = await res.json().catch(() => ({}));
+            failed++;
+            await admin.from("campaign_recipients").update({ status: "failed", error: (errBody as any)?.message || `Resend HTTP ${res.status}` }).eq("id", rec.id);
+          }
+        } catch (e) {
+          failed++;
+          await admin.from("campaign_recipients").update({ status: "failed", error: (e as Error).message }).eq("id", rec.id);
+        }
       }
     }
 
@@ -252,7 +338,7 @@ serve(async (req) => {
         .in("id", sentIds);
     }
 
-    // 10. Update campaign status & usage
+    // 9. Update campaign status & usage
     const finalStatus = sent > 0 ? "sent" : "failed";
     await admin
       .from("campaigns")
@@ -266,7 +352,15 @@ serve(async (req) => {
       })
       .eq("id", campaignId);
 
-    if (sent > 0) {
+    if (!isSms && sent > 0) {
+      const { data: usageRow } = await admin
+        .from("organiser_email_usage")
+        .select("sent_count")
+        .eq("organiser_id", organiserId)
+        .eq("period", period)
+        .maybeSingle();
+      const usedThisMonth = usageRow?.sent_count || 0;
+
       await admin
         .from("organiser_email_usage")
         .upsert(
