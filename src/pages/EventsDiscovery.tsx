@@ -239,6 +239,8 @@ export const EventsDiscovery: React.FC = () => {
             {filteredEvents.map((event) => {
               const eventDate = new Date(event.date);
               const isValidDate = !isNaN(eventDate.getTime());
+              const isPastEvent = isValidDate && eventDate.getTime() < Date.now();
+
               const dateFormatted = isValidDate
                 ? eventDate.toLocaleDateString("en-GB", {
                     weekday: "short",
@@ -259,7 +261,9 @@ export const EventsDiscovery: React.FC = () => {
               return (
                 <div
                   key={event.id}
-                  className="bg-card border border-border rounded-xl overflow-hidden flex flex-col justify-between hover:border-secondary/50 transition-all shadow-xs group"
+                  className={`bg-card border rounded-xl overflow-hidden flex flex-col justify-between transition-all shadow-xs group ${
+                    isPastEvent ? "border-border opacity-85 hover:opacity-100" : "border-border hover:border-secondary/50"
+                  }`}
                 >
                   <div>
                     {/* Event Banner */}
@@ -275,8 +279,20 @@ export const EventsDiscovery: React.FC = () => {
                           <Ticket className="w-10 h-10 opacity-40" />
                         </div>
                       )}
-                      <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase shadow-xs">
-                        {event.category || "Event"}
+                      
+                      {/* Category & Expired Badge */}
+                      <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
+                        {isPastEvent ? (
+                          <span className="bg-destructive text-destructive-foreground text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full uppercase shadow-md flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                            CLOSED / ENDED
+                          </span>
+                        ) : (
+                          <span />
+                        )}
+                        <span className="bg-primary text-primary-foreground text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase shadow-xs ml-auto">
+                          {event.category || "Event"}
+                        </span>
                       </div>
                     </div>
 
@@ -289,7 +305,7 @@ export const EventsDiscovery: React.FC = () => {
                       <div className="space-y-1.5 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5 text-secondary shrink-0" />
-                          <span>{dateFormatted}</span>
+                          <span className={isPastEvent ? "line-through opacity-70" : ""}>{dateFormatted}</span>
                         </div>
                         {(event.venue || event.city) && (
                           <div className="flex items-center gap-1.5 truncate">
@@ -309,10 +325,17 @@ export const EventsDiscovery: React.FC = () => {
                         <span className="font-mono font-black text-sm text-foreground">{priceLabel}</span>
                       </div>
                       <Link to={getEventUrl(event)}>
-                        <Button variant="secondary" size="sm" className="font-bold text-xs h-9 px-4 rounded-lg flex items-center gap-1 shadow-xs">
-                          <span>Get Ticket</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Button>
+                        {isPastEvent ? (
+                          <Button variant="outline" size="sm" className="font-bold text-xs h-9 px-4 rounded-lg flex items-center gap-1 border-border text-muted-foreground">
+                            <span>Event Ended</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Button>
+                        ) : (
+                          <Button variant="secondary" size="sm" className="font-bold text-xs h-9 px-4 rounded-lg flex items-center gap-1 shadow-xs">
+                            <span>Get Ticket</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
                       </Link>
                     </div>
                   </div>

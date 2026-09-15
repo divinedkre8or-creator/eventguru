@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, MapPin, Tag, Users, ArrowLeft, Loader2, Image as ImageIcon, Edit2, Trash2, Share2 } from "lucide-react";
+import { 
+  Calendar, MapPin, Tag, Users, ArrowLeft, Loader2, 
+  Image as ImageIcon, Edit2, Trash2, Share2, AlertCircle 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -114,16 +117,16 @@ const EventDetails = () => {
     );
   }
 
-  const { title, image_url, venue, city, country, category, ticket_types, is_free, organiser_id } = event;
+  const { title, image_url, venue, city, country, category, ticket_types, is_free, organiser_id, date } = event;
   const isOrganizer = user?.id === organiser_id;
 
-  // Parse Description, Schedule, Additional Info
-  let rawDesc = event.description || "";
-  let parsedDesc = rawDesc;
-  let parsedSchedule: any[] = [];
-  let parsedAdditional = "";
+  const eventDateObj = new Date(date);
+  const isPastEvent = !isNaN(eventDateObj.getTime()) && eventDateObj.getTime() < Date.now();
 
-  // Parse brand color first (must come before other parsing since it's at the end)
+  // Parse Description, Schedule, Additional Info
+  let parsedDesc = "";
+  let parsedSchedule: Array<{ date: string; startTime: string; endTime?: string }> = [];
+  let parsedAdditional = "";
   let parsedBrandColor = "";
   if (rawDesc.includes("|||BRAND_COLOR|||")) {
     const bcParts = rawDesc.split("|||BRAND_COLOR|||");
@@ -361,21 +364,37 @@ const EventDetails = () => {
               </div>
 
               <div className="border-t border-border pt-6 space-y-4">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-2">
                   <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">Tickets</h3>
-                  {discountPercentage > 0 && (
+                  {discountPercentage > 0 && !isPastEvent && (
                      <span className="text-[10px] font-mono font-bold bg-secondary text-secondary-foreground px-2 py-0.5 rounded">
                         {discountPercentage}% OFF
                      </span>
                   )}
+                  {isPastEvent && (
+                    <span className="text-[10px] font-mono font-bold bg-destructive/10 text-destructive border border-destructive/30 px-2 py-0.5 rounded uppercase">
+                      Event Concluded
+                    </span>
+                  )}
                 </div>
+
+                {isPastEvent && (
+                  <div className="p-3.5 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-xs font-bold flex items-start gap-2.5 mb-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <div>
+                      <div>Event Has Ended</div>
+                      <div className="font-normal opacity-90 mt-0.5">Ticket sales and attendee registration for this event are officially closed.</div>
+                    </div>
+                  </div>
+                )}
+
                 {ticket_types && ticket_types.length > 0 ? (
                   ticket_types.map((ticket: any) => {
                     const originalPrice = ticket.price || 0;
                     const discountedPrice = discountPercentage > 0 ? originalPrice * (1 - discountPercentage / 100) : originalPrice;
                     
                     return (
-                    <div key={ticket.id} className="flex flex-col gap-3 p-4 rounded-xl border border-border bg-background hover:border-secondary transition-all shadow-xs group">
+                    <div key={ticket.id} className={`flex flex-col gap-3 p-4 rounded-xl border bg-background transition-all shadow-xs group ${isPastEvent ? 'border-border opacity-70' : 'border-border hover:border-secondary'}`}>
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-sm text-foreground">{ticket.name}</span>
                         <div className="flex items-center gap-2">
@@ -392,16 +411,18 @@ const EventDetails = () => {
                       <p className="text-xs text-muted-foreground line-clamp-2">{ticket.description || "Access ticket to event"}</p>
                       
                       <Button 
-                        variant="secondary"
+                        variant={isPastEvent ? "outline" : "secondary"}
+                        disabled={isPastEvent}
                         onClick={() => {
+                          if (isPastEvent) return;
                           setSelectedTicket(ticket);
                           setIsCheckoutOpen(true);
                         }}
-                        className="w-full font-bold text-xs h-10 rounded-lg shadow-sm flex items-center justify-center gap-2 mt-1"
-                        style={parsedBrandColor ? { backgroundColor: parsedBrandColor, color: '#fff', borderColor: parsedBrandColor } : undefined}
+                        className={`w-full font-bold text-xs h-10 rounded-lg shadow-sm flex items-center justify-center gap-2 mt-1 ${isPastEvent ? 'opacity-60 cursor-not-allowed border-border text-muted-foreground' : ''}`}
+                        style={(!isPastEvent && parsedBrandColor) ? { backgroundColor: parsedBrandColor, color: '#fff', borderColor: parsedBrandColor } : undefined}
                       >
                         <Tag className="w-3.5 h-3.5" />
-                        {is_free || discountedPrice === 0 ? "Register For Event" : "Buy Ticket"}
+                        {isPastEvent ? "Registration Closed" : (is_free || discountedPrice === 0 ? "Register For Event" : "Buy Ticket")}
                       </Button>
                     </div>
                   )})
