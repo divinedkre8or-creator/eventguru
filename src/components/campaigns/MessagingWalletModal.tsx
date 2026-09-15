@@ -9,6 +9,7 @@ import {
   Loader2, CreditCard, Sparkles 
 } from "lucide-react";
 import { toast } from "sonner";
+import { usePaystackPayment } from "react-paystack";
 import { supabase } from "@/integrations/supabase/client";
 import { getActiveGatewayPublicKey } from "@/lib/platformSettings";
 
@@ -84,94 +85,94 @@ export const MessagingWalletModal = ({
   const totalUnits = isCustom ? calculatedCustomUnits : (activePack?.units || 0);
   const totalPriceNgn = isCustom ? calculatedCustomPrice : (activePack?.priceNgn || 0);
 
+  const publicKey = getActiveGatewayPublicKey();
+
+  const paystackConfig = {
+    reference: `SMS-WALLET-${organiserId.slice(0, 8)}-${Date.now()}`,
+    email: userEmail,
+    amount: totalPriceNgn * 100, // amount in kobo
+    publicKey: publicKey || "",
+    currency: "NGN",
+    metadata: {
+      custom_fields: [
+        { display_name: "Organiser ID", variable_name: "organiser_id", value: organiserId },
+        { display_name: "SMS Units", variable_name: "sms_units", value: String(totalUnits) },
+        { display_name: "Purpose", variable_name: "purpose", value: "SMS Messaging Wallet Top-up" },
+      ],
+    },
+  };
+
+  const initializePayment = usePaystackPayment(paystackConfig);
+
+  const handlePaymentSuccess = async (response: { reference: string }) => {
+    try {
+      // 1. Fetch current wallet or initialize
+      const { data: existingWallet } = await db
+        .from("organiser_wallets")
+        .select("sms_balance, plan")
+        .eq("organiser_id", organiserId)
+        .maybeSingle();
+
+      const newBalance = (Number(existingWallet?.sms_balance) || 0) + totalPriceNgn;
+
+      // 2. Upsert wallet balance
+      const { error: walletErr } = await db
+        .from("organiser_wallets")
+        .upsert(
+          {
+            organiser_id: organiserId,
+            sms_balance: newBalance,
+            plan: existingWallet?.plan || "free",
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "organiser_id" }
+        );
+
+      if (walletErr) throw walletErr;
+
+      // 3. Record transaction ledger
+      await db.from("wallet_transactions").insert({
+        organiser_id: organiserId,
+        type: "fund",
+        amount: totalPriceNgn,
+        balance_after: newBalance,
+        reference: response?.reference || paystackConfig.reference,
+        description: `Top-up: ${totalUnits.toLocaleString()} SMS Credits (₦${totalPriceNgn.toLocaleString()})`,
+      });
+
+      toast.success(`Wallet credited with ₦${totalPriceNgn.toLocaleString()} (${totalUnits.toLocaleString()} SMS Units)!`);
+      onSuccess();
+      onClose();
+    } catch (err: any) {
+      console.error("Wallet credit error:", err);
+      toast.error("Payment received, but recording wallet transaction failed. Please contact support.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handlePaymentClose = () => {
+    setIsProcessing(false);
+    toast.info("Wallet funding transaction was closed.");
+  };
+
   const handlePaystackPayment = () => {
     if (totalUnits <= 0) {
       toast.error("Please select or enter a valid number of SMS units.");
       return;
     }
 
-    const publicKey = getActiveGatewayPublicKey();
     if (!publicKey) {
       toast.error("Payment gateway is not yet configured. Please contact platform support.");
       return;
     }
 
-    const paystack = (window as any).PaystackPop;
-    if (!paystack) {
-      toast.error("Payment provider script is loading. Please check your network and try again.");
-      return;
-    }
-
     setIsProcessing(true);
-    const reference = `SMS-WALLET-${organiserId.slice(0, 8)}-${Date.now()}`;
-
     try {
-      const handler = paystack.setup({
-        key: publicKey,
-        email: userEmail,
-        amount: totalPriceNgn * 100, // amount in kobo
-        currency: "NGN",
-        ref: reference,
-        metadata: {
-          custom_fields: [
-            { display_name: "Organiser ID", variable_name: "organiser_id", value: organiserId },
-            { display_name: "SMS Units", variable_name: "sms_units", value: totalUnits },
-            { display_name: "Purpose", variable_name: "purpose", value: "SMS Messaging Wallet Top-up" },
-          ],
-        },
-        callback: async (response: { reference: string }) => {
-          try {
-            // 1. Fetch current wallet or initialize
-            const { data: existingWallet } = await db
-              .from("organiser_wallets")
-              .select("sms_balance, plan")
-              .eq("organiser_id", organiserId)
-              .maybeSingle();
-
-            const newBalance = (Number(existingWallet?.sms_balance) || 0) + totalPriceNgn;
-
-            // 2. Upsert wallet balance
-            const { error: walletErr } = await db
-              .from("organiser_wallets")
-              .upsert(
-                {
-                  organiser_id: organiserId,
-                  sms_balance: newBalance,
-                  plan: existingWallet?.plan || "free",
-                  updated_at: new Date().toISOString(),
-                },
-                { onConflict: "organiser_id" }
-              );
-
-            if (walletErr) throw walletErr;
-
-            // 3. Record transaction ledger
-            await db.from("wallet_transactions").insert({
-              organiser_id: organiserId,
-              type: "fund",
-              amount: totalPriceNgn,
-              balance_after: newBalance,
-              reference: response.reference || reference,
-              description: `Top-up: ${totalUnits.toLocaleString()} SMS Credits (₦${totalPriceNgn.toLocaleString()})`,
-            });
-
-            toast.success(`Wallet credited with ₦${totalPriceNgn.toLocaleString()} (${totalUnits.toLocaleString()} SMS Units)!`);
-            onSuccess();
-            onClose();
-          } catch (err: any) {
-            console.error("Wallet credit error:", err);
-            toast.error("Payment received, but recording wallet transaction failed. Please contact support.");
-          } finally {
-            setIsProcessing(false);
-          }
-        },
-        onClose: () => {
-          setIsProcessing(false);
-          toast.info("Wallet funding transaction was closed.");
-        },
+      initializePayment({
+        onSuccess: handlePaymentSuccess as any,
+        onClose: handlePaymentClose,
       });
-
-      handler.openIframe();
     } catch (err: any) {
       console.error("Paystack init error:", err);
       setIsProcessing(false);

@@ -117,14 +117,15 @@ const EventDetails = () => {
     );
   }
 
-  const { title, image_url, venue, city, country, category, ticket_types, is_free, organiser_id, date } = event;
+  const { title, image_url, venue, city, country, category, ticket_types, is_free, organiser_id, date, description } = event;
   const isOrganizer = user?.id === organiser_id;
 
   const eventDateObj = new Date(date);
   const isPastEvent = !isNaN(eventDateObj.getTime()) && eventDateObj.getTime() < Date.now();
 
   // Parse Description, Schedule, Additional Info
-  let parsedDesc = "";
+  let rawDesc = description || "";
+  let parsedDesc = rawDesc;
   let parsedSchedule: Array<{ date: string; startTime: string; endTime?: string }> = [];
   let parsedAdditional = "";
   let parsedBrandColor = "";

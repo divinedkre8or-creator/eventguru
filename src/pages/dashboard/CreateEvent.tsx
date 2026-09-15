@@ -218,9 +218,20 @@ const CreateEvent = () => {
       const sortedSchedule = [...schedule].filter(s => s.date && s.startTime).sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       if (sortedSchedule.length === 0) throw new Error("At least one valid schedule day is required.");
 
-      const startDate = new Date(`${sortedSchedule[0].date}T${sortedSchedule[0].startTime}`).toISOString();
+      const startDateTime = new Date(`${sortedSchedule[0].date}T${sortedSchedule[0].startTime}`);
+      if (isNaN(startDateTime.getTime())) {
+        throw new Error("Invalid start date or time. Please verify your schedule.");
+      }
+      const startDate = startDateTime.toISOString();
+
+      let endDate: string | null = null;
       const endItem = sortedSchedule[sortedSchedule.length - 1];
-      const endDate = endItem.endTime ? new Date(`${endItem.date}T${endItem.endTime}`).toISOString() : null;
+      if (endItem?.endTime) {
+        const endDateTime = new Date(`${endItem.date}T${endItem.endTime}`);
+        if (!isNaN(endDateTime.getTime())) {
+          endDate = endDateTime.toISOString();
+        }
+      }
 
       // Pack it all into description
       const finalDescription = `${description.trim()}\n\n|||SCHEDULE|||${JSON.stringify(sortedSchedule)}\n\n|||ADDITIONAL_INFO|||${additionalInfo.trim()}${brandColor ? `\n\n|||BRAND_COLOR|||${brandColor}` : ''}`;
@@ -266,6 +277,16 @@ const CreateEvent = () => {
           if (ticketError) {
             console.error("Supabase Ticket Update Error:", ticketError);
             throw ticketError;
+          }
+        } else if (isFree) {
+          const { data: existingTickets } = await supabase.from("ticket_types").select("id").eq("event_id", id!);
+          if (!existingTickets || existingTickets.length === 0) {
+            await supabase.from("ticket_types").insert({
+              event_id: id!,
+              name: "Free Admission",
+              price: 0,
+              quantity: Number(maxAttendees) || 1000,
+            });
           }
         }
 
