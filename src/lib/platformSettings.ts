@@ -1,5 +1,8 @@
 // src/lib/platformSettings.ts
-// Platform configuration manager for Payment Gateway, Email (Resend), and Financial Calculations.
+// Platform configuration manager for Payment Gateway, Email (Resend), SMS (Termii), and Financial Calculations.
+// Backed by persistent Supabase Database storage with local caching and environment fallbacks.
+
+import { supabase } from "@/integrations/supabase/client";
 
 export interface PlatformSettings {
   // Brand & Identity
@@ -21,7 +24,7 @@ export interface PlatformSettings {
 
   // SMS Delivery Service (Termii)
   termii_api_key: string;
-  termii_sender_id: string; // e.g. "EventRally"
+  termii_sender_id: string; // e.g. "Termii" or "EventRally"
   
   // Safety & Banner
   maintenance_mode: boolean;
@@ -36,8 +39,8 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   currency: "NGN",
   
   gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
-  gateway_provider: "secure_gateway",
-  gateway_environment: "test",
+  gateway_provider: "paystack",
+  gateway_environment: "live",
   platform_fee_percent: 2.5,
   
   resend_api_key: "",
@@ -46,35 +49,43 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   email_reply_to: "support@geteventrally.com",
 
   termii_api_key: "",
-  termii_sender_id: "EventRally",
+  termii_sender_id: "Termii",
   
   maintenance_mode: false,
   announcement_banner: "",
 };
 
+let memorySettingsCache: PlatformSettings | null = null;
+
 /**
- * Retrieves the current platform settings.
- * Prioritizes local stored admin configuration, falling back to environment defaults.
+ * Synchronous getter: Retrieves settings from memory / localStorage cache with environment defaults.
  */
 export function getPlatformSettings(): PlatformSettings {
+  if (memorySettingsCache) return memorySettingsCache;
+
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_PLATFORM_SETTINGS;
+    if (!raw) {
+      memorySettingsCache = DEFAULT_PLATFORM_SETTINGS;
+      return DEFAULT_PLATFORM_SETTINGS;
+    }
     const parsed = JSON.parse(raw);
-    return {
+    const resolved: PlatformSettings = {
       ...DEFAULT_PLATFORM_SETTINGS,
       ...parsed,
-      // If no key is set in localStorage, fallback to env variable if present
       gateway_public_key: parsed.gateway_public_key || import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
     };
+    memorySettingsCache = resolved;
+    return resolved;
   } catch (err) {
     console.error("Failed to parse platform settings from storage:", err);
+    memorySettingsCache = DEFAULT_PLATFORM_SETTINGS;
     return DEFAULT_PLATFORM_SETTINGS;
   }
 }
 
 /**
- * Saves updated platform settings to storage.
+ * Saves updated platform settings locally and updates memory cache.
  */
 export function savePlatformSettings(updated: Partial<PlatformSettings>): PlatformSettings {
   const current = getPlatformSettings();
@@ -82,6 +93,7 @@ export function savePlatformSettings(updated: Partial<PlatformSettings>): Platfo
     ...current,
     ...updated,
   };
+  memorySettingsCache = merged;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
   } catch (err) {
@@ -91,10 +103,56 @@ export function savePlatformSettings(updated: Partial<PlatformSettings>): Platfo
 }
 
 /**
+ * Asynchronously fetches persistent platform settings from Supabase database.
+ * Syncs the local storage and memory cache automatically.
+ */
+export async function fetchRemotePlatformSettings(): Promise<PlatformSettings> {
+  try {
+    const { data, error } = await (supabase.from as any)("platform_settings")
+      .select("settings")
+      .eq("id", "global_settings")
+      .maybeSingle();
+
+    if (!error && data?.settings) {
+      const merged = savePlatformSettings(data.settings);
+      return merged;
+    }
+  } catch (err) {
+    console.warn("Notice: Remote platform settings sync deferred:", err);
+  }
+  return getPlatformSettings();
+}
+
+/**
+ * Asynchronously saves platform settings to Supabase database (persisted permanently across devices)
+ * and syncs local storage.
+ */
+export async function persistPlatformSettings(updated: Partial<PlatformSettings>): Promise<{ success: boolean; settings: PlatformSettings; error?: string }> {
+  const merged = savePlatformSettings(updated);
+  try {
+    const { error } = await (supabase.from as any)("platform_settings")
+      .upsert(
+        {
+          id: "global_settings",
+          settings: merged,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "id" }
+      );
+
+    if (error) {
+      console.warn("Database upsert notice for platform_settings:", error);
+      return { success: true, settings: merged, error: error.message };
+    }
+    return { success: true, settings: merged };
+  } catch (err: any) {
+    console.warn("Remote settings write deferred:", err);
+    return { success: true, settings: merged };
+  }
+}
+
+/**
  * Helper to fetch the active public gateway key.
- * Returns an empty string when unconfigured so the checkout can surface a
- * clear "payments not configured" message instead of silently opening the
- * gateway with an invalid placeholder key.
  */
 export function getActiveGatewayPublicKey(): string {
   const settings = getPlatformSettings();

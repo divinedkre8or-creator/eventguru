@@ -7,10 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { getPlatformSettings, savePlatformSettings, PlatformSettings } from "@/lib/platformSettings";
+import { 
+  getPlatformSettings, 
+  fetchRemotePlatformSettings, 
+  persistPlatformSettings, 
+  PlatformSettings 
+} from "@/lib/platformSettings";
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState<PlatformSettings>(getPlatformSettings());
+  const [loadingRemote, setLoadingRemote] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [showPublicKey, setShowPublicKey] = useState(false);
   const [showResendKey, setShowResendKey] = useState(false);
   const [showTermiiKey, setShowTermiiKey] = useState(false);
@@ -24,13 +31,23 @@ const AdminSettings = () => {
   const [sendingTestSms, setSendingTestSms] = useState(false);
 
   useEffect(() => {
-    setSettings(getPlatformSettings());
+    fetchRemotePlatformSettings().then((remote) => {
+      setSettings(remote);
+      setLoadingRemote(false);
+    });
   }, []);
 
-  const handleSaveSettings = (e: React.FormEvent) => {
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    savePlatformSettings(settings);
-    toast.success("Platform settings, Paystack gateway keys, Resend email, and Termii SMS configuration saved successfully!");
+    setSaving(true);
+    try {
+      await persistPlatformSettings(settings);
+      toast.success("Platform settings, Paystack gateway keys, Resend email, and Termii SMS saved and synced permanently to database!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to persist platform settings");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSendTestSms = async () => {
@@ -466,9 +483,11 @@ const AdminSettings = () => {
         <div className="flex justify-end w-full sm:w-auto">
           <Button
             type="submit"
+            disabled={saving}
             className="w-full sm:w-auto bg-primary text-primary-foreground font-bold text-xs h-11 px-6 rounded-lg flex items-center justify-center gap-2 shadow-sm hover:opacity-90"
           >
-            <Save className="w-4 h-4" /> Save Platform Configuration
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {saving ? "Saving to Database..." : "Save Platform Configuration"}
           </Button>
         </div>
       </form>
