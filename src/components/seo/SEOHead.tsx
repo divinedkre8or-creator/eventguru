@@ -13,13 +13,13 @@ export interface SEOHeadProps {
 const DEFAULT_TITLE = "EventRally — Event Management, Ticketing & Viral Growth Platform";
 const DEFAULT_DESCRIPTION =
   "Sell out tickets, automate door check-in, and turn attendees into a viral marketing team with custom event fliers. Free for free events.";
-const DEFAULT_IMAGE = "/ER full logo.png";
-const DOMAIN = "https://eventrally.com";
+const DEFAULT_IMAGE = "https://www.geteventrally.com/ER%20full%20logo.png";
+const DOMAIN = "https://www.geteventrally.com";
 
 /**
  * Lightweight, zero-dependency client-side SEO utility.
  * Dynamically synchronizes document title, meta tags, canonical link,
- * and JSON-LD structured data on route changes.
+ * Google Analytics pageviews, and JSON-LD structured data on route changes.
  */
 export const SEOHead = ({
   title,
@@ -58,7 +58,9 @@ export const SEOHead = ({
     // 3. Canonical Link
     let canonicalHref = DOMAIN;
     if (canonicalPath) {
-      canonicalHref = canonicalPath.startsWith("http") ? canonicalPath : `${DOMAIN}${canonicalPath.startsWith("/") ? "" : "/"}${canonicalPath}`;
+      canonicalHref = canonicalPath.startsWith("http")
+        ? canonicalPath
+        : `${DOMAIN}${canonicalPath.startsWith("/") ? "" : "/"}${canonicalPath}`;
     } else if (typeof window !== "undefined") {
       canonicalHref = `${DOMAIN}${window.location.pathname}`;
     }
@@ -72,7 +74,9 @@ export const SEOHead = ({
     canonicalLink.setAttribute("href", canonicalHref);
 
     // 4. Open Graph Tags
-    const fullImageUrl = ogImage.startsWith("http") ? ogImage : `${DOMAIN}${ogImage.startsWith("/") ? "" : "/"}${ogImage}`;
+    const fullImageUrl = ogImage.startsWith("http")
+      ? ogImage
+      : `${DOMAIN}${ogImage.startsWith("/") ? "" : "/"}${ogImage}`;
     setMetaTag('meta[property="og:title"]', "property", "og:title", finalTitle);
     setMetaTag('meta[property="og:description"]', "property", "og:description", description);
     setMetaTag('meta[property="og:type"]', "property", "og:type", ogType);
@@ -101,8 +105,17 @@ export const SEOHead = ({
       scriptTag.remove();
     }
 
+    // 7. Google Analytics Pageview Trigger
+    if (typeof window !== "undefined" && (window as any).gtag) {
+      (window as any).gtag("event", "page_view", {
+        page_title: finalTitle,
+        page_location: canonicalHref,
+        page_path: window.location.pathname,
+      });
+    }
+
     return () => {
-      // Optional cleanup on component unmount
+      // Cleanup if needed
     };
   }, [title, description, canonicalPath, ogImage, ogType, noIndex, schema]);
 

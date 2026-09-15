@@ -76,6 +76,48 @@ This is the primary growth differentiator of EventRally:
 
 ### E. Attendee Personal Dashboard
 - Centralized Ticket Wallet: A clean personal hub where attendees can see all events they have registered for, pull up past tickets, and access the DP generator for each event anytime.
+- Upcoming and Past Events: The wallet intelligently separates active upcoming events from completed ones, giving attendees a complete event history.
+
+### F. Rally Score and Experience Points (XP)
+- Engagement-Based Scoring: Attendees accumulate Rally Score (XP) through meaningful platform activity: registering for events, checking in, sharing DP fliers, and referring friends.
+- Visible Progress: The Rally Score is prominently displayed on each attendee's dashboard, encouraging continued engagement and rewarding loyal community members.
+
+### G. Campaign Studio (Organizer Messaging and Broadcasts)
+- Direct Attendee Outreach: Organizers can compose and send targeted email and SMS campaigns to their registered attendees without needing third-party email tools.
+- Audience Segmentation: Filter recipients by ticket tier, registration date, or check-in status for precision messaging.
+- Scheduled Sends: Campaigns can be scheduled in advance (e.g., event-day reminders, post-event thank-you messages).
+- Performance Tracking: View open rates, click-through rates, and delivery statistics for every broadcast.
+
+### H. Settlements and Payout Tracking
+- Financial Transparency: Organizers have complete visibility into their earnings. The Payments tab shows a breakdown of gross ticket revenue, platform fees, and net settlements.
+- Payout History: A clear timeline of all completed transfers, pending settlements, and upcoming disbursements.
+- Exportable Reports: Financial summaries are downloadable for accounting and reporting purposes.
+
+### I. DP Studio (Display Picture Template Editor)
+- Layer-Based Editor: Organizers can upload background frames, position circular or square photo cutouts, choose font styles and sizes, adjust color overlays, and configure name positioning.
+- Live Preview: Real-time preview of the final attendee DP output before publishing, ensuring pixel-perfect branded fliers.
+- One-Click Public Link: Once published, EventRally generates a shareable link where attendees can instantly create their personalized DP.
+
+### J. Gate Scanner and Check-In Enhancements
+- Real-Time Check-In Counter: The scanner dashboard displays a live count of verified entries versus total registrations.
+- Duplicate Scan Protection: Instant alerts when a QR code has already been scanned, preventing double-entry fraud.
+- Attendee Name Confirmation: On successful scan, the attendee's full name and ticket type flash on screen for instant visual verification.
+- Manual Search Fallback: If an attendee cannot produce a QR code, door staff can search by name or email to manually verify and admit.
+
+### K. Feedback and Support System
+- In-App Feedback Widget: Both attendees and organizers can submit bug reports, feature requests, and general feedback directly from within their dashboard — no external support portal needed.
+- Admin Feedback Queue: All submissions are aggregated in the Super Admin portal for triage and response.
+
+### L. Super Admin Portal (Platform Administration)
+- Platform-Wide Dashboard: Real-time metrics covering total organizers, events, revenue, registrations, and active events across the entire platform.
+- Organizer Management: View, approve, and manage all registered organizers with event and revenue breakdowns per organizer.
+- Transaction Oversight: Full visibility into all ticket purchases and financial flows across the platform.
+- Dispute Resolution: Centralized queue for handling organizer and attendee disputes, refund requests, and escalations.
+- Platform Settings: Configuration controls for fees, policies, and platform-wide announcements.
+
+### M. Event Brand Customization
+- Custom Accent Color: Organizers can select a brand color during event creation. This color is applied to the public event landing page — including ticket buttons, category badges, and accent highlights — giving each event a unique visual identity while maintaining EventRally's overall design consistency.
+- Cover Image: Organizers upload a high-resolution event banner (flyer, poster, or cover art) that serves as the hero visual on the event landing page.
 
 ---
 

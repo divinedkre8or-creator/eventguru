@@ -97,7 +97,53 @@ D. Organizer Command Center (Dashboard):
 
 E. Attendee Personal Dashboard:
    - Centralized ticket wallet to view all upcoming and past registered events.
+   - Intelligently separates active upcoming events from completed ones.
    - Direct access to admission QR codes and personalized event flier generators.
+
+F. Rally Score & Experience Points (XP):
+   - Attendees accumulate Rally Score (XP) through platform activities: registrations,
+     checking in at the door, sharing DP fliers, and referring friends.
+   - Prominently displayed on attendee dashboard to reward loyal community members.
+
+G. Campaign Studio (Organizer Messaging & Broadcasts):
+   - Compose and send targeted email and SMS broadcasts directly to registered attendees.
+   - Filter recipients by ticket tier, registration date, or check-in status.
+   - Schedule sends in advance (event-day reminders, thank-you messages).
+   - Real-time tracking of delivery, open rates, and click-through metrics.
+
+H. Settlements & Payout Tracking:
+   - Financial transparency with clear breakdown of gross sales, platform fees, and net payouts.
+   - Complete timeline of pending settlements, completed bank transfers, and payouts.
+   - Downloadable financial reports for accounting and compliance.
+
+I. DP Studio (Display Picture Template Editor):
+   - Layer-based editor supporting background frames, circular/square photo cutouts,
+     font selection, color overlays, and live attendee name placement.
+   - Real-time WYSIWYG preview before publishing.
+   - Automatically generates shareable public link for attendees.
+
+J. Gate Scanner & Check-In Enhancements:
+   - Real-time counter of verified entries versus total sold registrations.
+   - Duplicate scan protection: instant visual and audio alerts prevent double-entry fraud.
+   - Flashes attendee name and ticket tier on scan for quick visual verification.
+   - Manual search fallback by name or email when QR code cannot be displayed.
+
+K. Feedback & Support System:
+   - In-app feedback widget for attendees and organizers to submit bug reports, feature
+     requests, and feedback directly from their dashboard.
+   - Aggregated in the Super Admin portal for immediate review and resolution.
+
+L. Super Admin Portal (Platform Administration):
+   - Platform-wide executive dashboard tracking total organizers, events, revenue, and active events.
+   - Organizer verification, approval, and management with activity metrics.
+   - Full transaction monitoring and dispute/refund resolution queue.
+   - Global platform settings and fee configurations.
+
+M. Event Brand Customization:
+   - Organizers can choose a custom accent color for their public event landing page.
+   - Buttons, badges, and highlights adapt to the organizer's branding while preserving
+     overall platform design consistency.
+   - Dedicated cover picture/banner hero display for each event.
 
 
 5. TARGET AUDIENCE & CUSTOMER PERSONAS

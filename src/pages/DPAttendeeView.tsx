@@ -13,8 +13,10 @@ import { compressImageToBase64 } from "@/lib/imageUtils";
 import { slugify } from "@/lib/slugUtils";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { useAuth } from "@/contexts/AuthContext";
 
 const DPAttendeeView = () => {
+  const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
   const containerRef = useRef<HTMLDivElement>(null);
   const [attendeeName, setAttendeeName] = useState("");
@@ -134,7 +136,7 @@ const DPAttendeeView = () => {
       {/* Top Header */}
       <header className="border-b border-border bg-card/90 backdrop-blur-md">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
+          <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label={user ? "EventRally Dashboard" : "EventRally Home"}>
             <BrandLogo />
           </Link>
           <Link to={`/events/${id}`}>

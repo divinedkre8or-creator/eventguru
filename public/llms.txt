@@ -3,30 +3,61 @@
 > The modern event operating system and ticketing platform with integrated viral attendee marketing.
 
 ## Overview
-EventRally (https://eventrally.com) is a web-based event management, ticketing, and attendee growth platform designed for conference conveners, festival promoters, community organizers, and creator workshops.
+EventRally (https://www.geteventrally.com) is a comprehensive live event management, multi-tier ticketing, gate check-in, and attendee growth platform designed for conference conveners, festival promoters, community organizations, and creator workshops.
 
-Unlike conventional ticketing engines, EventRally includes an automated Display Picture (DP) generator that creates personalized, branded social fliers for attendees upon registration, turning attendees into peer advocates across WhatsApp, Instagram, LinkedIn, and X.
+Unlike conventional ticketing engines that act merely as payment gateways, EventRally transforms attendees into an active peer-to-peer marketing team through its automated Display Picture (DP) and "I Will Be Attending" flyer generator.
 
-## Core Capabilities
-- **Ticketing & Registration**: Multi-tier tickets (Early Bird, Regular, VIP, Table), promo discount codes, 20-second checkout, and 100% free registration for non-commercial events.
-- **Viral DP Generator**: Custom branded frame overlays rendered automatically with attendee photos and names for 1-click social sharing.
-- **Offline Pass Wallet**: Scannable QR code admission passes cached locally on attendee mobile devices, functional without internet connectivity at the venue gate.
-- **Gate Check-In Scanner**: 1-second camera QR verification terminal running directly in the browser on any phone, tablet, or laptop.
-- **Automated Payouts**: Direct multi-channel payment processing with automated bank settlement.
-- **Attendee Broadcasts**: Direct communication channel for organizers to broadcast venue notices, schedule changes, and event updates.
+## Core Feature Clusters
 
-## Pricing Structure
-- **Free Events**: 100% free forever with unlimited attendees and zero platform fees.
-- **Paid Events**: Low percentage transaction fee per paid ticket. Zero monthly subscription fees or upfront listing costs.
+1. **Event Ticketing** (`https://www.geteventrally.com/features/event-ticketing`):
+   - Multi-tier ticketing (Early Bird, Regular, VIP, Table Reservations).
+   - Dynamic coupon promo codes and automated fee transparency.
+   - Multi-channel checkout with automated direct bank settlement.
+   - 100% free forever for non-commercial and free admission events.
 
-## Canonical URLs
-- Home: https://eventrally.com/
-- Explore Events: https://eventrally.com/events
-- Organizer Signup: https://eventrally.com/signup
-- Login: https://eventrally.com/login
+2. **Event Registration & Free RSVP** (`https://www.geteventrally.com/features/event-registration`):
+   - Fast, mobile-first registration without third-party form builders.
+   - Elimination of messy spreadsheets and unverified Google Forms.
+   - Automated digital ticket delivery with personal QR code and offline storage.
 
-## Technical Specifications
-- Frontend: React, Vite, TailwindCSS, Framer Motion
-- Backend / Database: Supabase (PostgreSQL with Row Level Security)
-- Architecture: Client-Side Single Page Application (SPA)
-- Payment Gateway Support: Multi-channel checkout with dynamic gateway configuration
+3. **Viral DP / Attendee Flyer Generator** (`https://www.geteventrally.com/features/viral-dp-generator`):
+   - Organizer uploads an official event frame/overlay once.
+   - Attendees upload their photo and enter their name to instantly generate a branded "I Am Attending" flyer.
+   - 1-click downloads formatted for WhatsApp Status, Instagram Stories, LinkedIn, and X.
+
+4. **1-Second QR Gate Check-In** (`https://www.geteventrally.com/features/qr-check-in`):
+   - In-browser camera QR code ticket scanner running on any smartphone, tablet, or laptop.
+   - Anti-fraud double-entry protection and instant visual name confirmation.
+   - Offline attendee pass wallet allowing entry pass retrieval even with zero cellular reception at the venue.
+
+5. **Attendee Management & Directory** (`https://www.geteventrally.com/features/attendee-management`):
+   - Searchable, filterable real-time guest directory.
+   - One-click CSV exports for venue security, badge printing, and logistics.
+   - Manual search and check-in fallback for attendees without a physical or digital pass.
+
+6. **Event Messaging & Broadcasts** (`https://www.geteventrally.com/features/event-messaging`):
+   - Direct SMS and email broadcast tools built right into the organizer dashboard.
+   - Segmented communication by ticket tier or check-in status.
+   - Pre-event logistics, venue changes, and post-event follow-up.
+
+7. **Event Promotion & Viral Growth** (`https://www.geteventrally.com/features/event-promotion`):
+   - Attendee-generated peer endorsements driving organic ticket sales without high ad spend.
+   - Integrated social sharing triggers at ticket confirmation and offline wallet views.
+
+## Educational Guides & Resources
+- How to sell tickets online in Nigeria: `https://www.geteventrally.com/guides/how-to-sell-tickets-online-in-nigeria`
+- How to create an "I Will Be Attending" flyer: `https://www.geteventrally.com/guides/how-to-create-an-i-will-be-attending-flyer`
+- Event registration vs Google Forms: `https://www.geteventrally.com/guides/event-registration-vs-google-forms`
+- How to check in attendees using QR codes: `https://www.geteventrally.com/guides/how-to-check-in-attendees-using-qr-codes`
+- How to send updates and reminders to attendees: `https://www.geteventrally.com/guides/how-to-send-reminders-and-updates-to-event-attendees`
+- How to manage free events and RSVPs online: `https://www.geteventrally.com/guides/how-to-manage-free-events-and-rsvps-online`
+
+## Pricing Model
+- **Free Events**: 100% Free forever (Unlimited RSVPs, zero platform fees, zero listing costs).
+- **Paid Events**: Low percentage transaction fee per paid ticket. No upfront subscription or monthly charges.
+
+## Entity Details
+- **Platform Name**: EventRally
+- **Official URL**: https://www.geteventrally.com
+- **Category**: Event Management Software / Ticketing System / Viral Marketing Platform
+- **Primary Market**: Nigeria, Africa, and global live event organizers

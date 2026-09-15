@@ -3,9 +3,11 @@ import { useEffect } from "react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const NotFound = () => {
   const location = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
@@ -16,7 +18,7 @@ const NotFound = () => {
       <SEOHead title="Page Not Found" description="The requested page could not be found on EventRally." noIndex={true} />
       
       <div className="text-center space-y-6 max-w-md">
-        <Link to="/" className="inline-block hover:opacity-90 transition-opacity" aria-label="EventRally Home">
+        <Link to={user ? "/dashboard" : "/"} className="inline-block hover:opacity-90 transition-opacity" aria-label={user ? "EventRally Dashboard" : "EventRally Home"}>
           <BrandLogo />
         </Link>
         <div className="space-y-2">
@@ -26,9 +28,9 @@ const NotFound = () => {
             The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
           </p>
         </div>
-        <Link to="/">
+        <Link to={user ? "/dashboard" : "/"}>
           <Button variant="secondary" size="lg" className="font-bold text-sm h-11 px-6 rounded-lg shadow-md">
-            Return to EventRally Home
+            {user ? "Return to Dashboard" : "Return to EventRally Home"}
           </Button>
         </Link>
       </div>

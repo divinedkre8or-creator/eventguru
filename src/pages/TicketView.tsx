@@ -5,11 +5,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { DigitalTicketCard } from "@/components/tickets/DigitalTicketCard";
 import { TicketActions } from "@/components/tickets/TicketActions";
 import { Button } from "@/components/ui/button";
-import { 
-  Loader2, ArrowLeft, ArrowRight, ShieldCheck, 
-  Wallet, Sparkles, CheckCircle2, AlertCircle
+import {
+  Loader2, ArrowLeft, ArrowRight, Wallet, AlertCircle
 } from "lucide-react";
-import { formatTicketCode } from "@/lib/ticketUtils";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
@@ -138,12 +136,11 @@ export const TicketView: React.FC = () => {
     );
   }
 
-  const ticketCode = formatTicketCode(registration.id);
   const domId = `ticket-view-canvas-${registration.id}`;
   const isLoggedIn = !!user;
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans antialiased py-8 px-4 flex flex-col items-center justify-center selection:bg-primary selection:text-primary-foreground">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased py-8 px-4 flex flex-col items-center selection:bg-primary selection:text-primary-foreground">
       <SEOHead
         title={event?.title ? `Admission Pass — ${event.title}` : "Official Admission Pass"}
         description="Official attendee entry pass with secure gate check-in QR code on EventRally."
@@ -152,9 +149,9 @@ export const TicketView: React.FC = () => {
       {/* Top Header Navigation */}
       <div className="w-full max-w-md flex items-center justify-between mb-6">
         <Link
-          to="/"
+          to={user ? "/dashboard" : "/"}
           className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
-          aria-label="EventRally Home"
+          aria-label={user ? "EventRally Dashboard" : "EventRally Home"}
         >
           <BrandLogo />
         </Link>

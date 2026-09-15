@@ -2,16 +2,16 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { 
   Search, Calendar, MapPin, Ticket, ArrowRight, Loader2, 
-  Filter, Sparkles, Compass, ArrowUpRight, CheckCircle2, ChevronRight
+  Filter, Sparkles, Compass, ArrowUpRight, CheckCircle2, ChevronRight, PlusCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { getEventUrl } from "@/lib/slugUtils";
 import { SEOHead } from "@/components/seo/SEOHead";
-import { BrandLogo } from "@/components/brand/BrandLogo";
+import { SiteHeader } from "@/components/navigation/SiteHeader";
+import { SiteFooter } from "@/components/navigation/SiteFooter";
 
 const CATEGORIES = [
   { id: "all", label: "All Events" },
@@ -80,14 +80,14 @@ export const EventsDiscovery: React.FC = () => {
     () => ({
       "@context": "https://schema.org",
       "@type": "ItemList",
-      itemListElement: filteredEvents.slice(0, 10).map((event, index) => ({
+      itemListElement: filteredEvents.slice(0, 15).map((event, index) => ({
         "@type": "ListItem",
         position: index + 1,
         item: {
           "@type": "Event",
           name: event.title,
           startDate: event.date,
-          url: `https://eventrally.com${getEventUrl(event)}`,
+          url: `https://www.geteventrally.com${getEventUrl(event)}`,
           location: {
             "@type": "Place",
             name: event.venue || event.city || "Venue TBA",
@@ -111,46 +111,9 @@ export const EventsDiscovery: React.FC = () => {
         canonicalPath="/events"
         schema={itemListSchema}
       />
-      {/* Navigation Header */}
-      <header className="w-full bg-card/90 backdrop-blur-md border-b border-border sticky top-0 z-50">
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link to="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
-              <BrandLogo />
-            </Link>
-            <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-muted-foreground">
-              <Link to="/events" className="text-foreground font-bold">
-                Explore Events
-              </Link>
-              <Link to="/#features" className="hover:text-foreground transition-colors">
-                How It Works
-              </Link>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <ThemeToggle />
-            {user ? (
-              <Link to="/dashboard">
-                <Button size="sm" className="bg-primary text-primary-foreground font-bold text-xs h-9 px-4 rounded-lg shadow-sm">
-                  My Wallet / Dashboard
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link to="/login" className="hidden sm:inline-block text-xs font-bold text-foreground hover:opacity-80 px-2 py-1">
-                  Log in
-                </Link>
-                <Link to="/signup">
-                  <Button variant="secondary" size="sm" className="font-bold text-xs h-9 px-3 sm:px-4 rounded-lg shadow-sm">
-                    Host an Event
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
+      
+      {/* Universal Header */}
+      <SiteHeader />
 
       {/* Hero Search Header */}
       <section className="border-b border-border bg-card/60 py-12 px-4 sm:px-6">
@@ -371,25 +334,17 @@ export const EventsDiscovery: React.FC = () => {
           </p>
           <div className="pt-2">
             <Link to="/signup">
-              <Button className="bg-primary text-primary-foreground font-bold text-xs h-10 px-6 rounded-lg hover:opacity-90 shadow-sm">
-                Create Event Free
+              <Button className="bg-primary text-primary-foreground font-bold text-xs h-10 px-6 rounded-lg hover:opacity-90 shadow-sm flex items-center gap-2 mx-auto">
+                <PlusCircle className="w-4 h-4" />
+                <span>Create Event Free</span>
               </Button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-card border-t border-border py-8 px-4 sm:px-6">
-        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-3">
-            <BrandLogo className="h-6" imgClassName="h-6" />
-            <span>•</span>
-            <span>Where Everyone's Going.</span>
-          </div>
-          <div>© 2026 EVENTRALLY. All rights reserved.</div>
-        </div>
-      </footer>
+      {/* Universal Semantic Footer */}
+      <SiteFooter />
     </div>
   );
 };

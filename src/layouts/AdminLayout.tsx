@@ -41,7 +41,7 @@ const AdminLayout = () => {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-[260px] flex-col bg-card border-r border-border z-40">
         <div className="h-16 flex items-center px-6 border-b border-border justify-between">
-          <Link to="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
+          <Link to="/admin" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Admin">
             <BrandLogo />
           </Link>
         </div>
@@ -92,7 +92,7 @@ const AdminLayout = () => {
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
           <aside className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border flex flex-col shadow-2xl">
             <div className="h-16 px-5 border-b border-border flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-1" onClick={() => setSidebarOpen(false)} aria-label="EventRally Home">
+              <Link to="/admin" className="flex items-center gap-1" onClick={() => setSidebarOpen(false)} aria-label="EventRally Admin">
                 <BrandLogo />
               </Link>
               <button onClick={() => setSidebarOpen(false)} className="text-muted-foreground hover:text-foreground">

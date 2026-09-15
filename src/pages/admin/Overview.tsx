@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
 import { Users, CalendarDays, Wallet, Zap, Clock, Shield, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
 
 interface OrganiserRow {
   user_id: string;
@@ -10,116 +10,88 @@ interface OrganiserRow {
   total_revenue: number;
 }
 
+const fetchAdminStats = async () => {
+  // Fire all independent queries in parallel
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+
+  const [orgCountRes, evtCountRes, revDataRes, regCountRes, todayCountRes, orgRolesRes] =
+    await Promise.all([
+      supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "organiser"),
+      supabase.from("events").select("*", { count: "exact", head: true }),
+      supabase.from("registrations").select("amount_paid"),
+      supabase.from("registrations").select("*", { count: "exact", head: true }),
+      supabase.from("events").select("*", { count: "exact", head: true }).gte("date", todayStart.toISOString()).lte("date", todayEnd.toISOString()),
+      supabase.from("user_roles").select("user_id").eq("role", "organiser"),
+    ]);
+
+  const totalOrganisers = orgCountRes.count || 0;
+  const totalEvents = evtCountRes.count || 0;
+  const totalRevenue = (revDataRes.data || []).reduce((sum, r) => sum + (Number(r.amount_paid) || 0), 0);
+  const totalRegistrations = regCountRes.count || 0;
+  const activeToday = todayCountRes.count || 0;
+
+  // Build organiser rows
+  let organisers: OrganiserRow[] = [];
+  const orgRoles = orgRolesRes.data;
+
+  if (orgRoles && orgRoles.length > 0) {
+    const orgIds = orgRoles.map((r) => r.user_id);
+
+    // Fetch profiles, events, and registrations in parallel
+    const [profilesRes, eventsRes] = await Promise.all([
+      supabase.from("profiles").select("user_id, full_name").in("user_id", orgIds),
+      supabase.from("events").select("organiser_id, id").in("organiser_id", orgIds),
+    ]);
+
+    const profiles = profilesRes.data || [];
+    const events = eventsRes.data || [];
+    const eventIds = events.map((e) => e.id);
+
+    const regsRes = eventIds.length > 0
+      ? await supabase.from("registrations").select("event_id, amount_paid").in("event_id", eventIds)
+      : { data: [] };
+    const regs = regsRes.data || [];
+
+    organisers = orgIds.map((uid) => {
+      const prof = profiles.find((p) => p.user_id === uid);
+      const orgEvents = events.filter((e) => e.organiser_id === uid);
+      const orgEventIds = orgEvents.map((e) => e.id);
+      const orgRevenue = regs
+        .filter((r) => orgEventIds.includes(r.event_id))
+        .reduce((sum, r) => sum + (Number(r.amount_paid) || 0), 0);
+      return {
+        user_id: uid,
+        full_name: prof?.full_name || "Unknown",
+        events_count: orgEvents.length,
+        total_revenue: orgRevenue,
+      };
+    });
+  }
+
+  return { totalOrganisers, totalEvents, totalRevenue, totalRegistrations, activeToday, organisers };
+};
+
 const Overview = () => {
   const { profile, user } = useAuth();
   const fullName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Super Admin";
   const firstName = fullName.split(" ")[0];
 
-  const [loading, setLoading] = useState(true);
-  const [totalOrganisers, setTotalOrganisers] = useState(0);
-  const [totalEvents, setTotalEvents] = useState(0);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [activeToday, setActiveToday] = useState(0);
-  const [totalRegistrations, setTotalRegistrations] = useState(0);
-  const [organisers, setOrganisers] = useState<OrganiserRow[]>([]);
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ["admin-overview-stats"],
+    queryFn: fetchAdminStats,
+    staleTime: 30_000, // Cache for 30s — revisiting admin shows instant data
+    refetchOnWindowFocus: true,
+  });
 
-  useEffect(() => {
-    const fetchAdminStats = async () => {
-      setLoading(true);
-      try {
-        // Total organisers
-        const { count: orgCount } = await supabase
-          .from("user_roles")
-          .select("*", { count: "exact", head: true })
-          .eq("role", "organiser");
-        setTotalOrganisers(orgCount || 0);
-
-        // Total events
-        const { count: evtCount } = await supabase
-          .from("events")
-          .select("*", { count: "exact", head: true });
-        setTotalEvents(evtCount || 0);
-
-        // Total revenue from registrations
-        const { data: revData } = await supabase
-          .from("registrations")
-          .select("amount_paid");
-        const rev = (revData || []).reduce((sum, r) => sum + (Number(r.amount_paid) || 0), 0);
-        setTotalRevenue(rev);
-
-        // Total registrations
-        const { count: regCount } = await supabase
-          .from("registrations")
-          .select("*", { count: "exact", head: true });
-        setTotalRegistrations(regCount || 0);
-
-        // Active events today
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
-        const todayEnd = new Date();
-        todayEnd.setHours(23, 59, 59, 999);
-        const { count: todayCount } = await supabase
-          .from("events")
-          .select("*", { count: "exact", head: true })
-          .gte("date", todayStart.toISOString())
-          .lte("date", todayEnd.toISOString());
-        setActiveToday(todayCount || 0);
-
-        // Organisers list with their events and revenue
-        const { data: orgRoles } = await supabase
-          .from("user_roles")
-          .select("user_id")
-          .eq("role", "organiser");
-
-        if (orgRoles && orgRoles.length > 0) {
-          const orgIds = orgRoles.map((r) => r.user_id);
-
-          // Get profiles
-          const { data: profiles } = await supabase
-            .from("profiles")
-            .select("user_id, full_name")
-            .in("user_id", orgIds);
-
-          // Get events per organiser
-          const { data: events } = await supabase
-            .from("events")
-            .select("organiser_id, id")
-            .in("organiser_id", orgIds);
-
-          // Get registrations with revenue
-          const eventIds = (events || []).map((e) => e.id);
-          const { data: regs } = eventIds.length > 0
-            ? await supabase
-              .from("registrations")
-              .select("event_id, amount_paid")
-              .in("event_id", eventIds)
-            : { data: [] };
-
-          // Build organiser rows
-          const orgRows: OrganiserRow[] = orgIds.map((uid) => {
-            const prof = (profiles || []).find((p) => p.user_id === uid);
-            const orgEvents = (events || []).filter((e) => e.organiser_id === uid);
-            const orgEventIds = orgEvents.map((e) => e.id);
-            const orgRevenue = (regs || [])
-              .filter((r) => orgEventIds.includes(r.event_id))
-              .reduce((sum, r) => sum + (Number(r.amount_paid) || 0), 0);
-            return {
-              user_id: uid,
-              full_name: prof?.full_name || "Unknown",
-              events_count: orgEvents.length,
-              total_revenue: orgRevenue,
-            };
-          });
-          setOrganisers(orgRows);
-        }
-      } catch (err) {
-        console.error("Failed to fetch admin stats:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAdminStats();
-  }, []);
+  const totalOrganisers = data?.totalOrganisers || 0;
+  const totalEvents = data?.totalEvents || 0;
+  const totalRevenue = data?.totalRevenue || 0;
+  const activeToday = data?.activeToday || 0;
+  const totalRegistrations = data?.totalRegistrations || 0;
+  const organisers = data?.organisers || [];
 
   const stats = [
     { label: "Total Organisers", value: totalOrganisers.toLocaleString(), icon: Users, color: "text-chart-orange" },
@@ -201,3 +173,4 @@ const Overview = () => {
 };
 
 export default Overview;
+

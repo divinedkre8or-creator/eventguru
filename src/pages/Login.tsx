@@ -15,7 +15,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -42,7 +42,7 @@ const Login = () => {
       {/* Top Bar */}
       <header className="w-full border-b border-border bg-card/90 backdrop-blur-md">
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
+          <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label={user ? "EventRally Dashboard" : "EventRally Home"}>
             <BrandLogo />
           </Link>
           <ThemeToggle />

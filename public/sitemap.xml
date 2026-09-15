@@ -4,34 +4,139 @@
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
-  <!-- Homepage -->
+  <!-- Core Hubs -->
   <url>
-    <loc>https://eventrally.com/</loc>
-    <lastmod>2026-03-31T00:00:00+00:00</lastmod>
+    <loc>https://www.geteventrally.com/</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
   </url>
 
-  <!-- Events Discovery Directory -->
   <url>
-    <loc>https://eventrally.com/events</loc>
-    <lastmod>2026-03-31T00:00:00+00:00</lastmod>
+    <loc>https://www.geteventrally.com/events</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
     <changefreq>hourly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/features</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
 
-  <!-- Creator & Organizer Registration -->
   <url>
-    <loc>https://eventrally.com/signup</loc>
-    <lastmod>2026-03-31T00:00:00+00:00</lastmod>
+    <loc>https://www.geteventrally.com/guides</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- Feature Landing Pages -->
+  <url>
+    <loc>https://www.geteventrally.com/features/event-ticketing</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/features/event-registration</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/features/viral-dp-generator</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/features/qr-check-in</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/features/attendee-management</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/features/event-messaging</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/features/event-promotion</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Educational Guides & Topic Clusters -->
+  <url>
+    <loc>https://www.geteventrally.com/guides/how-to-sell-tickets-online-in-nigeria</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/guides/how-to-create-an-i-will-be-attending-flyer</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/guides/event-registration-vs-google-forms</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/guides/how-to-check-in-attendees-using-qr-codes</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/guides/how-to-send-reminders-and-updates-to-event-attendees</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://www.geteventrally.com/guides/how-to-manage-free-events-and-rsvps-online</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- User Account Gateways -->
+  <url>
+    <loc>https://www.geteventrally.com/signup</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
   </url>
 
-  <!-- User Login -->
   <url>
-    <loc>https://eventrally.com/login</loc>
-    <lastmod>2026-03-31T00:00:00+00:00</lastmod>
+    <loc>https://www.geteventrally.com/login</loc>
+    <lastmod>2026-09-15T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.50</priority>
   </url>

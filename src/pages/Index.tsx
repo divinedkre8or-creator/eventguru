@@ -4,14 +4,17 @@ import { motion } from "framer-motion";
 import { 
   CalendarDays, Ticket, Users, ScanLine, BarChart3, Mail, ChevronRight, 
   ArrowUpRight, Calendar, MapPin, CheckCircle2, ShieldCheck, Globe, Star,
-  Loader2, Zap, Award, Image as ImageIcon, Wallet, PlusCircle, Share2, Download
+  Loader2, Zap, Award, Image as ImageIcon, Wallet, PlusCircle, Share2, Download,
+  ArrowRight, BookOpen, Sparkles
 } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { getEventUrl } from "@/lib/slugUtils";
 import { SEOHead } from "@/components/seo/SEOHead";
-import { BrandLogo } from "@/components/brand/BrandLogo";
+import { SiteHeader } from "@/components/navigation/SiteHeader";
+import { SiteFooter } from "@/components/navigation/SiteFooter";
+import { useAuth } from "@/contexts/AuthContext";
+import { GUIDES_DATA } from "@/data/guidesData";
 
 const FAQ_ITEMS = [
   {
@@ -39,6 +42,11 @@ const FAQ_ITEMS = [
     answer:
       "EventRally includes an offline digital wallet that caches admission passes directly on attendees' phones, while the door scanner operates quickly on any phone camera without gate delays.",
   },
+  {
+    question: "Can I use EventRally instead of Google Forms for event registration?",
+    answer:
+      "Yes. Unlike Google Forms, EventRally automatically issues unique scannable QR digital passes, enforces venue capacity limits, provides 1-second gate camera scanning, and integrates an attendee DP flyer generator.",
+  },
 ];
 
 const HOMEPAGE_SCHEMA = [
@@ -46,10 +54,10 @@ const HOMEPAGE_SCHEMA = [
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "EventRally",
-    url: "https://eventrally.com",
+    url: "https://www.geteventrally.com",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://eventrally.com/events?q={search_term_string}",
+      target: "https://www.geteventrally.com/events?q={search_term_string}",
       "query-input": "required name=search_term_string",
     },
   },
@@ -88,6 +96,7 @@ const itemVariants = {
 };
 
 const Index = () => {
+  const { user } = useAuth();
   const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
 
@@ -106,56 +115,21 @@ const Index = () => {
     fetchPublishedEvents();
   }, []);
 
+  const topGuides = Object.values(GUIDES_DATA).slice(0, 3);
+
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden">
+    <div className="min-h-screen bg-background font-sans text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden flex flex-col">
       <SEOHead
         title="Event Management, Ticketing & Viral Growth Platform"
         description="Sell out tickets, automate door check-in, and turn attendees into a viral marketing team with custom event fliers. Free for free events."
         canonicalPath="/"
         schema={HOMEPAGE_SCHEMA}
       />
-      {/* Navigation Header */}
-      <motion.header 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full bg-card/90 backdrop-blur-md border-b border-border sticky top-0 z-50"
-      >
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link to="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
-              <BrandLogo />
-            </Link>
-            <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-muted-foreground">
-              <a className="hover:text-foreground transition-colors flex items-center gap-1" href="#features">
-                Features <ChevronRight className="w-3 h-3 rotate-90" />
-              </a>
-              <Link to="/events" className="hover:text-foreground transition-colors">
-                Explore Events
-              </Link>
-              <a className="hover:text-foreground transition-colors" href="#faq">
-                FAQ
-              </a>
-            </nav>
-          </div>
+      
+      {/* Universal Site Navigation */}
+      <SiteHeader />
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <ThemeToggle />
-            <Link to="/login" className="hidden sm:inline-block text-xs font-bold text-foreground hover:opacity-80 px-2 py-1">
-              Log in
-            </Link>
-            <Link to="/signup">
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-                <Button variant="secondary" size="sm" className="font-bold text-xs h-9 px-3 sm:px-4 rounded-lg shadow-sm">
-                  Organize an Event
-                </Button>
-              </motion.div>
-            </Link>
-          </div>
-        </div>
-      </motion.header>
-
-      <main>
+      <main className="flex-1">
         {/* Hero Section */}
         <section className="max-w-[1440px] mx-auto px-4 sm:px-6 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div 
@@ -167,7 +141,7 @@ const Index = () => {
             <motion.div variants={itemVariants} className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 bg-secondary rounded-xs"></div>
               <span className="text-secondary font-mono text-[11px] font-bold tracking-widest uppercase">
-                THE EVENT PLATFORM FOR CREATORS & ORGANIZERS
+                THE EVENT OPERATING SYSTEM FOR CREATORS & ORGANIZERS
               </span>
             </motion.div>
 
@@ -193,18 +167,19 @@ const Index = () => {
             <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mt-2">
               <Link to="/signup">
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                  <Button variant="secondary" size="lg" className="font-bold text-sm h-12 px-6 rounded-lg shadow-md">
-                    Create Your Event Free
+                  <Button variant="secondary" size="lg" className="font-bold text-sm h-12 px-6 rounded-lg shadow-md flex items-center gap-2">
+                    <PlusCircle className="w-4 h-4" />
+                    <span>Create Your Event Free</span>
                   </Button>
                 </motion.div>
               </Link>
-              <a href="#events">
+              <Link to="/events">
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                   <Button variant="outline" size="lg" className="border-border text-foreground font-bold text-sm h-12 px-6 rounded-lg hover:bg-muted transition-all flex items-center gap-2">
                     Explore Live Events <ArrowUpRight className="w-4 h-4" />
                   </Button>
                 </motion.div>
-              </a>
+              </Link>
             </motion.div>
 
             {/* Social Proof Bar */}
@@ -263,62 +238,95 @@ const Index = () => {
           </motion.div>
         </section>
 
-        {/* Inverted Contrast Features Grid Section */}
+        {/* Feature Clusters Semantic Grid */}
         <section id="features" className="bg-neutral-950 text-neutral-100 dark:bg-white dark:text-neutral-950 border-y border-neutral-800 dark:border-neutral-200 py-16 px-4 sm:px-6 transition-colors duration-300">
-          <div className="max-w-[1440px] mx-auto">
+          <div className="max-w-[1440px] mx-auto space-y-8">
             <motion.div 
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4 }}
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-xs bg-secondary"></div>
                 <span className="text-xs font-mono font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-600">
-                  BUILT FOR SMOOTH EVENTS FROM START TO FINISH
+                  EXPLORE FEATURE CLUSTERS
                 </span>
               </div>
-              <span className="text-xs text-neutral-400 dark:text-neutral-600 font-mono">
-                ZERO COMPLICATED SETUPS
-              </span>
+              <Link to="/features" className="text-xs text-secondary hover:underline font-bold flex items-center gap-1">
+                View all capabilities <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
               {[
-                { icon: Ticket, title: "Launch in 2 Minutes", desc: "Create free passes, VIP tables, early bird pricing, and promo codes in minutes." },
-                { icon: Wallet, title: "Instant Bank Payouts", desc: "Collect payments seamlessly with automated multi-channel checkout. Your money goes straight to your account." },
-                { icon: ImageIcon, title: "Viral DP Generator", desc: "Attendees get custom branded event fliers in 1 click to post on WhatsApp and X." },
-                { icon: ScanLine, title: "1-Second Gate Scan", desc: "Scan digital passes on any phone camera or laptop. Fast queues, zero fake tickets." },
-                { icon: ShieldCheck, title: "Offline Pass Passes", desc: "Attendees open their tickets and QR codes even with zero phone signal at the gate." },
-                { icon: BarChart3, title: "Live Sales Numbers", desc: "Track ticket revenue, check-in percentages, and attendance live as it happens." },
+                { 
+                  icon: Ticket, 
+                  title: "Event Ticketing", 
+                  desc: "Multi-tier tickets, promo codes, and automated direct bank payouts.",
+                  href: "/features/event-ticketing"
+                },
+                { 
+                  icon: Sparkles, 
+                  title: "Free Registration", 
+                  desc: "Replace messy Google Forms with verifiable digital QR tickets.",
+                  href: "/features/event-registration"
+                },
+                { 
+                  icon: ImageIcon, 
+                  title: "Viral DP Generator", 
+                  desc: "Attendees get custom branded event fliers in 1 click to post on WhatsApp.",
+                  href: "/features/viral-dp-generator"
+                },
+                { 
+                  icon: ScanLine, 
+                  title: "1-Second Gate Scan", 
+                  desc: "Scan digital passes on any phone camera. Fast queues, zero fake tickets.",
+                  href: "/features/qr-check-in"
+                },
+                { 
+                  icon: Users, 
+                  title: "Attendee Directory", 
+                  desc: "Searchable guest roster with instant 1-click CSV reporting export.",
+                  href: "/features/attendee-management"
+                },
+                { 
+                  icon: Mail, 
+                  title: "Attendee Broadcasts", 
+                  desc: "Send targeted email and SMS updates directly from your dashboard.",
+                  href: "/features/event-messaging"
+                },
               ].map((mod, idx) => (
-                <motion.div 
-                  key={idx} 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: idx * 0.08 }}
-                  whileHover={{ y: -5 }}
-                  className="bg-neutral-900/90 border border-neutral-800 dark:bg-neutral-50 dark:border-neutral-200/80 rounded-xl p-5 shadow-xs hover:border-secondary transition-all flex flex-col justify-between group"
-                >
-                  <div>
-                    <div className="w-10 h-10 rounded-lg bg-secondary text-white flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform shadow-sm">
-                      <mod.icon className="w-5 h-5" />
+                <Link key={idx} to={mod.href} className="flex">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: idx * 0.08 }}
+                    whileHover={{ y: -5 }}
+                    className="bg-neutral-900/90 border border-neutral-800 dark:bg-neutral-50 dark:border-neutral-200/80 rounded-xl p-5 shadow-xs hover:border-secondary transition-all flex flex-col justify-between group w-full"
+                  >
+                    <div>
+                      <div className="w-10 h-10 rounded-lg bg-secondary text-white flex items-center justify-center font-bold mb-4 group-hover:scale-110 transition-transform shadow-sm">
+                        <mod.icon className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-bold text-sm text-white dark:text-neutral-950 tracking-tight flex items-center justify-between">
+                        <span>{mod.title}</span>
+                        <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-secondary" />
+                      </h3>
+                      <p className="text-xs text-neutral-400 dark:text-neutral-600 leading-relaxed mt-1.5">{mod.desc}</p>
                     </div>
-                    <h3 className="font-bold text-sm text-white dark:text-neutral-950 tracking-tight">{mod.title}</h3>
-                    <p className="text-xs text-neutral-400 dark:text-neutral-600 leading-relaxed mt-1.5">{mod.desc}</p>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </div>
         </section>
 
-        {/* DP Generator Spotlight Section (Hot Feature) */}
+        {/* DP Generator Spotlight Section */}
         <section className="bg-card border-b border-border py-16 sm:py-20 px-4 sm:px-6 relative overflow-hidden">
           <div className="max-w-[1440px] mx-auto">
-            
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -359,106 +367,25 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Organizer Primary Call-to-Action (Single Clean Port) */}
-              <div className="pt-2 space-y-3">
-                <div>
-                  <Link to="/signup">
-                    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="inline-block">
-                      <Button variant="secondary" size="lg" className="font-bold text-sm h-12 px-7 rounded-lg shadow-md flex items-center gap-2">
-                        <PlusCircle className="w-4 h-4" />
-                        <span>Organize an Event</span>
-                      </Button>
-                    </motion.div>
-                  </Link>
-                </div>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-medium pt-1">
-                  <div className="flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-secondary" />
-                    <span>Free for free events</span>
-                  </div>
-                  <div className="w-1 h-1 rounded-full bg-border"></div>
-                  <div className="flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-secondary" />
-                    <span>Instant automated bank payouts</span>
-                  </div>
-                  <div className="w-1 h-1 rounded-full bg-border"></div>
-                  <div className="flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-secondary" />
-                    <span>Live in 2 minutes</span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-          </div>
-        </section>
-        {/* Social Proof & Stats Section */}
-        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 py-20 border-b border-border">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="lg:col-span-5 flex flex-col gap-3 lg:pr-8 lg:border-r border-border"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 bg-secondary"></div>
-                <span className="text-secondary font-mono text-[11px] font-bold tracking-widest uppercase">
-                  RELIABLE EVENT INFRASTRUCTURE
-                </span>
-              </div>
-              <h2 className="font-heading text-3xl sm:text-4xl font-black text-foreground uppercase tracking-tight leading-tight">
-                BUILT FOR SOLD-OUT EVENTS OF ANY SIZE.
-              </h2>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-                Whether you're hosting an intimate 50-person creator workshop, a 500-seat corporate summit, or a 5,000-person concert, EventRally gives organizers the speed, control, and reliability to run without stress.
-              </p>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-7 flex flex-col justify-center"
-            >
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 divide-x divide-border">
-                {[
-                  { value: "100%", label: "Free For Free Events" },
-                  { value: "<1s", label: "Gate QR Verification" },
-                  { value: "₦0", label: "Upfront Setup Fees" },
-                  { value: "Direct", label: "Automated Bank Payouts" },
-                ].map((stat, idx) => (
-                  <div key={idx} className="flex flex-col gap-1 pl-4 first:pl-0 border-l-0">
-                    <span className="font-heading text-3xl sm:text-4xl font-black text-foreground tracking-tighter">{stat.value}</span>
-                    <span className="text-xs font-bold text-muted-foreground">{stat.label}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Event Categories Authority Badges */}
-              <div className="mt-12 pt-8 border-t border-border">
-                <p className="text-xs font-mono font-bold text-muted-foreground uppercase mb-4">POWERING EVENT CATEGORIES ACROSS AFRICA</p>
-                <div className="flex flex-wrap items-center gap-2">
-                  {["TECH SUMMITS", "MUSIC FESTIVALS", "CORPORATE CONFERENCES", "COMMUNITY GATHERINGS", "CAMPUS EXPOS", "CHURCH EVENTS"].map((cat, idx) => (
-                    <motion.span 
-                      key={idx}
-                      whileHover={{ scale: 1.05 }}
-                      className="font-mono text-xs font-bold border border-border bg-card px-3 py-1.5 rounded-lg cursor-default shadow-2xs"
-                    >
-                      {cat}
-                    </motion.span>
-                  ))}
-                  <span className="font-mono text-xs font-bold text-secondary bg-secondary/10 border border-secondary/20 px-3 py-1.5 rounded-lg">& MORE</span>
-                </div>
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <Link to="/features/viral-dp-generator">
+                  <Button variant="secondary" size="lg" className="font-bold text-sm h-12 px-7 rounded-lg shadow-md flex items-center gap-2">
+                    <span>Explore Viral DP Generator</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button variant="outline" size="lg" className="font-bold text-sm h-12 px-6 rounded-lg">
+                    Host an Event Free
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           </div>
         </section>
 
         {/* Featured Events Section */}
-        <section id="events" className="max-w-[1440px] mx-auto px-4 sm:px-6 py-20">
+        <section id="events" className="max-w-[1440px] mx-auto px-4 sm:px-6 py-20 border-b border-border">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div>
               <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
@@ -466,8 +393,8 @@ const Index = () => {
               </div>
               <h2 className="font-heading text-3xl font-black text-foreground tracking-tight">Featured Events</h2>
             </div>
-            <Link to="/signup" className="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
-              Create your event <ArrowUpRight className="w-3.5 h-3.5" />
+            <Link to="/events" className="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
+              Explore all live events <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -549,8 +476,47 @@ const Index = () => {
           )}
         </section>
 
+        {/* High-Intent Educational Guides Section */}
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 py-20 border-b border-border">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <div>
+              <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-secondary/10 text-secondary px-2.5 py-1 rounded inline-block mb-2 font-mono">
+                ORGANIZER KNOWLEDGE HUB
+              </div>
+              <h2 className="font-heading text-3xl font-black text-foreground tracking-tight">Event Playbooks & Guides</h2>
+            </div>
+            <Link to="/guides" className="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
+              Browse all guides <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {topGuides.map((guide) => (
+              <Link key={guide.slug} to={`/guides/${guide.slug}`} className="flex">
+                <div className="p-6 rounded-xl border border-border bg-card hover:border-secondary transition-all flex flex-col justify-between group shadow-xs w-full">
+                  <div className="space-y-3">
+                    <span className="text-[10px] font-mono font-bold uppercase text-secondary bg-secondary/10 px-2 py-0.5 rounded">
+                      {guide.category}
+                    </span>
+                    <h3 className="font-heading text-base font-bold text-foreground group-hover:text-secondary transition-colors leading-snug">
+                      {guide.title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                      {guide.directAnswer}
+                    </p>
+                  </div>
+                  <div className="pt-4 mt-4 border-t border-border flex items-center justify-between text-xs font-bold text-secondary">
+                    <span>Read Guide</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {/* AEO Frequently Asked Questions Section */}
-        <section id="faq" className="max-w-[1440px] mx-auto px-4 sm:px-6 py-20 border-t border-border">
+        <section id="faq" className="max-w-[1440px] mx-auto px-4 sm:px-6 py-20">
           <div className="max-w-3xl mx-auto space-y-10">
             <div className="text-center space-y-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[11px] font-mono font-bold tracking-wider uppercase">
@@ -579,7 +545,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Theme-Aware Dark Mode Friendly Footer CTA Section */}
+        {/* Bottom CTA Section */}
         <section className="bg-card border-t border-border py-20 px-4 sm:px-6 text-center relative overflow-hidden">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -600,8 +566,9 @@ const Index = () => {
             <div className="pt-4">
               <Link to="/signup">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="inline-block">
-                  <Button variant="secondary" size="lg" className="font-bold text-sm h-12 px-8 rounded-lg shadow-md">
-                    Create Your Event Free →
+                  <Button variant="secondary" size="lg" className="font-bold text-sm h-12 px-8 rounded-lg shadow-md flex items-center gap-2">
+                    <PlusCircle className="w-4 h-4" />
+                    <span>Create Your Event Free</span>
                   </Button>
                 </motion.div>
               </Link>
@@ -610,17 +577,8 @@ const Index = () => {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-card border-t border-border py-10 px-4 sm:px-6">
-        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-3">
-            <BrandLogo className="h-6" imgClassName="h-6" />
-            <span>•</span>
-            <span>Where Everyone's Going.</span>
-          </div>
-          <div>© 2026 EVENTRALLY. All rights reserved.</div>
-        </div>
-      </footer>
+      {/* Universal Semantic Footer */}
+      <SiteFooter />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { useState, useRef, ChangeEvent, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Calendar, MapPin, Tag, Ticket, Plus, Trash2, Loader2, ImagePlus } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, MapPin, Tag, Ticket, Plus, Trash2, Loader2, ImagePlus, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,6 +62,9 @@ const CreateEvent = () => {
   // Banner Image
   const [bannerDataUrl, setBannerDataUrl] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  // Brand Color Customization
+  const [brandColor, setBrandColor] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Schedule
@@ -106,6 +109,14 @@ const CreateEvent = () => {
         let parsedSchedule: ScheduleDay[] = [];
         let parsedAdditional = "";
 
+        // Parse brand color
+        let parsedBrandColor = "";
+        if (rawDesc.includes("|||BRAND_COLOR|||")) {
+          const parts = rawDesc.split("|||BRAND_COLOR|||");
+          rawDesc = parts[0];
+          parsedBrandColor = (parts[1] || "").trim();
+        }
+
         if (rawDesc.includes("|||ADDITIONAL_INFO|||")) {
           const parts = rawDesc.split("|||ADDITIONAL_INFO|||");
           parsedDesc = parts[0];
@@ -124,6 +135,7 @@ const CreateEvent = () => {
 
         setDescription(parsedDesc.trim());
         setAdditionalInfo(parsedAdditional.trim());
+        setBrandColor(parsedBrandColor);
         if (parsedSchedule.length > 0) {
           setSchedule(parsedSchedule);
         } else if (event.date) {
@@ -211,7 +223,7 @@ const CreateEvent = () => {
       const endDate = endItem.endTime ? new Date(`${endItem.date}T${endItem.endTime}`).toISOString() : null;
 
       // Pack it all into description
-      const finalDescription = `${description.trim()}\n\n|||SCHEDULE|||${JSON.stringify(sortedSchedule)}\n\n|||ADDITIONAL_INFO|||${additionalInfo.trim()}`;
+      const finalDescription = `${description.trim()}\n\n|||SCHEDULE|||${JSON.stringify(sortedSchedule)}\n\n|||ADDITIONAL_INFO|||${additionalInfo.trim()}${brandColor ? `\n\n|||BRAND_COLOR|||${brandColor}` : ''}`;
 
       const eventPayload = {
         organiser_id: user.id,
@@ -454,6 +466,47 @@ const CreateEvent = () => {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Brand Color Picker */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Palette className="w-4 h-4 text-muted-foreground" />
+              <Label className="font-heading text-sm font-bold">Event Brand Color</Label>
+              <span className="text-[10px] text-muted-foreground font-medium ml-auto">Optional</span>
+            </div>
+            <p className="text-xs text-muted-foreground -mt-1">Choose a custom accent color for your event landing page. Buttons, badges, and highlights on your public event page will use this color.</p>
+            <div className="flex flex-wrap items-center gap-2">
+              {["", "#0058BE", "#E11D48", "#16A34A", "#9333EA", "#EA580C", "#0891B2", "#CA8A04", "#DC2626"].map((color) => (
+                <button
+                  key={color || "default"}
+                  onClick={() => setBrandColor(color)}
+                  className={`w-8 h-8 rounded-lg border-2 transition-all flex items-center justify-center ${
+                    brandColor === color ? "border-foreground scale-110 shadow-md" : "border-border hover:border-muted-foreground"
+                  }`}
+                  style={color ? { backgroundColor: color } : undefined}
+                  title={color || "Platform Default"}
+                >
+                  {!color && <span className="text-[9px] font-mono font-bold text-muted-foreground">DEF</span>}
+                </button>
+              ))}
+              <div className="relative">
+                <input
+                  type="color"
+                  value={brandColor || "#0058BE"}
+                  onChange={(e) => setBrandColor(e.target.value)}
+                  className="w-8 h-8 rounded-lg cursor-pointer border-2 border-border hover:border-muted-foreground"
+                  title="Pick custom color"
+                />
+              </div>
+            </div>
+            {brandColor && (
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-4 h-4 rounded" style={{ backgroundColor: brandColor }} />
+                <span className="font-mono text-muted-foreground">{brandColor.toUpperCase()}</span>
+                <button onClick={() => setBrandColor("")} className="text-destructive hover:underline ml-2 text-[10px] font-bold">Reset</button>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-between p-3 rounded-lg bg-background border border-border">

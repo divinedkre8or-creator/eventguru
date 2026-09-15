@@ -123,6 +123,14 @@ const EventDetails = () => {
   let parsedSchedule: any[] = [];
   let parsedAdditional = "";
 
+  // Parse brand color first (must come before other parsing since it's at the end)
+  let parsedBrandColor = "";
+  if (rawDesc.includes("|||BRAND_COLOR|||")) {
+    const bcParts = rawDesc.split("|||BRAND_COLOR|||");
+    rawDesc = bcParts[0];
+    parsedBrandColor = (bcParts[1] || "").trim();
+  }
+
   if (rawDesc.includes("|||ADDITIONAL_INFO|||")) {
     const parts = rawDesc.split("|||ADDITIONAL_INFO|||");
     parsedDesc = parts[0];
@@ -221,7 +229,7 @@ const EventDetails = () => {
       {/* Navigation */}
       <nav className="bg-card/90 backdrop-blur-md sticky top-0 z-50 border-b border-border">
         <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label="EventRally Home">
+          <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-1 hover:opacity-90 transition-opacity" aria-label={user ? "EventRally Dashboard" : "EventRally Home"}>
             <BrandLogo />
           </Link>
 
@@ -291,7 +299,10 @@ const EventDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-20">
           <div className="lg:col-span-2 space-y-8">
             <div className="space-y-4 border-b border-border pb-8">
-              <div className="text-[10px] font-mono font-bold uppercase tracking-widest bg-muted px-2.5 py-1 rounded inline-block text-foreground">
+              <div
+                className={`text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded inline-block ${parsedBrandColor ? '' : 'bg-muted text-foreground'}`}
+                style={parsedBrandColor ? { backgroundColor: `${parsedBrandColor}20`, color: parsedBrandColor } : undefined}
+              >
                 {category?.replace("-", " ")}
               </div>
               <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-foreground leading-tight tracking-tight">
@@ -387,6 +398,7 @@ const EventDetails = () => {
                           setIsCheckoutOpen(true);
                         }}
                         className="w-full font-bold text-xs h-10 rounded-lg shadow-sm flex items-center justify-center gap-2 mt-1"
+                        style={parsedBrandColor ? { backgroundColor: parsedBrandColor, color: '#fff', borderColor: parsedBrandColor } : undefined}
                       >
                         <Tag className="w-3.5 h-3.5" />
                         {is_free || discountedPrice === 0 ? "Register For Event" : "Buy Ticket"}
@@ -408,7 +420,11 @@ const EventDetails = () => {
                      <h3 className="font-bold text-sm text-foreground mb-1">Get Your Display Picture</h3>
                      <p className="text-xs text-muted-foreground mb-4">Generate a custom DP flier for this event to let your network know you are attending!</p>
                      <Link to={getEventDpUrl(event)}>
-                        <Button variant="secondary" className="w-full font-bold text-xs h-10 rounded-lg shadow-sm">
+                        <Button
+                          variant="secondary"
+                          className="w-full font-bold text-xs h-10 rounded-lg shadow-sm"
+                          style={parsedBrandColor ? { backgroundColor: parsedBrandColor, color: '#fff', borderColor: parsedBrandColor } : undefined}
+                        >
                            Create My DP
                         </Button>
                      </Link>

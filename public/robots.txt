@@ -1,4 +1,7 @@
-# EventRally Robots Configuration
+# EventRally Robots Configuration (https://www.geteventrally.com)
+# Allow all standard and AI search crawlers access to public discovery and marketing pages
+# Disallow authenticated, attendee wallet, and admin routes
+
 User-agent: Googlebot
 Allow: /
 Disallow: /dashboard/
@@ -17,8 +20,14 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-# Generative & Answer Engine Crawlers
+# Generative & Answer Engine Crawlers (AEO / GEO)
 User-agent: GPTBot
+Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /tickets/
+
+User-agent: OAI-SearchBot
 Allow: /
 Disallow: /dashboard/
 Disallow: /admin/
@@ -49,5 +58,5 @@ Disallow: /admin/
 Disallow: /tickets/
 
 # Sitemaps and AI Documentation
-Sitemap: https://eventrally.com/sitemap.xml
-# LLMs specification: https://eventrally.com/llms.txt
+Sitemap: https://www.geteventrally.com/sitemap.xml
+# LLMs specification: https://www.geteventrally.com/llms.txt
