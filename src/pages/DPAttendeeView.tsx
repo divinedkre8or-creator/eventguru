@@ -261,6 +261,24 @@ const DPAttendeeView = () => {
                  >
                    {attendeeName || "Your Name"}
                  </div>
+
+                 {/* Official EventRally Viral Attribution Watermark */}
+                 <div 
+                   className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/80 backdrop-blur-sm border border-white/20 text-white shadow-xl pointer-events-none select-none z-20"
+                   style={{
+                     fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+                     letterSpacing: "0.05em",
+                   }}
+                 >
+                   <span className="w-1.5 h-1.5 rounded-full bg-[#0058BE]" />
+                   <span className="text-[10px] font-black uppercase tracking-wider text-white">
+                     POWERED BY <span className="text-[#60A5FA]">EVENTRALLY</span>
+                   </span>
+                   <span className="text-white/40 text-[9px] font-mono">|</span>
+                   <span className="text-[9px] font-mono font-medium text-white/90 tracking-normal">
+                     WWW.GETEVENTRALLY.COM
+                   </span>
+                 </div>
                  
                </div>
              </div>
