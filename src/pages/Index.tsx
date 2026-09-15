@@ -118,7 +118,7 @@ const Index = () => {
   const topGuides = Object.values(GUIDES_DATA).slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden flex flex-col">
+    <div className="min-h-screen bg-background font-sans text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-clip flex flex-col">
       <SEOHead
         title="Event Management, Ticketing & Viral Growth Platform"
         description="Sell out tickets, automate door check-in, and turn attendees into a viral marketing team with custom event fliers. Free for free events."

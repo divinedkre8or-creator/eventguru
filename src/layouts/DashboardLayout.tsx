@@ -113,7 +113,7 @@ const DashboardLayout = () => {
   }, [isOrganiserOrAdmin, location.pathname, navigate]);
 
   return (
-    <div className="min-h-screen bg-background font-sans flex text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden w-full max-w-full">
+    <div className="min-h-screen bg-background font-sans flex text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-clip w-full max-w-full">
       <SEOHead
         title="Organizer Workspace"
         description="EventRally event management, ticketing, and attendee growth workspace."
@@ -299,7 +299,7 @@ const DashboardLayout = () => {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 md:ml-[260px] flex flex-col min-h-screen min-w-0 w-full max-w-full bg-background overflow-x-hidden">
+      <div className="flex-1 md:ml-[260px] flex flex-col min-h-screen min-w-0 w-full max-w-full bg-background overflow-x-clip">
         {/* Top Header */}
         <header className="h-16 bg-card border-b border-border flex items-center justify-between px-3 sm:px-4 md:px-6 sticky top-0 z-30 w-full min-w-0">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
