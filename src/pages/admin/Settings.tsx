@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { 
   Settings as SettingsIcon, Shield, Save, Key, AlertTriangle, 
-  CheckCircle2, CreditCard, Mail, Eye, EyeOff, Send, Loader2 
+  CheckCircle2, CreditCard, Mail, Eye, EyeOff, Send, Loader2, MessageSquare, Phone 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,10 +13,15 @@ const AdminSettings = () => {
   const [settings, setSettings] = useState<PlatformSettings>(getPlatformSettings());
   const [showPublicKey, setShowPublicKey] = useState(false);
   const [showResendKey, setShowResendKey] = useState(false);
+  const [showTermiiKey, setShowTermiiKey] = useState(false);
   
   // Test email state
   const [testEmailRecipient, setTestEmailRecipient] = useState("");
   const [sendingTestEmail, setSendingTestEmail] = useState(false);
+
+  // Test SMS state
+  const [testSmsPhone, setTestSmsPhone] = useState("");
+  const [sendingTestSms, setSendingTestSms] = useState(false);
 
   useEffect(() => {
     setSettings(getPlatformSettings());
@@ -25,7 +30,54 @@ const AdminSettings = () => {
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
     savePlatformSettings(settings);
-    toast.success("Platform settings, payment gateway keys, and email configuration updated successfully!");
+    toast.success("Platform settings, Paystack gateway keys, Resend email, and Termii SMS configuration saved successfully!");
+  };
+
+  const handleSendTestSms = async () => {
+    if (!settings.termii_api_key || settings.termii_api_key.trim() === "") {
+      toast.error("Please enter your Termii API Key and save settings first.");
+      return;
+    }
+    const targetPhone = testSmsPhone.trim();
+    if (!targetPhone) {
+      toast.error("Please enter a recipient phone number (e.g. 08012345678 or 2348012345678).");
+      return;
+    }
+
+    setSendingTestSms(true);
+    try {
+      let normalized = targetPhone.replace(/[\s\-\(\)]/g, "");
+      if (normalized.startsWith("0")) {
+        normalized = "234" + normalized.slice(1);
+      } else if (normalized.startsWith("+")) {
+        normalized = normalized.slice(1);
+      }
+
+      const res = await fetch("https://api.ng.termii.com/api/sms/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: normalized,
+          from: settings.termii_sender_id || "EventRally",
+          sms: `EventRally Super Admin Test: Termii SMS pipeline is active! Timestamp: ${new Date().toLocaleTimeString()}`,
+          type: "plain",
+          channel: "generic",
+          api_key: settings.termii_api_key.trim(),
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || (data.code && data.code !== "ok")) {
+        throw new Error(data.message || `Termii returned status ${res.status}`);
+      }
+
+      toast.success(`Test SMS sent successfully to ${normalized}! Check your mobile phone.`);
+    } catch (err: any) {
+      console.error("Test SMS failed:", err);
+      toast.error(err.message || "Failed to dispatch test SMS via Termii API");
+    } finally {
+      setSendingTestSms(false);
+    }
   };
 
   const handleSendTestEmail = async () => {
@@ -259,6 +311,90 @@ const AdminSettings = () => {
                 ) : (
                   <>
                     <Send className="w-3.5 h-3.5" /> Send Test Email
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* SMS Delivery Platform (Termii) */}
+        <div className="bg-card border border-border rounded-xl p-5 sm:p-6 shadow-xs space-y-4 w-full min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+            <h2 className="font-heading text-base font-bold text-foreground flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-secondary" /> SMS Delivery Platform (Termii Integration)
+            </h2>
+            <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-chart-green/10 text-chart-green uppercase">
+              Prepaid Mobile Broadcasts
+            </span>
+          </div>
+
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Configure your Termii API credentials to power organizer SMS broadcasts, instant event reminders, and mobile alerts.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5 min-w-0 sm:col-span-2">
+              <Label className="text-xs font-bold text-foreground">Termii API Key *</Label>
+              <div className="relative">
+                <Input
+                  type={showTermiiKey ? "text" : "password"}
+                  value={settings.termii_api_key}
+                  onChange={(e) => setSettings({ ...settings, termii_api_key: e.target.value })}
+                  placeholder="TLKaWPDnCRASJAiUv..."
+                  className="bg-background border-border text-xs h-10 rounded-lg pr-10 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowTermiiKey(!showTermiiKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showTermiiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-[10px] text-muted-foreground">Obtain this key from your Termii dashboard at termii.com.</p>
+            </div>
+
+            <div className="space-y-1.5 min-w-0 sm:col-span-2">
+              <Label className="text-xs font-bold text-foreground">Sender ID (Sender Name)</Label>
+              <Input
+                value={settings.termii_sender_id}
+                onChange={(e) => setSettings({ ...settings, termii_sender_id: e.target.value })}
+                placeholder="EventRally"
+                maxLength={11}
+                className="bg-background border-border text-xs h-10 rounded-lg font-mono uppercase"
+              />
+              <p className="text-[10px] text-muted-foreground">Approved 11-character alphanumeric Sender ID on Termii (e.g. EventRally).</p>
+            </div>
+          </div>
+
+          {/* Test SMS Dispatch Bar */}
+          <div className="bg-muted/40 border border-border/80 rounded-lg p-3.5 space-y-2.5 mt-2">
+            <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5 text-secondary" /> Verify Termii SMS Dispatcher
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <Input
+                type="tel"
+                placeholder="Phone number to test (e.g. 08012345678 or 2348012345678)..."
+                value={testSmsPhone}
+                onChange={(e) => setTestSmsPhone(e.target.value)}
+                className="bg-background border-border text-xs h-9 rounded-lg flex-1 font-mono"
+              />
+              <Button
+                type="button"
+                onClick={handleSendTestSms}
+                disabled={sendingTestSms}
+                variant="outline"
+                className="border-border text-xs font-bold h-9 px-4 rounded-lg flex items-center justify-center gap-1.5 shrink-0"
+              >
+                {sendingTestSms ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Sending SMS...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-3.5 h-3.5" /> Send Test SMS
                   </>
                 )}
               </Button>

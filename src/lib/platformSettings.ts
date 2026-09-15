@@ -18,6 +18,10 @@ export interface PlatformSettings {
   email_sender_address: string;
   email_sender_name: string;
   email_reply_to: string;
+
+  // SMS Delivery Service (Termii)
+  termii_api_key: string;
+  termii_sender_id: string; // e.g. "EventRally"
   
   // Safety & Banner
   maintenance_mode: boolean;
@@ -28,7 +32,7 @@ const STORAGE_KEY = "eventrally_platform_settings_v1";
 
 export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   platform_name: "EventRally",
-  support_email: "support@eventrally.com",
+  support_email: "support@geteventrally.com",
   currency: "NGN",
   
   gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
@@ -37,9 +41,12 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   platform_fee_percent: 2.5,
   
   resend_api_key: "",
-  email_sender_address: "tickets@eventrally.com",
-  email_sender_name: "EventRally Official",
-  email_reply_to: "support@eventrally.com",
+  email_sender_address: "tickets@send.geteventrally.com",
+  email_sender_name: "EventRally Tickets",
+  email_reply_to: "support@geteventrally.com",
+
+  termii_api_key: "",
+  termii_sender_id: "EventRally",
   
   maintenance_mode: false,
   announcement_banner: "",

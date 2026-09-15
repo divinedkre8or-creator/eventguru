@@ -147,21 +147,21 @@ const DashboardLayout = () => {
 
           {!isOrganiserOrAdmin ? (
             /* Attendee Navigation */
-            <nav className="flex flex-col gap-1">
-              <div className="px-3 py-1 text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
+            <nav className="flex flex-col gap-1.5">
+              <div className="px-3 py-1 text-xs font-mono font-bold text-muted-foreground uppercase tracking-wider">
                 ATTENDEE PORTAL
               </div>
               {attendeeNavItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                     isActive(item.path)
                       ? "bg-secondary text-secondary-foreground shadow-sm font-bold"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
-                  <item.icon className="w-4 h-4 shrink-0" />
+                  <item.icon className="w-4.5 h-4.5 shrink-0" />
                   <span className="truncate">{item.title}</span>
                 </Link>
               ))}
@@ -174,21 +174,21 @@ const DashboardLayout = () => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                       isActive(item.path)
-                        ? "bg-primary text-primary-foreground shadow-sm"
+                        ? "bg-primary text-primary-foreground shadow-sm font-bold"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
-                    <item.icon className="w-4 h-4 shrink-0" />
+                    <item.icon className="w-4.5 h-4.5 shrink-0" />
                     <span className="truncate">{item.title}</span>
                   </Link>
                 ))}
               </nav>
 
               {navGroups.map((group) => (
-                <div key={group.groupName} className="space-y-1">
-                  <div className="px-3 py-1 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                <div key={group.groupName} className="space-y-1.5 pt-1">
+                  <div className="px-3.5 py-1 text-xs font-mono font-bold text-muted-foreground uppercase tracking-wider">
                     {group.groupName}
                   </div>
                   <nav className="flex flex-col gap-0.5">
@@ -196,13 +196,13 @@ const DashboardLayout = () => {
                       <Link
                         key={item.path}
                         to={item.path}
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                        className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                           isActive(item.path)
-                            ? "bg-primary text-primary-foreground shadow-sm"
+                            ? "bg-primary text-primary-foreground shadow-sm font-bold"
                             : "text-muted-foreground hover:text-foreground hover:bg-muted"
                         }`}
                       >
-                        <item.icon className="w-4 h-4 shrink-0" />
+                        <item.icon className="w-4.5 h-4.5 shrink-0" />
                         <span className="truncate">{item.title}</span>
                       </Link>
                     ))}
@@ -215,14 +215,14 @@ const DashboardLayout = () => {
 
         {/* Bottom Plan Widget */}
         <div className="p-3 border-t border-border">
-          <div className="bg-muted/50 border border-border rounded-lg p-3 flex items-center justify-between text-xs">
+          <div className="bg-muted/50 border border-border rounded-xl p-3.5 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2.5">
-              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <Zap className="w-3.5 h-3.5" />
+              <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <Zap className="w-4 h-4" />
               </div>
               <div>
-                <div className="font-bold text-foreground">{isAdmin ? "Super Admin" : isOrganiserOrAdmin ? "Pro Organizer" : "Attendee"}</div>
-                <div className="text-[10px] text-muted-foreground">{isAdmin ? "Full Access" : isOrganiserOrAdmin ? "Active Plan" : "Rally Member"}</div>
+                <div className="font-bold text-sm text-foreground">{isAdmin ? "Super Admin" : isOrganiserOrAdmin ? "Pro Organizer" : "Attendee"}</div>
+                <div className="text-xs text-muted-foreground">{isAdmin ? "Full Access" : isOrganiserOrAdmin ? "Active Plan" : "Rally Member"}</div>
               </div>
             </div>
           </div>
