@@ -3,7 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ChevronDown, Menu, X, Ticket, Image as ImageIcon, ScanLine, 
-  Users, Mail, Award, Sparkles, BookOpen, ArrowRight, PlusCircle, Compass 
+  Users, Mail, Award, BookOpen, ArrowRight, PlusCircle, Compass, 
+  Layers, HelpCircle, CheckSquare
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandLogo } from "@/components/brand/BrandLogo";
@@ -28,7 +29,7 @@ const FEATURE_LINKS = [
     title: "Event Registration & RSVP",
     desc: "Free guest registration without Google Forms",
     href: "/features/event-registration",
-    icon: Sparkles,
+    icon: CheckSquare,
   },
   {
     title: "1-Second QR Check-In",
@@ -223,53 +224,74 @@ export const SiteHeader: React.FC = () => {
               </div>
             </div>
 
-            {/* Platform Features Section */}
-            <div className="space-y-2">
-              <div className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground px-1">
-                PLATFORM CAPABILITIES
-              </div>
-              <div className="grid grid-cols-1 gap-1">
-                {FEATURE_LINKS.map((item) => (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-foreground hover:bg-muted transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
-                      <item.icon className="w-4 h-4" />
-                    </div>
-                    <span className="flex-1">{item.title}</span>
-                    {item.hot && (
-                      <span className="text-[10px] font-mono font-black bg-secondary/15 text-secondary px-1.5 py-0.5 rounded uppercase">
-                        HOT
-                      </span>
-                    )}
-                  </Link>
-                ))}
-              </div>
-            </div>
+            {/* Primary Mobile Navigation Links */}
+            <div className="space-y-1">
+              <Link
+                to="/features"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-bold transition-colors ${
+                  location.pathname.startsWith("/features")
+                    ? "bg-secondary/15 text-secondary"
+                    : "text-foreground hover:bg-muted"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                  <span>Features</span>
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground" />
+              </Link>
 
-            {/* Discover & Learn Section */}
-            <div className="space-y-2 pt-2 border-t border-border">
-              <div className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground px-1">
-                DISCOVER & EXPLORE
-              </div>
               <Link
                 to="/events"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-foreground hover:bg-muted rounded-xl transition-colors"
+                className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-bold transition-colors ${
+                  location.pathname === "/events"
+                    ? "bg-primary/10 text-primary"
+                    : "text-foreground hover:bg-muted"
+                }`}
               >
-                <Compass className="w-4 h-4 text-primary" />
-                <span>Explore Live Events</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <Compass className="w-4 h-4" />
+                  </div>
+                  <span>Explore Events</span>
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground" />
               </Link>
+
               <Link
                 to="/guides"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-foreground hover:bg-muted rounded-xl transition-colors"
+                className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-bold transition-colors ${
+                  location.pathname.startsWith("/guides")
+                    ? "bg-secondary/15 text-secondary"
+                    : "text-foreground hover:bg-muted"
+                }`}
               >
-                <BookOpen className="w-4 h-4 text-secondary" />
-                <span>Organizer Knowledge Guides</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                  <span>Guides & Resources</span>
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground" />
+              </Link>
+
+              <Link
+                to="/#faq"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-bold text-foreground hover:bg-muted transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0">
+                    <HelpCircle className="w-4 h-4" />
+                  </div>
+                  <span>FAQ</span>
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground" />
               </Link>
             </div>
 
