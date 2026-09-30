@@ -323,32 +323,37 @@ const CreateEvent = () => {
         }
 
       } else {
+        const newEventId = crypto.randomUUID();
+        const baseInsertPayload = { ...baseEventPayload, id: newEventId };
+        const extendedInsertPayload = { ...extendedEventPayload, id: newEventId };
+
         let insertRes = await supabase
           .from("events")
-          .insert(extendedEventPayload)
+          .insert(extendedInsertPayload)
           .select("id")
-          .single();
+          .maybeSingle();
 
         // Graceful fallback if database migrations for new columns haven't executed yet
         if (insertRes.error && insertRes.error.message.includes("column")) {
           insertRes = await supabase
             .from("events")
-            .insert(baseEventPayload)
+            .insert(baseInsertPayload)
             .select("id")
-            .single();
+            .maybeSingle();
         }
 
         if (insertRes.error) {
           console.error("Supabase Event Insert Error:", insertRes.error);
           throw insertRes.error;
         }
-        eventIdResult = insertRes.data.id;
+
+        eventIdResult = insertRes.data?.id || newEventId;
 
         if (!isFree && tickets.length > 0) {
           const ticketRows = tickets
             .filter((t) => t.name.trim())
             .map((t) => ({
-              event_id: event.id,
+              event_id: eventIdResult,
               name: t.name.trim(),
               description: t.description.trim() || null,
               price: parseFloat(t.price) || 0,
@@ -360,12 +365,13 @@ const CreateEvent = () => {
             if (ticketError) throw ticketError;
           }
         } else if (isFree) {
-          await supabase.from("ticket_types").insert({
-            event_id: event.id,
+          const { error: freeTicketError } = await supabase.from("ticket_types").insert({
+            event_id: eventIdResult,
             name: "Free Admission",
             price: 0,
             quantity: Number(maxAttendees) || 1000,
           });
+          if (freeTicketError) throw freeTicketError;
         }
       }
 
