@@ -6,10 +6,12 @@ import { DigitalTicketCard } from "@/components/tickets/DigitalTicketCard";
 import { TicketActions } from "@/components/tickets/TicketActions";
 import { Button } from "@/components/ui/button";
 import {
-  Loader2, ArrowLeft, ArrowRight, Wallet, AlertCircle
+  Loader2, ArrowLeft, ArrowRight, Wallet, AlertCircle,
+  Globe, MessageSquare, ExternalLink, Info
 } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { parseEventMetadata } from "@/lib/eventMetadata";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -139,6 +141,11 @@ export const TicketView: React.FC = () => {
   const domId = `ticket-view-canvas-${registration.id}`;
   const isLoggedIn = !!user;
 
+  // Parse structured metadata for online events
+  const meta = parseEventMetadata(event?.description, event);
+  const isOnlineEvent = meta.eventType === "online";
+  const onlineSettings = meta.onlineSettings;
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased py-8 px-4 flex flex-col items-center selection:bg-primary selection:text-primary-foreground">
       <SEOHead
@@ -171,6 +178,55 @@ export const TicketView: React.FC = () => {
           elementId={domId}
         />
       </div>
+
+      {/* Online Event Hub & Direct Meeting Access Callout */}
+      {isOnlineEvent && (onlineSettings?.whatsapp_group_link || onlineSettings?.meeting_link || onlineSettings?.access_instructions) && (
+        <div className="w-full max-w-md mb-6 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 shadow-lg space-y-3 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+              <Globe className="w-4 h-4" /> ONLINE EVENT ACCESS
+            </div>
+            <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">
+              VERIFIED TICKET HOLDER
+            </span>
+          </div>
+
+          {onlineSettings.access_instructions && (
+            <div className="text-xs text-muted-foreground leading-relaxed bg-background/60 p-3 rounded-xl border border-border/50 flex items-start gap-2">
+              <Info className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
+              <span><strong className="text-foreground">Access note:</strong> {onlineSettings.access_instructions}</span>
+            </div>
+          )}
+
+          <div className="space-y-2 pt-1">
+            {onlineSettings.whatsapp_group_link && (
+              <a
+                href={onlineSettings.whatsapp_group_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs h-10 rounded-xl shadow-sm transition-colors"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Join WhatsApp Attendee Community</span>
+                <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+              </a>
+            )}
+
+            {onlineSettings.meeting_link && (
+              <a
+                href={onlineSettings.meeting_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full bg-primary text-primary-foreground hover:opacity-90 font-bold text-xs h-10 rounded-xl shadow-sm transition-colors"
+              >
+                <Globe className="w-4 h-4" />
+                <span>Open Online Event Room</span>
+                <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+              </a>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Action Toolbar */}
       <div className="w-full max-w-md mb-6">

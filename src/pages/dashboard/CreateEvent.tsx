@@ -1,6 +1,9 @@
 import { useState, useRef, ChangeEvent, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Calendar, MapPin, Tag, Ticket, Plus, Trash2, Loader2, ImagePlus, Palette } from "lucide-react";
+import { 
+  ArrowLeft, ArrowRight, Calendar, MapPin, Tag, Ticket, Plus, Trash2, 
+  Loader2, ImagePlus, Palette, Globe, Building2, Link2, MessageCircle, HelpCircle 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +14,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { uploadImage } from "@/lib/storageUtils";
 import { ShareEventModal } from "@/components/events/ShareEventModal";
+import { 
+  EventType, 
+  OnlineSettings, 
+  CustomQuestion, 
+  DEFAULT_ONLINE_SETTINGS, 
+  parseEventMetadata, 
+  serializeEventDescription 
+} from "@/lib/eventMetadata";
+import { CustomQuestionsBuilder } from "@/components/events/CustomQuestionsBuilder";
 
 const categories = [
   "conference", "trade-show", "concert", "workshop",
@@ -58,6 +70,13 @@ const CreateEvent = () => {
   const [category, setCategory] = useState("conference");
   const [isFree, setIsFree] = useState(false);
   const [maxAttendees, setMaxAttendees] = useState("");
+
+  // Event Modality (Physical vs Online)
+  const [eventType, setEventType] = useState<EventType>("physical");
+  const [onlineSettings, setOnlineSettings] = useState<OnlineSettings>({ ...DEFAULT_ONLINE_SETTINGS });
+  
+  // Custom Registration Questions
+  const [customQuestions, setCustomQuestions] = useState<CustomQuestion[]>([]);
   
   // Banner Image
   const [bannerDataUrl, setBannerDataUrl] = useState<string | null>(null);
@@ -103,43 +122,22 @@ const CreateEvent = () => {
         setMaxAttendees(event.max_attendees ? event.max_attendees.toString() : "");
         setBannerDataUrl(event.image_url || null);
         
-        // Parse custom delimited string
-        let rawDesc = event.description || "";
-        let parsedDesc = rawDesc;
-        let parsedSchedule: ScheduleDay[] = [];
-        let parsedAdditional = "";
+        // Parse metadata using robust parser
+        const meta = parseEventMetadata(event.description, event);
+        setDescription(meta.cleanDescription);
+        setAdditionalInfo(meta.additionalInfo);
+        setBrandColor(meta.brandColor);
+        setEventType(meta.eventType);
+        setOnlineSettings(meta.onlineSettings);
+        setCustomQuestions(meta.customQuestions);
 
-        // Parse brand color
-        let parsedBrandColor = "";
-        if (rawDesc.includes("|||BRAND_COLOR|||")) {
-          const parts = rawDesc.split("|||BRAND_COLOR|||");
-          rawDesc = parts[0];
-          parsedBrandColor = (parts[1] || "").trim();
-        }
-
-        if (rawDesc.includes("|||ADDITIONAL_INFO|||")) {
-          const parts = rawDesc.split("|||ADDITIONAL_INFO|||");
-          parsedDesc = parts[0];
-          parsedAdditional = parts[1] || "";
-        }
-
-        if (parsedDesc.includes("|||SCHEDULE|||")) {
-          const parts = parsedDesc.split("|||SCHEDULE|||");
-          parsedDesc = parts[0];
-          try {
-            parsedSchedule = JSON.parse(parts[1]);
-          } catch (e) {
-            console.error("Failed to parse schedule JSON", e);
-          }
-        }
-
-        setDescription(parsedDesc.trim());
-        setAdditionalInfo(parsedAdditional.trim());
-        setBrandColor(parsedBrandColor);
-        if (parsedSchedule.length > 0) {
-          setSchedule(parsedSchedule);
+        if (meta.schedule.length > 0) {
+          setSchedule(meta.schedule.map(s => ({
+            date: s.date,
+            startTime: s.startTime,
+            endTime: s.endTime || "",
+          })));
         } else if (event.date) {
-           // fallback for older events without schedule JSON
            const d = new Date(event.date);
            setSchedule([{ 
              date: d.toISOString().split('T')[0], 
@@ -233,17 +231,25 @@ const CreateEvent = () => {
         }
       }
 
-      // Pack it all into description
-      const finalDescription = `${description.trim()}\n\n|||SCHEDULE|||${JSON.stringify(sortedSchedule)}\n\n|||ADDITIONAL_INFO|||${additionalInfo.trim()}${brandColor ? `\n\n|||BRAND_COLOR|||${brandColor}` : ''}`;
+      // Serialize description including schedule, additional info, brand color, event type, online settings, and custom questions
+      const finalDescription = serializeEventDescription({
+        cleanDescription: description.trim(),
+        eventType,
+        onlineSettings: eventType === "online" ? onlineSettings : undefined,
+        customQuestions,
+        brandColor,
+        additionalInfo: additionalInfo.trim(),
+        schedule: sortedSchedule,
+      });
 
-      const eventPayload = {
+      const baseEventPayload: any = {
         organiser_id: user.id,
         title: title.trim(),
         description: finalDescription,
         date: startDate,
         end_date: endDate,
-        venue: venue.trim() || null,
-        city: city.trim() || null,
+        venue: eventType === "physical" ? (venue.trim() || null) : "Online Event",
+        city: eventType === "physical" ? (city.trim() || null) : null,
         country,
         category,
         is_free: isFree,
@@ -252,16 +258,42 @@ const CreateEvent = () => {
         image_url: bannerDataUrl,
       };
 
+      const extendedEventPayload: any = {
+        ...baseEventPayload,
+        event_type: eventType,
+        custom_questions: customQuestions,
+        ...(eventType === "online" ? {
+          meeting_link: onlineSettings.meeting_link.trim() || null,
+          redirect_url: onlineSettings.redirect_url.trim() || null,
+          access_instructions: onlineSettings.access_instructions.trim() || null,
+          auto_redirect: onlineSettings.auto_redirect,
+        } : {
+          meeting_link: null,
+          redirect_url: null,
+          access_instructions: null,
+          auto_redirect: false,
+        }),
+      };
+
       let eventIdResult = id;
 
       if (isEditMode) {
-        const { error: eventError } = await supabase
+        let updateRes = await supabase
           .from("events")
-          .update(eventPayload)
+          .update(extendedEventPayload)
           .eq("id", id!);
-        if (eventError) {
-           console.error("Supabase Event Update Error:", eventError);
-           throw eventError;
+        
+        // Graceful fallback if database migrations for new columns haven't executed yet
+        if (updateRes.error && updateRes.error.message.includes("column")) {
+          updateRes = await supabase
+            .from("events")
+            .update(baseEventPayload)
+            .eq("id", id!);
+        }
+
+        if (updateRes.error) {
+           console.error("Supabase Event Update Error:", updateRes.error);
+           throw updateRes.error;
         }
 
         if (!isFree && tickets.length > 0) {
@@ -291,17 +323,26 @@ const CreateEvent = () => {
         }
 
       } else {
-        const { data: event, error: eventError } = await supabase
+        let insertRes = await supabase
           .from("events")
-          .insert(eventPayload)
+          .insert(extendedEventPayload)
           .select("id")
           .single();
 
-        if (eventError) {
-          console.error("Supabase Event Insert Error:", eventError);
-          throw eventError;
+        // Graceful fallback if database migrations for new columns haven't executed yet
+        if (insertRes.error && insertRes.error.message.includes("column")) {
+          insertRes = await supabase
+            .from("events")
+            .insert(baseEventPayload)
+            .select("id")
+            .single();
         }
-        eventIdResult = event.id;
+
+        if (insertRes.error) {
+          console.error("Supabase Event Insert Error:", insertRes.error);
+          throw insertRes.error;
+        }
+        eventIdResult = insertRes.data.id;
 
         if (!isFree && tickets.length > 0) {
           const ticketRows = tickets
@@ -461,16 +502,128 @@ const CreateEvent = () => {
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Tell people what your event is about..." rows={4} className="bg-background border-border resize-none text-foreground" />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="font-heading text-sm font-bold">Venue</Label>
-              <Input value={venue} onChange={(e) => setVenue(e.target.value)} placeholder="e.g. Landmark Centre" className="bg-background border-border text-foreground" />
-            </div>
-            <div className="space-y-2">
-              <Label className="font-heading text-sm font-bold">City</Label>
-              <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Lagos" className="bg-background border-border text-foreground" />
+          {/* Event Modality: Physical vs Online */}
+          <div className="space-y-3">
+            <Label className="font-heading text-sm font-bold text-foreground">Event Modality / Location Type *</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setEventType("physical")}
+                className={`p-4 rounded-xl border text-left transition-all flex items-start gap-3 ${
+                  eventType === "physical"
+                    ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary"
+                    : "border-border bg-background hover:bg-muted/50 text-muted-foreground"
+                }`}
+              >
+                <div className={`p-2 rounded-lg shrink-0 ${eventType === "physical" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-heading font-bold text-sm text-foreground">Physical Event</div>
+                  <p className="text-xs text-muted-foreground mt-0.5">In-person gathering at a venue with rapid door QR check-in pass.</p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setEventType("online")}
+                className={`p-4 rounded-xl border text-left transition-all flex items-start gap-3 ${
+                  eventType === "online"
+                    ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary"
+                    : "border-border bg-background hover:bg-muted/50 text-muted-foreground"
+                }`}
+              >
+                <div className={`p-2 rounded-lg shrink-0 ${eventType === "online" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                  <Globe className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-heading font-bold text-sm text-foreground">Online / Virtual Event</div>
+                  <p className="text-xs text-muted-foreground mt-0.5">Zoom, Meet, YouTube Live, with WhatsApp community redirect.</p>
+                </div>
+              </button>
             </div>
           </div>
+
+          {/* Conditional Location / Online Setup */}
+          {eventType === "physical" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="font-heading text-sm font-bold">Venue</Label>
+                <Input value={venue} onChange={(e) => setVenue(e.target.value)} placeholder="e.g. Landmark Centre" className="bg-background border-border text-foreground" />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-heading text-sm font-bold">City</Label>
+                <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Lagos" className="bg-background border-border text-foreground" />
+              </div>
+            </div>
+          ) : (
+            <div className="bg-muted/30 border border-border rounded-xl p-4 sm:p-5 space-y-4">
+              <div className="border-b border-border/80 pb-2.5">
+                <span className="font-heading text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5" /> Virtual Event & Community Routing
+                </span>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Configure where attendees will join your livestream and which community they are directed to after registering.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <Link2 className="w-3.5 h-3.5 text-secondary" /> Virtual Meeting / Livestream Link
+                  </Label>
+                  <Input
+                    type="url"
+                    value={onlineSettings.meeting_link}
+                    onChange={(e) => setOnlineSettings({ ...onlineSettings, meeting_link: e.target.value })}
+                    placeholder="e.g. https://zoom.us/j/... or https://meet.google.com/..."
+                    className="bg-background border-border text-xs h-10 rounded-lg text-foreground font-mono"
+                  />
+                  <p className="text-[11px] text-muted-foreground">The platform link where you will host the live event.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <MessageCircle className="w-3.5 h-3.5 text-chart-green" /> Community / WhatsApp Redirect Link
+                  </Label>
+                  <Input
+                    type="url"
+                    value={onlineSettings.redirect_url}
+                    onChange={(e) => setOnlineSettings({ ...onlineSettings, redirect_url: e.target.value })}
+                    placeholder="e.g. https://chat.whatsapp.com/... or https://t.me/..."
+                    className="bg-background border-border text-xs h-10 rounded-lg text-foreground font-mono"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Where attendees should be redirected or invited immediately upon registration (e.g. your WhatsApp community).
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-foreground">Secret Access Passcode / Instructions (Optional)</Label>
+                  <Input
+                    value={onlineSettings.access_instructions}
+                    onChange={(e) => setOnlineSettings({ ...onlineSettings, access_instructions: e.target.value })}
+                    placeholder="e.g. Passcode: 2026TECH. Please mute your mic upon entry."
+                    className="bg-background border-border text-xs h-10 rounded-lg text-foreground"
+                  />
+                  <p className="text-[11px] text-muted-foreground">Displayed to confirmed attendees on their digital ticket pass only.</p>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                  <div>
+                    <Label className="text-xs font-bold text-foreground cursor-pointer">Auto-redirect after registration</Label>
+                    <p className="text-[11px] text-muted-foreground">
+                      Automatically open the community link 5 seconds after checkout.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={onlineSettings.auto_redirect}
+                    onCheckedChange={(checked) => setOnlineSettings({ ...onlineSettings, auto_redirect: checked })}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label className="font-heading text-sm font-bold">Category *</Label>
@@ -594,6 +747,12 @@ const CreateEvent = () => {
             )}
           </div>
 
+          {/* Custom Attendee Questions DIY Session */}
+          <CustomQuestionsBuilder
+            questions={customQuestions}
+            onChange={setCustomQuestions}
+          />
+
           <div className="bg-card rounded-xl border border-border p-5 space-y-4">
              <div className="space-y-2">
                 <Label className="font-heading text-base font-bold">Additional Information</Label>
@@ -631,10 +790,21 @@ const CreateEvent = () => {
                 <Calendar className="w-4 h-4 shrink-0" />
                 <span className="truncate">{schedule[0].date ? `${new Date(schedule[0].date).toLocaleDateString()} ${schedule[0].startTime}` : "Not set"}</span>
               </div>
-              {venue && (
+              {eventType === "online" ? (
+                <div className="flex items-center gap-2 text-primary font-medium min-w-0">
+                  <Globe className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Online Event {onlineSettings.redirect_url ? "• WhatsApp Community" : ""}</span>
+                </div>
+              ) : venue ? (
                 <div className="flex items-center gap-2 text-muted-foreground font-medium min-w-0">
                   <MapPin className="w-4 h-4 shrink-0" />
                   <span className="truncate">{venue}{city ? `, ${city}` : ""}</span>
+                </div>
+              ) : null}
+              {customQuestions.length > 0 && (
+                <div className="flex items-center gap-2 text-muted-foreground font-medium min-w-0">
+                  <HelpCircle className="w-4 h-4 shrink-0 text-secondary" />
+                  <span className="truncate">{customQuestions.length} custom question{customQuestions.length === 1 ? "" : "s"}</span>
                 </div>
               )}
               <div className="flex items-center gap-2 text-muted-foreground font-medium min-w-0">

@@ -2,9 +2,10 @@ import React from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { 
   Calendar, MapPin, Clock, User, Ticket, CheckCircle2, 
-  ShieldCheck, Sparkles, Building2
+  ShieldCheck, Building2, Globe
 } from "lucide-react";
 import { formatTicketCode } from "@/lib/ticketUtils";
+import { parseEventMetadata } from "@/lib/eventMetadata";
 
 export interface DigitalTicketCardProps {
   registration: {
@@ -21,12 +22,15 @@ export interface DigitalTicketCardProps {
     id: string;
     title: string;
     date: string;
+    description?: string | null;
     venue?: string | null;
     city?: string | null;
     country?: string | null;
     image_url?: string | null;
     category?: string | null;
     organiser_id?: string | null;
+    event_type?: string | null;
+    online_settings?: any;
   };
   ticketTier?: {
     name?: string | null;
@@ -45,6 +49,11 @@ export const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({
 }) => {
   const domId = elementId || `digital-ticket-${registration.id}`;
   const ticketCode = formatTicketCode(registration.id);
+
+  // Parse structured event metadata for online events
+  const meta = parseEventMetadata((event as any).description, event);
+  const isOnlineEvent = meta.eventType === "online";
+  const onlineSettings = meta.onlineSettings;
 
   // Format Event Date and Time
   const eventDateObj = new Date(event.date);
@@ -87,7 +96,7 @@ export const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
           <span className="font-heading font-black text-xs tracking-wider uppercase">
-            EVENTRALLY PASS
+            {isOnlineEvent ? "EVENTRALLY ONLINE PASS" : "EVENTRALLY PASS"}
           </span>
         </div>
         <span className="font-mono text-[11px] font-bold tracking-widest text-primary-foreground/90 uppercase">
@@ -99,10 +108,18 @@ export const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({
       <div className="p-5 space-y-4">
         {/* Category & Verified Status */}
         <div className="flex items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wider bg-secondary/10 text-secondary border border-secondary/20 px-2.5 py-0.5 rounded-full">
-            <Ticket className="w-3 h-3" />
-            {event.category || "General Event"}
-          </span>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wider bg-secondary/10 text-secondary border border-secondary/20 px-2.5 py-0.5 rounded-full">
+              <Ticket className="w-3 h-3" />
+              {event.category || "General Event"}
+            </span>
+            {isOnlineEvent && (
+              <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
+                <Globe className="w-2.5 h-2.5" />
+                VIRTUAL
+              </span>
+            )}
+          </div>
 
           <span
             className={`inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
@@ -152,11 +169,22 @@ export const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({
 
           <div className="col-span-2 space-y-1 pt-1">
             <div className="flex items-center gap-1.5 text-[11px] font-mono font-semibold text-muted-foreground uppercase">
-              <MapPin className="w-3.5 h-3.5 text-secondary" />
-              LOCATION
+              {isOnlineEvent ? <Globe className="w-3.5 h-3.5 text-secondary" /> : <MapPin className="w-3.5 h-3.5 text-secondary" />}
+              {isOnlineEvent ? "VIRTUAL LOCATION" : "LOCATION"}
             </div>
-            <div className="text-xs font-semibold text-foreground break-words line-clamp-2">
-              {[event.venue, event.city, event.country].filter(Boolean).join(", ") || "Venue details will be announced"}
+            <div className="text-xs font-semibold text-foreground break-words">
+              {isOnlineEvent ? (
+                <div className="space-y-0.5">
+                  <span className="text-foreground font-bold">Virtual / Online Event</span>
+                  {onlineSettings?.access_instructions && (
+                    <p className="text-[11px] text-muted-foreground font-normal line-clamp-2 mt-0.5">
+                      {onlineSettings.access_instructions}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                [event.venue, event.city, event.country].filter(Boolean).join(", ") || "Venue details will be announced"
+              )}
             </div>
           </div>
         </div>
@@ -202,13 +230,15 @@ export const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({
       <div className="p-5 bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="space-y-1.5 text-center sm:text-left">
           <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
-            GATE VERIFICATION
+            {isOnlineEvent ? "VIRTUAL ACCESS VERIFICATION" : "GATE VERIFICATION"}
           </div>
           <div className="font-mono text-sm font-black text-foreground tracking-widest">
             {ticketCode}
           </div>
           <p className="text-[10px] text-muted-foreground max-w-[200px] leading-relaxed">
-            Present this scannable QR pass at the entrance gate for instant check-in.
+            {isOnlineEvent
+              ? "Your verified digital pass confirms your access to this online event and attendee community."
+              : "Present this scannable QR pass at the entrance gate for instant check-in."}
           </p>
         </div>
 

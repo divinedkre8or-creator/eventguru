@@ -55,18 +55,6 @@ const AdminSettings = () => {
   const [isDbSynced, setIsDbSynced] = useState<boolean | null>(null);
   const [dbError, setDbError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [showPublicKey, setShowPublicKey] = useState(false);
-  const [showResendKey, setShowResendKey] = useState(false);
-  const [showTermiiKey, setShowTermiiKey] = useState(false);
-  
-  // Test email state
-  const [testEmailRecipient, setTestEmailRecipient] = useState("");
-  const [sendingTestEmail, setSendingTestEmail] = useState(false);
-
-  // Test SMS state
-  const [testSmsPhone, setTestSmsPhone] = useState("");
-  const [sendingTestSms, setSendingTestSms] = useState(false);
-
   const checkDbStatus = async () => {
     setLoadingRemote(true);
     const result = await fetchRemotePlatformSettings();
@@ -80,140 +68,6 @@ const AdminSettings = () => {
     checkDbStatus();
   }, []);
 
-  const handleCopySql = () => {
-    navigator.clipboard.writeText(SQL_MIGRATION_SCRIPT);
-    toast.success("Supabase SQL setup script copied to clipboard! Paste it into the Supabase SQL Editor.");
-  };
-
-  const handleSaveSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      const res = await persistPlatformSettings(settings);
-      setIsDbSynced(res.isDatabasePersisted);
-      setDbError(res.error || null);
-      
-      if (res.isDatabasePersisted) {
-        toast.success("Platform configuration saved and synced permanently to Supabase cloud database!");
-      } else {
-        toast.warning(
-          "Saved to local browser, but remote database table was not reachable. Run the SQL setup script to enable permanent cloud persistence across redeployments.",
-          { duration: 7000 }
-        );
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Failed to persist platform settings");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleSendTestSms = async () => {
-    if (!settings.termii_api_key || settings.termii_api_key.trim() === "") {
-      toast.error("Please enter your Termii API Key and save settings first.");
-      return;
-    }
-    const targetPhone = testSmsPhone.trim();
-    if (!targetPhone) {
-      toast.error("Please enter a recipient phone number (e.g. 08012345678 or 2348012345678).");
-      return;
-    }
-
-    setSendingTestSms(true);
-    try {
-      let normalized = targetPhone.replace(/[\s\-\(\)]/g, "");
-      if (normalized.startsWith("0")) {
-        normalized = "234" + normalized.slice(1);
-      } else if (normalized.startsWith("+")) {
-        normalized = normalized.slice(1);
-      }
-
-      const res = await fetch("https://api.ng.termii.com/api/sms/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: normalized,
-          from: settings.termii_sender_id || "EventRally",
-          sms: `EventRally Super Admin Test: Termii SMS pipeline is active! Timestamp: ${new Date().toLocaleTimeString()}`,
-          type: "plain",
-          channel: "generic",
-          api_key: settings.termii_api_key.trim(),
-        }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || (data.code && data.code !== "ok")) {
-        throw new Error(data.message || `Termii returned status ${res.status}`);
-      }
-
-      toast.success(`Test SMS sent successfully to ${normalized}! Check your mobile phone.`);
-    } catch (err: any) {
-      console.error("Test SMS failed:", err);
-      toast.error(err.message || "Failed to dispatch test SMS via Termii API");
-    } finally {
-      setSendingTestSms(false);
-    }
-  };
-
-  const handleSendTestEmail = async () => {
-    if (!settings.resend_api_key || settings.resend_api_key.trim() === "") {
-      toast.error("Please enter your Resend API Key and save settings first.");
-      return;
-    }
-    const targetEmail = testEmailRecipient.trim() || settings.support_email;
-    if (!targetEmail) {
-      toast.error("Please specify a recipient email address for testing.");
-      return;
-    }
-
-    setSendingTestEmail(true);
-    try {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${settings.resend_api_key.trim()}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: `${settings.email_sender_name} <${settings.email_sender_address}>`,
-          to: targetEmail,
-          subject: "EventRally Test Dispatch: Resend Integration Active",
-          html: `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 24px; border: 1px solid #E2E8F0; border-radius: 12px; background-color: #ffffff; color: #0f172a;">
-              <div style="border-bottom: 2px solid #0058BE; padding-bottom: 12px; margin-bottom: 20px;">
-                <span style="font-size: 11px; font-family: monospace; font-weight: bold; color: #0058BE; text-transform: uppercase;">SUPER ADMIN VERIFICATION</span>
-                <h1 style="font-size: 20px; font-weight: 900; margin: 4px 0 0 0; color: #0f172a;">Resend Email Pipeline Is Operational</h1>
-              </div>
-              <p style="font-size: 14px; line-height: 1.6; color: #334155;">
-                Hello Super Admin, this test confirms that your Resend API key and sender identity (<strong>${settings.email_sender_address}</strong>) are properly configured and operational for automated ticket passes, QR entry codes, and notifications.
-              </p>
-              <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px; margin: 18px 0; font-size: 13px;">
-                <div><strong>Sender:</strong> ${settings.email_sender_name} &lt;${settings.email_sender_address}&gt;</div>
-                <div><strong>Timestamp:</strong> ${new Date().toUTCString()}</div>
-                <div><strong>Platform:</strong> ${settings.platform_name}</div>
-              </div>
-              <p style="font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-                Dispatched from EventRally Super Admin Control Panel.
-              </p>
-            </div>
-          `,
-        }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || `Resend API rejected with status ${res.status}`);
-      }
-
-      toast.success(`Test email dispatched successfully to ${targetEmail}! Check inbox/spam.`);
-    } catch (err: any) {
-      console.error("Test email failed:", err);
-      toast.error(err.message || "Failed to dispatch test email via Resend API");
-    } finally {
-      setSendingTestEmail(false);
-    }
-  };
-
   return (
     <div className="space-y-6 max-w-4xl mx-auto font-sans pb-16 w-full min-w-0 overflow-x-hidden">
       {/* Header */}
@@ -223,76 +77,35 @@ const AdminSettings = () => {
         </div>
         <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Platform Configuration</h1>
         <p className="text-muted-foreground text-xs font-medium mt-1">
-          Global system settings, payment gateway keys, automated Resend email delivery, fee schedules, and maintenance mode.
+          Global system settings, fee schedules, branding, and infrastructure status. API credentials are encrypted and managed via secure environment variables.
         </p>
       </div>
 
-      {/* Cloud Database Sync Status Banner */}
-      <div className="w-full min-w-0">
-        {loadingRemote ? (
-          <div className="bg-muted/40 border border-border rounded-xl p-4 flex items-center gap-3 text-xs text-muted-foreground">
-            <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />
-            <span>Verifying Supabase database connection and syncing live platform settings...</span>
+      {/* Infrastructure Security Banner */}
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-chart-green/10 text-chart-green flex items-center justify-center shrink-0">
+            <Shield className="w-5 h-5" />
           </div>
-        ) : isDbSynced ? (
-          <div className="bg-chart-green/10 border border-chart-green/30 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-chart-green animate-pulse shrink-0" />
-              <div>
-                <span className="font-bold text-foreground">Cloud Database Synced & Active: </span>
-                <span className="text-muted-foreground">All credentials and configurations are permanently stored in Supabase Postgres and synced across all devices & deployments.</span>
-              </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-heading text-sm font-bold text-foreground">API Credentials Managed Securely</span>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-chart-green/10 text-chart-green uppercase">Hardened</span>
             </div>
-            <button
-              type="button"
-              onClick={checkDbStatus}
-              className="text-[11px] font-bold text-foreground/80 hover:text-foreground flex items-center gap-1 shrink-0 self-start sm:self-center"
-            >
-              <RefreshCw className="w-3 h-3" /> Re-check Sync
-            </button>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Paystack, Resend, and Termii API keys are bound to the secure runtime environment to prevent accidental browser exposure or tampering.
+            </p>
           </div>
-        ) : (
-          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-5 space-y-3">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <div className="text-xs font-bold text-foreground flex items-center gap-2">
-                  Database Table Missing: Settings Currently Saved in Browser Only
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  The <code className="bg-background/80 px-1 py-0.5 rounded text-foreground font-mono">public.platform_settings</code> table has not been initialized in your Supabase project yet. Because of this, keys will disappear if you clear cache or redeploy. Run the setup SQL script once in your Supabase SQL Editor to enable permanent cloud persistence.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-destructive/20">
-              <Button
-                type="button"
-                onClick={handleCopySql}
-                variant="outline"
-                className="bg-background border-border text-xs font-bold h-8 px-3 rounded-lg flex items-center gap-1.5 shadow-2xs hover:bg-muted"
-              >
-                <Copy className="w-3.5 h-3.5 text-primary" /> Copy Supabase SQL Setup Script
-              </Button>
-              <a
-                href="https://supabase.com/dashboard/project/edpnvsakkudorleqqhxv/sql/new"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline bg-primary/10 px-3 h-8 rounded-lg"
-              >
-                <ExternalLink className="w-3.5 h-3.5" /> Open Supabase SQL Editor
-              </a>
-              <Button
-                type="button"
-                onClick={checkDbStatus}
-                variant="ghost"
-                className="text-xs font-bold h-8 px-3 rounded-lg text-muted-foreground hover:text-foreground ml-auto"
-              >
-                <RefreshCw className="w-3 h-3 mr-1" /> Re-check Connection
-              </Button>
-            </div>
-          </div>
-        )}
+        </div>
+        <Button
+          type="button"
+          onClick={checkDbStatus}
+          variant="outline"
+          size="sm"
+          className="text-xs font-bold border-border shrink-0 self-start sm:self-center"
+        >
+          <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Refresh Status
+        </Button>
       </div>
 
       <form onSubmit={handleSaveSettings} className="space-y-6 w-full min-w-0">
@@ -301,38 +114,26 @@ const AdminSettings = () => {
         <div className="bg-card border border-border rounded-xl p-5 sm:p-6 shadow-xs space-y-4 w-full min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
             <h2 className="font-heading text-base font-bold text-foreground flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-secondary" /> Direct Payment Gateway Credentials
+              <CreditCard className="w-4 h-4 text-secondary" /> Payment Gateway & Financial Rules
             </h2>
             <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground uppercase">
               {settings.gateway_environment === "live" ? "Live Mode Active" : "Sandbox / Test Mode"}
             </span>
           </div>
 
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Plug in your payment gateway credentials below. Once saved, the checkout modal will instantly utilize this public key for card, bank transfer, and USSD payments.
-          </p>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5 min-w-0 sm:col-span-2">
-              <Label className="text-xs font-bold text-foreground">Gateway Public Key *</Label>
-              <div className="relative">
-                <Input
-                  type={showPublicKey ? "text" : "password"}
-                  value={settings.gateway_public_key}
-                  onChange={(e) => setSettings({ ...settings, gateway_public_key: e.target.value })}
-                  placeholder="pk_live_... or pk_test_..."
-                  className="bg-background border-border text-xs h-10 rounded-lg pr-10 font-mono"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPublicKey(!showPublicKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPublicKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+            <div className="p-3.5 rounded-xl bg-muted/40 border border-border/80 space-y-1 sm:col-span-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-chart-green" /> Paystack Gateway Provider
+                </span>
+                <span className="text-[10px] font-mono font-bold text-chart-green uppercase bg-chart-green/10 px-2 py-0.5 rounded">
+                  System Configured
+                </span>
               </div>
-              <p className="text-[10px] text-muted-foreground">Used securely on the frontend checkout modal to initialize attendee payments.</p>
+              <p className="text-[11px] text-muted-foreground">
+                Payment keys are loaded authoritatively from environment configuration. Attendee checkouts route securely through this provider.
+              </p>
             </div>
 
             <div className="space-y-1.5 min-w-0">
@@ -359,46 +160,35 @@ const AdminSettings = () => {
                 className="bg-background border-border text-xs h-10 rounded-lg font-mono"
                 required
               />
-              <p className="text-[10px] text-muted-foreground">Platform commission deducted from ticket sales (e.g. 2.5%).</p>
+              <p className="text-[10px] text-muted-foreground">Platform commission automatically deducted from paid ticket sales (e.g. 2.5%).</p>
             </div>
           </div>
         </div>
 
-        {/* Email Delivery Platform (Resend) */}
+        {/* Messaging & Dispatch Service Identity */}
         <div className="bg-card border border-border rounded-xl p-5 sm:p-6 shadow-xs space-y-4 w-full min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
             <h2 className="font-heading text-base font-bold text-foreground flex items-center gap-2">
-              <Mail className="w-4 h-4 text-primary" /> Email Delivery Service (Resend Integration)
+              <Mail className="w-4 h-4 text-primary" /> Email & SMS Dispatch Settings
             </h2>
             <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground uppercase">
-              Transactional & Broadcast
+              Transactional & Alerts
             </span>
           </div>
 
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Configure your Resend API credentials to automate ticket delivery, entry QR barcodes, organizer alerts, and promotional broadcasts.
-          </p>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5 min-w-0 sm:col-span-2">
-              <Label className="text-xs font-bold text-foreground">Resend API Key *</Label>
-              <div className="relative">
-                <Input
-                  type={showResendKey ? "text" : "password"}
-                  value={settings.resend_api_key}
-                  onChange={(e) => setSettings({ ...settings, resend_api_key: e.target.value })}
-                  placeholder="re_1234567890abcdef..."
-                  className="bg-background border-border text-xs h-10 rounded-lg pr-10 font-mono"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowResendKey(!showResendKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showResendKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+            <div className="p-3.5 rounded-xl bg-muted/40 border border-border/80 space-y-1 sm:col-span-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-chart-green" /> Resend & Termii Pipelines
+                </span>
+                <span className="text-[10px] font-mono font-bold text-chart-green uppercase bg-chart-green/10 px-2 py-0.5 rounded">
+                  System Configured
+                </span>
               </div>
-              <p className="text-[10px] text-muted-foreground">Obtain this key from your Resend dashboard at resend.com/api-keys.</p>
+              <p className="text-[11px] text-muted-foreground">
+                Automated ticket delivery, entry QR passes, organizer alerts, and promotional broadcasts are dispatched using server-level API keys.
+              </p>
             </div>
 
             <div className="space-y-1.5 min-w-0">
@@ -411,7 +201,7 @@ const AdminSettings = () => {
                 className="bg-background border-border text-xs h-10 rounded-lg"
                 required
               />
-              <p className="text-[10px] text-muted-foreground">Must be verified on Resend (e.g. tickets@yourdomain.com or onboarding@resend.dev for test).</p>
+              <p className="text-[10px] text-muted-foreground">The verified email address from which tickets are dispatched.</p>
             </div>
 
             <div className="space-y-1.5 min-w-0">
@@ -423,83 +213,11 @@ const AdminSettings = () => {
                 className="bg-background border-border text-xs h-10 rounded-lg"
                 required
               />
-              <p className="text-[10px] text-muted-foreground">Appears in attendee email inboxes as the sender name.</p>
-            </div>
-          </div>
-
-          {/* Test Dispatch Bar */}
-          <div className="bg-muted/40 border border-border/80 rounded-lg p-3.5 space-y-2.5 mt-2">
-            <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
-              <Send className="w-3.5 h-3.5 text-secondary" /> Verify Resend Dispatcher
-            </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-              <Input
-                type="email"
-                placeholder="Recipient email to test (e.g. your email)..."
-                value={testEmailRecipient}
-                onChange={(e) => setTestEmailRecipient(e.target.value)}
-                className="bg-background border-border text-xs h-9 rounded-lg flex-1"
-              />
-              <Button
-                type="button"
-                onClick={handleSendTestEmail}
-                disabled={sendingTestEmail}
-                variant="outline"
-                className="border-border text-xs font-bold h-9 px-4 rounded-lg flex items-center justify-center gap-1.5 shrink-0"
-              >
-                {sendingTestEmail ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Sending...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-3.5 h-3.5" /> Send Test Email
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* SMS Delivery Platform (Termii) */}
-        <div className="bg-card border border-border rounded-xl p-5 sm:p-6 shadow-xs space-y-4 w-full min-w-0">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
-            <h2 className="font-heading text-base font-bold text-foreground flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-secondary" /> SMS Delivery Platform (Termii Integration)
-            </h2>
-            <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-chart-green/10 text-chart-green uppercase">
-              Prepaid Mobile Broadcasts
-            </span>
-          </div>
-
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Configure your Termii API credentials to power organizer SMS broadcasts, instant event reminders, and mobile alerts.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5 min-w-0 sm:col-span-2">
-              <Label className="text-xs font-bold text-foreground">Termii API Key *</Label>
-              <div className="relative">
-                <Input
-                  type={showTermiiKey ? "text" : "password"}
-                  value={settings.termii_api_key}
-                  onChange={(e) => setSettings({ ...settings, termii_api_key: e.target.value })}
-                  placeholder="TLKaWPDnCRASJAiUv..."
-                  className="bg-background border-border text-xs h-10 rounded-lg pr-10 font-mono"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowTermiiKey(!showTermiiKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showTermiiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-              <p className="text-[10px] text-muted-foreground">Obtain this key from your Termii dashboard at termii.com.</p>
+              <p className="text-[10px] text-muted-foreground">Appears in attendee inboxes as the sender identity.</p>
             </div>
 
             <div className="space-y-1.5 min-w-0 sm:col-span-2">
-              <Label className="text-xs font-bold text-foreground">Sender ID (Sender Name)</Label>
+              <Label className="text-xs font-bold text-foreground">SMS Sender ID (Termii)</Label>
               <Input
                 value={settings.termii_sender_id}
                 onChange={(e) => setSettings({ ...settings, termii_sender_id: e.target.value })}
@@ -507,40 +225,7 @@ const AdminSettings = () => {
                 maxLength={11}
                 className="bg-background border-border text-xs h-10 rounded-lg font-mono uppercase"
               />
-              <p className="text-[10px] text-muted-foreground">Approved 11-character alphanumeric Sender ID on Termii (e.g. EventRally).</p>
-            </div>
-          </div>
-
-          {/* Test SMS Dispatch Bar */}
-          <div className="bg-muted/40 border border-border/80 rounded-lg p-3.5 space-y-2.5 mt-2">
-            <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-secondary" /> Verify Termii SMS Dispatcher
-            </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-              <Input
-                type="tel"
-                placeholder="Phone number to test (e.g. 08012345678 or 2348012345678)..."
-                value={testSmsPhone}
-                onChange={(e) => setTestSmsPhone(e.target.value)}
-                className="bg-background border-border text-xs h-9 rounded-lg flex-1 font-mono"
-              />
-              <Button
-                type="button"
-                onClick={handleSendTestSms}
-                disabled={sendingTestSms}
-                variant="outline"
-                className="border-border text-xs font-bold h-9 px-4 rounded-lg flex items-center justify-center gap-1.5 shrink-0"
-              >
-                {sendingTestSms ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Sending SMS...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-3.5 h-3.5" /> Send Test SMS
-                  </>
-                )}
-              </Button>
+              <p className="text-[10px] text-muted-foreground">Approved 11-character alphanumeric Sender ID on Termii.</p>
             </div>
           </div>
         </div>

@@ -24,6 +24,10 @@ export interface TicketEmailData {
   currency?: string;
   eventUrl: string;
   dpUrl: string;
+  isOnline?: boolean;
+  meetingLink?: string;
+  whatsappLink?: string;
+  accessInstructions?: string;
 }
 
 export interface OrganizerAlertData {
@@ -162,6 +166,12 @@ export async function sendTicketConfirmationEmail(data: TicketEmailData) {
                 <td style="padding: 6px 0; color: #64748B;">Venue:</td>
                 <td style="padding: 6px 0; font-weight: bold; color: #0F172A;">${data.venueName}</td>
               </tr>
+              ${data.isOnline && data.accessInstructions ? `
+              <tr>
+                <td style="padding: 6px 0; color: #64748B;">Access Note:</td>
+                <td style="padding: 6px 0; color: #0F172A;">${data.accessInstructions}</td>
+              </tr>
+              ` : ''}
               <tr>
                 <td style="padding: 6px 0; color: #64748B;">Pass Fee:</td>
                 <td style="padding: 6px 0; font-weight: bold; color: #0F172A;">${priceDisplay}</td>
@@ -172,6 +182,29 @@ export async function sendTicketConfirmationEmail(data: TicketEmailData) {
               </tr>
             </table>
           </div>
+
+          ${data.isOnline && (data.meetingLink || data.whatsappLink) ? `
+          <!-- Online Links Callout -->
+          <div style="background-color: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 18px; margin-bottom: 24px; text-align: center;">
+            <div style="font-size: 12px; font-weight: bold; color: #065F46; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;">
+              OFFICIAL ONLINE EVENT ACCESS
+            </div>
+            ${data.whatsappLink ? `
+              <div style="margin-bottom: 8px;">
+                <a href="${data.whatsappLink}" style="display: block; background-color: #25D366; color: #FFFFFF; font-size: 13px; font-weight: bold; text-decoration: none; padding: 10px 20px; border-radius: 8px;">
+                  Join WhatsApp Attendee Community
+                </a>
+              </div>
+            ` : ''}
+            ${data.meetingLink ? `
+              <div>
+                <a href="${data.meetingLink}" style="display: block; background-color: #0058BE; color: #FFFFFF; font-size: 13px; font-weight: bold; text-decoration: none; padding: 10px 20px; border-radius: 8px;">
+                  Open Online Event Room
+                </a>
+              </div>
+            ` : ''}
+          </div>
+          ` : ''}
 
           <!-- CTAs -->
           <div style="text-align: center; margin-bottom: 24px;">

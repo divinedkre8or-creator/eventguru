@@ -1,10 +1,18 @@
 import { useState } from "react";
-import { Users, Search, Download, CheckCircle2, XCircle, Clock, Mail, Phone, Filter } from "lucide-react";
+import { Users, Search, Download, CheckCircle2, XCircle, Clock, Mail, Phone, Filter, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { parseEventMetadata } from "@/lib/eventMetadata";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const statusConfig: Record<string, { color: string; label: string }> = {
   confirmed: { color: "bg-chart-green/10 text-chart-green border-chart-green/30", label: "Confirmed" },
@@ -18,6 +26,7 @@ const Attendees = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [checkinFilter, setCheckinFilter] = useState("all");
+  const [selectedAttendee, setSelectedAttendee] = useState<any | null>(null);
 
   const { data: registrations = [], isLoading } = useQuery({
     queryKey: ["organiser-registrations-v2", user?.id],
@@ -32,7 +41,7 @@ const Attendees = () => {
       const eventIds = events.map((e: any) => e.id);
       const { data, error } = await supabase
         .from("registrations")
-        .select("*, events(title), ticket_types(name)")
+        .select("*, events(id, title, description), ticket_types(name)")
         .in("event_id", eventIds)
         .order("created_at", { ascending: false });
 
@@ -61,21 +70,74 @@ const Attendees = () => {
 
   const handleExport = () => {
     if (filtered.length === 0) return;
-    const headers = ["Name", "Email", "Phone", "Event", "Ticket", "Amount Paid", "Payment Ref", "Status", "Checked In", "Date"];
-    const rows = filtered.map((r: any) => [
-      r.full_name,
-      r.email,
-      r.phone || "",
-      (r.events as any)?.title || "",
-      (r.ticket_types as any)?.name || "",
-      r.amount_paid?.toString() || "0",
-      r.payment_reference || "",
-      r.status,
-      r.checked_in ? "Yes" : "No",
-      new Date(r.created_at).toLocaleDateString(),
-    ]);
-    const csv = [headers, ...rows].map((row) => row.map((v: string) => `"${v}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
+
+    // Collect all unique custom question IDs and labels across all matching events
+    const questionMap = new Map<string, string>();
+    filtered.forEach((r: any) => {
+      const meta = parseEventMetadata((r.events as any)?.description, r.events);
+      meta.customQuestions.forEach((q) => {
+        if (!questionMap.has(q.id)) {
+          questionMap.set(q.id, q.label);
+        }
+      });
+      if (r.custom_answers && typeof r.custom_answers === "object") {
+        Object.keys(r.custom_answers).forEach((k) => {
+          if (!questionMap.has(k)) {
+            questionMap.set(k, k);
+          }
+        });
+      }
+    });
+
+    const customQIds = Array.from(questionMap.keys());
+    const customQLabels = customQIds.map((id) => questionMap.get(id) || id);
+
+    const headers = [
+      "Name",
+      "Email",
+      "Phone",
+      "Event",
+      "Ticket",
+      "Amount Paid",
+      "Payment Ref",
+      "Status",
+      "Checked In",
+      "Date",
+      ...customQLabels,
+    ];
+
+    const rows = filtered.map((r: any) => {
+      const answers = r.custom_answers || {};
+      const answerCols = customQIds.map((id) => {
+        const val = answers[id];
+        if (val === undefined || val === null) return "";
+        if (Array.isArray(val)) return val.join("; ");
+        return String(val);
+      });
+
+      return [
+        r.full_name || "",
+        r.email || "",
+        r.phone || "",
+        (r.events as any)?.title || "",
+        (r.ticket_types as any)?.name || "",
+        r.amount_paid?.toString() || "0",
+        r.payment_reference || "",
+        r.status || "",
+        r.checked_in ? "Yes" : "No",
+        r.created_at ? new Date(r.created_at).toLocaleDateString() : "",
+        ...answerCols,
+      ];
+    });
+
+    const csv = [headers, ...rows]
+      .map((row) =>
+        row
+          .map((v: string) => `"${String(v).replace(/"/g, '""')}"`)
+          .join(",")
+      )
+      .join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -158,7 +220,7 @@ const Attendees = () => {
       ) : (
         <div className="bg-card rounded-lg border border-border overflow-hidden shadow-sm w-full min-w-0">
           <div className="overflow-x-auto w-full max-w-full">
-            <table className="w-full text-left text-xs min-w-[650px]">
+            <table className="w-full text-left text-xs min-w-[750px]">
               <thead className="bg-muted/50 border-b border-border font-mono text-[10px] text-muted-foreground uppercase tracking-wider">
                 <tr>
                   <th className="p-3.5 pl-4">Guest Name</th>
@@ -166,6 +228,7 @@ const Attendees = () => {
                   <th className="p-3.5">Event</th>
                   <th className="p-3.5">Ticket Tier</th>
                   <th className="p-3.5">Amount Paid</th>
+                  <th className="p-3.5">Answers</th>
                   <th className="p-3.5">Status</th>
                   <th className="p-3.5 pr-4 text-right">Check-In</th>
                 </tr>
@@ -173,6 +236,10 @@ const Attendees = () => {
               <tbody className="divide-y divide-border/60">
                 {filtered.map((reg: any) => {
                   const cfg = statusConfig[reg.status] || statusConfig.pending;
+                  const answersCount = reg.custom_answers && typeof reg.custom_answers === "object"
+                    ? Object.keys(reg.custom_answers).length
+                    : 0;
+
                   return (
                     <tr key={reg.id} className="hover:bg-muted/40 transition-colors">
                       <td className="p-3.5 pl-4 font-bold text-foreground">
@@ -187,6 +254,20 @@ const Attendees = () => {
                       <td className="p-3.5 font-medium text-foreground truncate max-w-[180px]">{(reg.events as any)?.title || "—"}</td>
                       <td className="p-3.5 font-mono font-bold text-foreground">{(reg.ticket_types as any)?.name || "General"}</td>
                       <td className="p-3.5 font-mono text-foreground">{reg.amount_paid > 0 ? `₦${reg.amount_paid.toLocaleString()}` : "Free"}</td>
+                      <td className="p-3.5">
+                        {answersCount > 0 ? (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedAttendee(reg)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-mono font-bold bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/20 transition-colors"
+                          >
+                            <FileText className="w-3 h-3" />
+                            <span>{answersCount} {answersCount === 1 ? "answer" : "answers"}</span>
+                          </button>
+                        ) : (
+                          <span className="text-muted-foreground/40 font-mono text-[11px]">—</span>
+                        )}
+                      </td>
                       <td className="p-3.5">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${cfg.color}`}>
                           {cfg.label}
@@ -211,6 +292,57 @@ const Attendees = () => {
           </div>
         </div>
       )}
+
+      {/* Attendee Custom Answers Modal */}
+      <Dialog open={!!selectedAttendee} onOpenChange={(open) => !open && setSelectedAttendee(null)}>
+        <DialogContent className="max-w-md bg-card text-foreground border-border rounded-2xl p-6">
+          <DialogHeader>
+            <div className="flex items-center gap-2 text-[11px] font-mono font-bold uppercase text-secondary">
+              <FileText className="w-3.5 h-3.5" />
+              <span>REGISTRATION QUESTION RESPONSES</span>
+            </div>
+            <DialogTitle className="font-heading text-lg font-black text-foreground">
+              {selectedAttendee?.full_name}
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              {(selectedAttendee?.events as any)?.title || "Event"} • {selectedAttendee?.email}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-4 space-y-3.5 max-h-[60vh] overflow-y-auto pr-1">
+            {(() => {
+              if (!selectedAttendee) return null;
+              const meta = parseEventMetadata((selectedAttendee.events as any)?.description, selectedAttendee.events);
+              const qMap = new Map(meta.customQuestions.map(q => [q.id, q.label]));
+              const answers = selectedAttendee.custom_answers || {};
+              const entries = Object.entries(answers);
+
+              if (entries.length === 0) {
+                return (
+                  <p className="text-xs text-muted-foreground text-center py-4">
+                    No custom question responses recorded for this attendee.
+                  </p>
+                );
+              }
+
+              return entries.map(([qId, val], idx) => {
+                const label = qMap.get(qId) || qId;
+                const displayVal = Array.isArray(val) ? val.join(", ") : String(val);
+                return (
+                  <div key={idx} className="bg-muted/40 border border-border/70 rounded-xl p-3.5 space-y-1">
+                    <div className="text-[11px] font-mono font-semibold text-muted-foreground uppercase">
+                      {label}
+                    </div>
+                    <div className="text-sm font-semibold text-foreground whitespace-pre-wrap">
+                      {displayVal || "—"}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

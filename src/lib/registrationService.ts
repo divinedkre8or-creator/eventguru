@@ -26,6 +26,8 @@ export interface SubmitRegistrationInput {
   paymentReference?: string | null;
   /** Optional linked user id, used only on the legacy fallback path. */
   userId?: string | null;
+  /** Custom question responses captured during checkout */
+  customAnswers?: Record<string, any> | null;
 }
 
 export interface SubmitRegistrationResult {
@@ -49,6 +51,7 @@ export async function submitRegistration(input: SubmitRegistrationInput): Promis
         phone: input.phone ?? null,
         quantity: input.quantity,
         paymentReference: input.paymentReference ?? null,
+        customAnswers: input.customAnswers ?? null,
       },
     });
 
@@ -79,7 +82,7 @@ async function legacyDirectInsert(input: SubmitRegistrationInput): Promise<Submi
   // Pre-generate the id so we never depend on RETURNING-select RLS policies.
   const registrationId = crypto.randomUUID();
 
-  const { error: regError } = await supabase.from("registrations").insert({
+  const insertPayload: any = {
     id: registrationId,
     event_id: input.eventId,
     user_id: input.userId ?? null,
@@ -91,7 +94,20 @@ async function legacyDirectInsert(input: SubmitRegistrationInput): Promise<Submi
     payment_reference: input.paymentReference ?? null,
     status: "completed",
     checked_in: false,
-  });
+  };
+
+  if (input.customAnswers && Object.keys(input.customAnswers).length > 0) {
+    insertPayload.custom_answers = input.customAnswers;
+  }
+
+  let { error: regError } = await supabase.from("registrations").insert(insertPayload);
+  // Resilient fallback: If live Supabase does not yet have custom_answers column, retry without it
+  if (regError && insertPayload.custom_answers) {
+    console.warn("Retrying registration insert without custom_answers column:", regError.message);
+    delete insertPayload.custom_answers;
+    const retry = await supabase.from("registrations").insert(insertPayload);
+    regError = retry.error;
+  }
 
   if (regError) throw regError;
 

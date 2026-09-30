@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Calendar, MapPin, Tag, Users, ArrowLeft, Loader2, 
-  Image as ImageIcon, Edit2, Trash2, Share2, AlertCircle 
+  Image as ImageIcon, Edit2, Trash2, Share2, AlertCircle, Globe, MessageSquare 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +14,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { slugify, getEventUrl, getEventDpUrl } from "@/lib/slugUtils";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { parseEventMetadata } from "@/lib/eventMetadata";
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -123,36 +124,14 @@ const EventDetails = () => {
   const eventDateObj = new Date(date);
   const isPastEvent = !isNaN(eventDateObj.getTime()) && eventDateObj.getTime() < Date.now();
 
-  // Parse Description, Schedule, Additional Info
-  let rawDesc = description || "";
-  let parsedDesc = rawDesc;
-  let parsedSchedule: Array<{ date: string; startTime: string; endTime?: string }> = [];
-  let parsedAdditional = "";
-  let parsedBrandColor = "";
-  if (rawDesc.includes("|||BRAND_COLOR|||")) {
-    const bcParts = rawDesc.split("|||BRAND_COLOR|||");
-    rawDesc = bcParts[0];
-    parsedBrandColor = (bcParts[1] || "").trim();
-  }
-
-  if (rawDesc.includes("|||ADDITIONAL_INFO|||")) {
-    const parts = rawDesc.split("|||ADDITIONAL_INFO|||");
-    parsedDesc = parts[0];
-    parsedAdditional = parts[1] || "";
-  }
-
-  if (parsedDesc.includes("|||SCHEDULE|||")) {
-    const parts = parsedDesc.split("|||SCHEDULE|||");
-    parsedDesc = parts[0];
-    try {
-      parsedSchedule = JSON.parse(parts[1]);
-    } catch (e) {
-      console.error("Failed to parse schedule JSON", e);
-    }
-  }
-  
-  parsedDesc = parsedDesc.trim();
-  parsedAdditional = parsedAdditional.trim();
+  // Parse structured metadata using unified eventMetadata parser
+  const meta = parseEventMetadata(description, event);
+  const isOnlineEvent = meta.eventType === "online";
+  const parsedDesc = meta.cleanDescription;
+  const parsedSchedule = meta.schedule;
+  const parsedAdditional = meta.additionalInfo;
+  const parsedBrandColor = meta.brandColor;
+  const onlineSettings = meta.onlineSettings;
 
   // If no schedule JSON exists but date/end_date exist, format a fallback display
   let fallbackSchedule = "";
@@ -183,16 +162,23 @@ const EventDetails = () => {
         startDate: event.date,
         ...(event.end_date ? { endDate: event.end_date } : {}),
         eventStatus: "https://schema.org/EventScheduled",
-        eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-        location: {
-          "@type": "Place",
-          name: event.venue || event.city || "Venue TBA",
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: event.city || "Lagos",
-            addressCountry: event.country || "NG",
-          },
-        },
+        eventAttendanceMode: isOnlineEvent
+          ? "https://schema.org/OnlineEventAttendanceMode"
+          : "https://schema.org/OfflineEventAttendanceMode",
+        location: isOnlineEvent
+          ? {
+              "@type": "VirtualLocation",
+              url: typeof window !== "undefined" ? window.location.href : `https://eventrally.com${getEventUrl(event)}`,
+            }
+          : {
+              "@type": "Place",
+              name: event.venue || event.city || "Venue TBA",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: event.city || "Lagos",
+                addressCountry: event.country || "NG",
+              },
+            },
         image: event.image_url ? [event.image_url] : ["https://eventrally.com/ER%20full%20logo.png"],
         organizer: {
           "@type": "Organization",
@@ -303,11 +289,19 @@ const EventDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-20">
           <div className="lg:col-span-2 space-y-8">
             <div className="space-y-4 border-b border-border pb-8">
-              <div
-                className={`text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded inline-block ${parsedBrandColor ? '' : 'bg-muted text-foreground'}`}
-                style={parsedBrandColor ? { backgroundColor: `${parsedBrandColor}20`, color: parsedBrandColor } : undefined}
-              >
-                {category?.replace("-", " ")}
+              <div className="flex flex-wrap items-center gap-2">
+                <div
+                  className={`text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded inline-block ${parsedBrandColor ? '' : 'bg-muted text-foreground'}`}
+                  style={parsedBrandColor ? { backgroundColor: `${parsedBrandColor}20`, color: parsedBrandColor } : undefined}
+                >
+                  {category?.replace("-", " ")}
+                </div>
+                {isOnlineEvent && (
+                  <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                    <Globe className="w-3 h-3" />
+                    <span>Online Event</span>
+                  </div>
+                )}
               </div>
               <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-black text-foreground leading-tight tracking-tight">
                 {title}
@@ -347,19 +341,37 @@ const EventDetails = () => {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="bg-destructive/10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
-                    <MapPin className="w-5 h-5 text-destructive" />
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isOnlineEvent ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'}`}>
+                    {isOnlineEvent ? <Globe className="w-5 h-5" /> : <MapPin className="w-5 h-5" />}
                   </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-foreground">Where</h3>
-                    <p className="text-muted-foreground text-xs mt-1">
-                      {venue || "Online Event"}
-                      {(city || country) && (
-                        <span className="block mt-0.5">
-                          {[city, country].filter(Boolean).join(", ")}
-                        </span>
-                      )}
-                    </p>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-sm text-foreground">{isOnlineEvent ? "Virtual Location" : "Where"}</h3>
+                    {isOnlineEvent ? (
+                      <div className="mt-1 space-y-1.5 text-xs text-muted-foreground">
+                        <p className="font-semibold text-foreground flex items-center gap-1.5">
+                          <Globe className="w-3.5 h-3.5 text-primary" />
+                          <span>Virtual / Online Event</span>
+                        </p>
+                        <p className="text-[11px] leading-relaxed">
+                          Session access and community links are provided instantly upon registration confirmation.
+                        </p>
+                        {onlineSettings?.whatsapp_group_link && (
+                          <div className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/20">
+                            <MessageSquare className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                            <span>Attendee Community Included</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-xs mt-1">
+                        {venue || "Venue TBA"}
+                        {(city || country) && (
+                          <span className="block mt-0.5">
+                            {[city, country].filter(Boolean).join(", ")}
+                          </span>
+                        )}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

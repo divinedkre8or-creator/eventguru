@@ -43,13 +43,13 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   gateway_environment: "live",
   platform_fee_percent: 2.5,
   
-  resend_api_key: "",
-  email_sender_address: "tickets@send.geteventrally.com",
-  email_sender_name: "EventRally Tickets",
-  email_reply_to: "support@geteventrally.com",
+  resend_api_key: import.meta.env.VITE_RESEND_API_KEY || "",
+  email_sender_address: import.meta.env.VITE_RESEND_SENDER_EMAIL || "tickets@send.geteventrally.com",
+  email_sender_name: import.meta.env.VITE_RESEND_SENDER_NAME || "EventRally Tickets",
+  email_reply_to: import.meta.env.VITE_RESEND_REPLY_TO || "support@geteventrally.com",
 
-  termii_api_key: "",
-  termii_sender_id: "Termii",
+  termii_api_key: import.meta.env.VITE_TERMII_API_KEY || "",
+  termii_sender_id: import.meta.env.VITE_TERMII_SENDER_ID || "Termii",
   
   maintenance_mode: false,
   announcement_banner: "",
@@ -135,9 +135,9 @@ export async function fetchRemotePlatformSettings(): Promise<PlatformSettingsFet
         ...local,
         ...data.settings,
         // If remote has empty gateway key but local has one, keep local (and vice-versa)
-        gateway_public_key: data.settings.gateway_public_key || local.gateway_public_key || "",
-        resend_api_key: data.settings.resend_api_key || local.resend_api_key || "",
-        termii_api_key: data.settings.termii_api_key || local.termii_api_key || "",
+        gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || data.settings.gateway_public_key || local.gateway_public_key || "",
+        resend_api_key: import.meta.env.VITE_RESEND_API_KEY || data.settings.resend_api_key || local.resend_api_key || "",
+        termii_api_key: import.meta.env.VITE_TERMII_API_KEY || data.settings.termii_api_key || local.termii_api_key || "",
       };
       savePlatformSettings(merged);
       return {

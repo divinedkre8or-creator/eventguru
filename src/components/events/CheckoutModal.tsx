@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   X, Loader2, Mail, CreditCard, ShieldCheck, CheckCircle2, 
-  Sparkles, Image as ImageIcon, ArrowRight, Wallet, ExternalLink 
+  Image as ImageIcon, ArrowRight, Wallet, ExternalLink,
+  Globe, MessageSquare, Info
 } from "lucide-react";
 import { usePaystackPayment } from "react-paystack";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { TicketActions } from "@/components/tickets/TicketActions";
 import { getActiveGatewayPublicKey, calculatePaymentBreakdown } from "@/lib/platformSettings";
 import { sendTicketConfirmationEmail } from "@/lib/emailService";
 import { submitRegistration, RegistrationRejectedError } from "@/lib/registrationService";
+import { parseEventMetadata, CustomQuestion } from "@/lib/eventMetadata";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -37,6 +39,64 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
   const [isCompleted, setIsCompleted] = useState(false);
   const [completedRegId, setCompletedRegId] = useState<string | null>(null);
   const [completedPaymentRef, setCompletedPaymentRef] = useState<string | null>(null);
+
+  // Parse structured metadata (online modality and custom questions)
+  const meta = parseEventMetadata(event?.description, event);
+  const customQuestions: CustomQuestion[] = meta.customQuestions || [];
+  const isOnlineEvent = meta.eventType === "online";
+  const onlineSettings = meta.onlineSettings;
+
+  // Custom question answers state
+  const [customAnswers, setCustomAnswers] = useState<Record<string, any>>({});
+  
+  // Auto-redirect state (defaults to disabled unless organizer explicitly enabled it)
+  const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null);
+  const [redirectCancelled, setRedirectCancelled] = useState(false);
+
+  // Auto-redirect handler for online events when organizer enabled auto_redirect
+  useEffect(() => {
+    if (!isCompleted) {
+      setRedirectCountdown(null);
+      setRedirectCancelled(false);
+      return;
+    }
+
+    if (isOnlineEvent && onlineSettings?.auto_redirect && !redirectCancelled) {
+      const targetUrl = onlineSettings.whatsapp_group_link || onlineSettings.meeting_link;
+      if (targetUrl) {
+        setRedirectCountdown(5);
+        const interval = setInterval(() => {
+          setRedirectCountdown((prev) => {
+            if (prev === null) return null;
+            if (prev <= 1) {
+              clearInterval(interval);
+              window.open(targetUrl, "_blank");
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        return () => clearInterval(interval);
+      }
+    }
+  }, [isCompleted, isOnlineEvent, onlineSettings, redirectCancelled]);
+
+  const handleAnswerChange = (questionId: string, value: any) => {
+    setCustomAnswers((prev) => ({ ...prev, [questionId]: value }));
+  };
+
+  const handleCheckboxChange = (questionId: string, option: string, checked: boolean) => {
+    setCustomAnswers((prev) => {
+      const current = Array.isArray(prev[questionId]) ? [...prev[questionId]] : [];
+      if (checked) {
+        if (!current.includes(option)) current.push(option);
+      } else {
+        const idx = current.indexOf(option);
+        if (idx !== -1) current.splice(idx, 1);
+      }
+      return { ...prev, [questionId]: current };
+    });
+  };
 
   // Dynamic gateway public key resolved from Super Admin configuration
   const gatewayPublicKey = getActiveGatewayPublicKey();
@@ -64,7 +124,10 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
   const sendConfirmationEmail = async (registrationId: string, paymentRef: string | null) => {
     try {
       // 1. Direct Resend dispatch using configured Super Admin API key
-      const venueStr = [event.venue, event.city, event.country].filter(Boolean).join(", ") || "Venue TBA";
+      const isOnline = isOnlineEvent;
+      const venueStr = isOnline
+        ? "Online / Virtual Event"
+        : [event.venue, event.city, event.country].filter(Boolean).join(", ") || "Venue TBA";
       const dateStr = event.date ? new Date(event.date).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'TBA';
 
       await sendTicketConfirmationEmail({
@@ -78,6 +141,10 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
         amountPaid: totalAmount,
         eventUrl: window.location.origin + getEventUrl(event),
         dpUrl: window.location.origin + getEventDpUrl(event),
+        isOnline,
+        meetingLink: onlineSettings?.meeting_link,
+        whatsappLink: onlineSettings?.whatsapp_group_link,
+        accessInstructions: onlineSettings?.access_instructions,
       });
 
       // 2. Also trigger Supabase Edge Function as secondary background pipeline
@@ -104,6 +171,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
         amountPaid: totalAmount,
         paymentReference: paymentRef,
         userId: user?.id || null,
+        customAnswers: Object.keys(customAnswers).length > 0 ? customAnswers : null,
       });
 
       setCompletedRegId(registrationId);
@@ -120,6 +188,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
             payment_reference: paymentRef,
             created_at: new Date().toISOString(),
             checked_in: false,
+            custom_answers: customAnswers,
           },
           event,
           ticketTier: ticket,
@@ -159,6 +228,17 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
     if (!name || !email) {
       toast.error("Please fill in all required fields");
       return;
+    }
+
+    // Validate required custom questions
+    for (const q of customQuestions) {
+      if (q.required) {
+        const val = customAnswers[q.id];
+        if (val === undefined || val === null || val === "" || (Array.isArray(val) && val.length === 0)) {
+          toast.error(`Please answer required question: "${q.label}"`);
+          return;
+        }
+      }
     }
 
     setProcessing(true);
@@ -221,6 +301,75 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
           {/* Scrollable Content Body */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
+            {/* Auto-Redirect Notice (Only if organizer explicitly enabled auto_redirect) */}
+            {redirectCountdown !== null && redirectCountdown > 0 && (
+              <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 flex items-center justify-between text-xs text-foreground animate-pulse">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />
+                  <span>Redirecting to community in <strong>{redirectCountdown}s</strong>...</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRedirectCancelled(true);
+                    setRedirectCountdown(null);
+                  }}
+                  className="text-[11px] font-bold text-muted-foreground hover:text-foreground underline"
+                >
+                  Stay Here
+                </button>
+              </div>
+            )}
+
+            {/* Online Event Hub & Direct Meeting Access Callout */}
+            {isOnlineEvent && (onlineSettings?.whatsapp_group_link || onlineSettings?.meeting_link || onlineSettings?.access_instructions) && (
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                    <Globe className="w-3.5 h-3.5" /> ONLINE EVENT ACCESS
+                  </div>
+                  <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded font-bold">
+                    CONFIRMED ATTENDEE
+                  </span>
+                </div>
+
+                {onlineSettings.access_instructions && (
+                  <div className="text-xs text-muted-foreground leading-relaxed bg-background/50 p-2.5 rounded-lg border border-border/50 flex items-start gap-2">
+                    <Info className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                    <span><strong className="text-foreground">Access note:</strong> {onlineSettings.access_instructions}</span>
+                  </div>
+                )}
+
+                <div className="space-y-2 pt-1">
+                  {onlineSettings.whatsapp_group_link && (
+                    <a
+                      href={onlineSettings.whatsapp_group_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs h-10 rounded-lg shadow-sm transition-colors"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Join WhatsApp Attendee Community</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                    </a>
+                  )}
+
+                  {onlineSettings.meeting_link && (
+                    <a
+                      href={onlineSettings.meeting_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full bg-primary text-primary-foreground hover:opacity-90 font-bold text-xs h-10 rounded-lg shadow-sm transition-colors"
+                    >
+                      <Globe className="w-4 h-4" />
+                      <span>Open Online Event Room</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Digital Ticket Pass */}
             <DigitalTicketCard
               registration={registrationData}
@@ -373,6 +522,105 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
                 className="bg-background focus-visible:ring-secondary border-border rounded-lg"
               />
             </div>
+
+            {/* Custom Questions Section */}
+            {customQuestions.length > 0 && (
+              <div className="pt-2 border-t border-border space-y-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                    Additional Registration Details
+                  </span>
+                  <div className="h-px flex-1 bg-border/60" />
+                </div>
+
+                {customQuestions.map((q) => (
+                  <div key={q.id} className="space-y-1.5">
+                    <Label className="text-[13px] font-bold text-muted-foreground flex items-center justify-between">
+                      <span>{q.label}</span>
+                      {q.required ? (
+                        <span className="text-destructive text-[11px] font-mono">* Required</span>
+                      ) : (
+                        <span className="text-muted-foreground/60 text-[10px] font-normal">Optional</span>
+                      )}
+                    </Label>
+
+                    {q.type === "text" && (
+                      <Input
+                        value={customAnswers[q.id] || ""}
+                        onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                        placeholder="Your answer"
+                        className="bg-background focus-visible:ring-secondary border-border rounded-lg"
+                        required={q.required}
+                      />
+                    )}
+
+                    {q.type === "textarea" && (
+                      <textarea
+                        value={customAnswers[q.id] || ""}
+                        onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                        placeholder="Your answer..."
+                        rows={3}
+                        className="w-full bg-background focus-visible:ring-2 focus-visible:ring-secondary border border-border rounded-lg p-2.5 text-sm resize-none"
+                        required={q.required}
+                      />
+                    )}
+
+                    {q.type === "select" && (
+                      <select
+                        value={customAnswers[q.id] || ""}
+                        onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                        className="flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                        required={q.required}
+                      >
+                        <option value="">Select an option...</option>
+                        {q.options?.map((opt, idx) => (
+                          <option key={idx} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    )}
+
+                    {q.type === "radio" && (
+                      <div className="space-y-1.5 pt-0.5">
+                        {q.options?.map((opt, idx) => (
+                          <label key={idx} className="flex items-center gap-2.5 p-2 rounded-lg border border-border/60 bg-muted/20 hover:bg-muted/40 cursor-pointer text-xs font-medium">
+                            <input
+                              type="radio"
+                              name={`checkout-q-${q.id}`}
+                              value={opt}
+                              checked={customAnswers[q.id] === opt}
+                              onChange={() => handleAnswerChange(q.id, opt)}
+                              className="accent-secondary h-4 w-4"
+                            />
+                            <span>{opt}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+
+                    {q.type === "checkbox" && (
+                      <div className="space-y-1.5 pt-0.5">
+                        {q.options?.map((opt, idx) => {
+                          const selectedArr = Array.isArray(customAnswers[q.id]) ? customAnswers[q.id] : [];
+                          const isChecked = selectedArr.includes(opt);
+                          return (
+                            <label key={idx} className="flex items-center gap-2.5 p-2 rounded-lg border border-border/60 bg-muted/20 hover:bg-muted/40 cursor-pointer text-xs font-medium">
+                              <input
+                                type="checkbox"
+                                value={opt}
+                                checked={isChecked}
+                                onChange={(e) => handleCheckboxChange(q.id, opt, e.target.checked)}
+                                className="accent-secondary h-4 w-4 rounded"
+                              />
+                              <span>{opt}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Ticket Quantity selector only if not free */}
             {!isFree && (
