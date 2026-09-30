@@ -191,8 +191,9 @@ export const SiteHeader: React.FC = () => {
           )}
         </div>
 
-        {/* Mobile View: Clean, Uncrowded Hamburger Button */}
-        <div className="flex lg:hidden items-center gap-2">
+        {/* Mobile View: Theme Toggle + Clean Hamburger Button */}
+        <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
+          <ThemeToggle />
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2.5 rounded-xl text-foreground bg-muted/60 hover:bg-muted transition-colors flex items-center justify-center"
@@ -211,19 +212,8 @@ export const SiteHeader: React.FC = () => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden border-b border-border bg-card px-5 py-6 space-y-6 overflow-hidden max-h-[85vh] overflow-y-auto shadow-2xl"
+            className="lg:hidden border-b border-border bg-card px-5 py-5 space-y-5 overflow-hidden max-h-[85vh] overflow-y-auto shadow-2xl"
           >
-            {/* Quick Action Top Bar inside Drawer */}
-            <div className="flex items-center justify-between pb-4 border-b border-border">
-              <span className="text-xs font-mono font-bold uppercase text-muted-foreground tracking-wider">
-                APPEARANCE & THEME
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-foreground">Theme</span>
-                <ThemeToggle />
-              </div>
-            </div>
-
             {/* Primary Mobile Navigation Links */}
             <div className="space-y-1">
               <Link

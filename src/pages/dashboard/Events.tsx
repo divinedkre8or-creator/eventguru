@@ -1,13 +1,34 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { PlusCircle, Calendar, MapPin, Users, Search, Edit3, Copy, ExternalLink, Image, Zap } from "lucide-react";
+import { 
+  PlusCircle, Calendar, MapPin, Users, Search, Edit3, Copy, 
+  ExternalLink, Image, Zap, MoreVertical, Trash2, Ban, CheckCircle2,
+  Loader2
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getEventUrl } from "@/lib/slugUtils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const statusBadgeStyle: Record<string, string> = {
   draft: "bg-muted text-muted-foreground border-border",
@@ -18,8 +39,58 @@ const statusBadgeStyle: Record<string, string> = {
 
 const Events = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [eventToDelete, setEventToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
+
+  const handleToggleCancel = async (eventId: string, currentStatus: string, title: string) => {
+    const newStatus = currentStatus === "cancelled" ? "published" : "cancelled";
+    setIsUpdatingStatus(eventId);
+    try {
+      const { error } = await supabase
+        .from("events")
+        .update({ status: newStatus })
+        .eq("id", eventId)
+        .eq("organiser_id", user!.id);
+
+      if (error) throw error;
+
+      toast.success(newStatus === "cancelled" 
+        ? `"${title}" has been cancelled and delisted.` 
+        : `"${title}" has been re-published.`
+      );
+      queryClient.invalidateQueries({ queryKey: ["organiser-events-v2", user?.id] });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update event status.");
+    } finally {
+      setIsUpdatingStatus(null);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!eventToDelete) return;
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from("events")
+        .delete()
+        .eq("id", eventToDelete.id)
+        .eq("organiser_id", user!.id);
+
+      if (error) throw error;
+
+      toast.success(`"${eventToDelete.title}" has been permanently deleted.`);
+      setEventToDelete(null);
+      queryClient.invalidateQueries({ queryKey: ["organiser-events-v2", user?.id] });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete event.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["organiser-events-v2", user?.id],
@@ -199,18 +270,69 @@ const Events = () => {
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Button>
                     </Link>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      className="h-9 w-9 border-border text-muted-foreground hover:text-foreground shrink-0" 
-                      title="Copy Public Link"
-                      onClick={() => {
-                        navigator.clipboard.writeText(`${window.location.origin}${getEventUrl(event)}`);
-                        toast.success("Event link copied!");
-                      }}
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-9 w-9 border-border text-muted-foreground hover:text-foreground shrink-0" 
+                          title="More event actions"
+                        >
+                          <MoreVertical className="w-3.5 h-3.5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48 bg-card border-border shadow-lg">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.origin}${getEventUrl(event)}`);
+                            toast.success("Event link copied!");
+                          }}
+                          className="text-xs font-medium cursor-pointer"
+                        >
+                          <Copy className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
+                          Copy Public Link
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild className="text-xs font-medium cursor-pointer">
+                          <Link to={`/dashboard/dp?event_id=${event.id}`}>
+                            <Image className="w-3.5 h-3.5 mr-2 text-secondary" />
+                            Setup DP Frame
+                          </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator className="bg-border" />
+
+                        {event.status === "cancelled" ? (
+                          <DropdownMenuItem
+                            disabled={isUpdatingStatus === event.id}
+                            onClick={() => handleToggleCancel(event.id, event.status, event.title)}
+                            className="text-xs font-medium text-chart-green hover:text-chart-green cursor-pointer"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 mr-2 text-chart-green" />
+                            Re-Publish Event
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem
+                            disabled={isUpdatingStatus === event.id}
+                            onClick={() => handleToggleCancel(event.id, event.status, event.title)}
+                            className="text-xs font-medium text-amber-600 dark:text-amber-400 cursor-pointer"
+                          >
+                            <Ban className="w-3.5 h-3.5 mr-2 text-amber-600 dark:text-amber-400" />
+                            Cancel / Delist Event
+                          </DropdownMenuItem>
+                        )}
+
+                        <DropdownMenuSeparator className="bg-border" />
+
+                        <DropdownMenuItem
+                          onClick={() => setEventToDelete({ id: event.id, title: event.title })}
+                          className="text-xs font-bold text-destructive hover:text-destructive cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 mr-2 text-destructive" />
+                          Delete Event
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </div>
@@ -218,6 +340,34 @@ const Events = () => {
           })}
         </div>
       )}
+
+      {/* Delete Confirmation Alert Dialog */}
+      <AlertDialog open={!!eventToDelete} onOpenChange={(open) => !open && setEventToDelete(null)}>
+        <AlertDialogContent className="bg-card text-foreground border-border max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-heading text-lg font-black text-foreground">
+              Delete Event Permanently?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              Are you sure you want to delete <strong className="text-foreground">"{eventToDelete?.title}"</strong>? 
+              This will permanently delete this event and delist it from the platform immediately. 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4 gap-2">
+            <AlertDialogCancel disabled={isDeleting} className="border-border text-foreground">
+              Keep Event
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeleting}
+              onClick={handleConfirmDelete}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold text-xs"
+            >
+              {isDeleting ? "Deleting..." : "Delete Permanently"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

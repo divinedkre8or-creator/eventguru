@@ -2,7 +2,8 @@ import { useState, useRef, ChangeEvent, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { 
   ArrowLeft, ArrowRight, Calendar, MapPin, Tag, Ticket, Plus, Trash2, 
-  Loader2, ImagePlus, Palette, Globe, Building2, Link2, MessageCircle, HelpCircle 
+  Loader2, ImagePlus, Palette, Globe, Building2, Link2, MessageCircle, HelpCircle,
+  Ban, CheckCircle2 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,16 @@ import {
   serializeEventDescription 
 } from "@/lib/eventMetadata";
 import { CustomQuestionsBuilder } from "@/components/events/CustomQuestionsBuilder";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const categories = [
   "conference", "trade-show", "concert", "workshop",
@@ -94,6 +105,12 @@ const CreateEvent = () => {
   // Step 2: Tickets
   const [tickets, setTickets] = useState<TicketDraft[]>([{ ...emptyTicket, name: "General Admission" }]);
 
+  // Status Control & Deletion in Edit Mode
+  const [currentStatus, setCurrentStatus] = useState<string>("published");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingCancel, setIsTogglingCancel] = useState(false);
+
   // Load Event Data if Edit Mode
   useEffect(() => {
     if (!isEditMode || !user) return;
@@ -113,6 +130,7 @@ const CreateEvent = () => {
           return;
         }
 
+        setCurrentStatus(event.status || "published");
         setTitle(event.title || "");
         setVenue(event.venue || "");
         setCity(event.city || "");
@@ -207,6 +225,58 @@ const CreateEvent = () => {
 
   const canProceedStep1 = title.trim() && category && schedule[0].date && schedule[0].startTime;
   const canProceedStep2 = isFree || tickets.some((t) => t.name.trim());
+
+  const handleToggleCancelInEdit = async () => {
+    if (!id || !user) return;
+    const newStatus = currentStatus === "cancelled" ? "published" : "cancelled";
+    setIsTogglingCancel(true);
+    try {
+      const { error } = await supabase
+        .from("events")
+        .update({ status: newStatus })
+        .eq("id", id)
+        .eq("organiser_id", user.id);
+
+      if (error) throw error;
+
+      setCurrentStatus(newStatus);
+      toast({
+        title: newStatus === "cancelled" ? "Event Cancelled" : "Event Re-Published",
+        description: newStatus === "cancelled" 
+          ? `"${title}" has been cancelled and delisted from public discovery.` 
+          : `"${title}" has been re-published.`,
+      });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to update status", variant: "destructive" });
+    } finally {
+      setIsTogglingCancel(false);
+    }
+  };
+
+  const handleDeleteInEdit = async () => {
+    if (!id || !user) return;
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from("events")
+        .delete()
+        .eq("id", id)
+        .eq("organiser_id", user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Event Deleted",
+        description: `"${title}" has been permanently deleted.`,
+      });
+      navigate("/dashboard/events");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to delete event", variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
 
   const handleSubmit = async (status: "draft" | "published") => {
     if (!user) return;
@@ -857,8 +927,83 @@ const CreateEvent = () => {
                </>
              )}
           </div>
+
+          {/* Danger Zone: Delist / Cancel or Delete Event for Organizers */}
+          {isEditMode && (
+            <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 sm:p-5 mt-6 space-y-3">
+              <div>
+                <h4 className="font-heading text-sm font-bold text-destructive flex items-center gap-2">
+                  <Trash2 className="w-4 h-4" /> Danger Zone & Event Status
+                </h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Cancel or permanently delete your event. Deleting delists the event immediately and removes all records.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleToggleCancelInEdit}
+                  disabled={isTogglingCancel || submitting}
+                  className="border-border hover:bg-muted text-xs font-bold h-10 flex-1 flex items-center justify-center gap-2"
+                >
+                  {currentStatus === "cancelled" ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-chart-green" />
+                      <span>Re-Publish Event</span>
+                    </>
+                  ) : (
+                    <>
+                      <Ban className="w-4 h-4 text-amber-500" />
+                      <span>Cancel / Delist Event</span>
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={isDeleting || submitting}
+                  className="text-xs font-bold h-10 flex-1 flex items-center justify-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Event Permanently</span>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
+
+      {/* Delete Confirmation Alert Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent className="bg-card text-foreground border-border max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-heading text-lg font-black text-foreground">
+              Delete Event Permanently?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              Are you sure you want to delete <strong className="text-foreground">"{title}"</strong>? 
+              This will permanently remove this event and delist it from the platform immediately. 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4 gap-2">
+            <AlertDialogCancel disabled={isDeleting} className="border-border text-foreground">
+              Keep Event
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeleting}
+              onClick={handleDeleteInEdit}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold text-xs"
+            >
+              {isDeleting ? "Deleting..." : "Delete Permanently"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Share Modal */}
       <ShareEventModal 
