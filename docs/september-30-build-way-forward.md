@@ -65,6 +65,22 @@
 
 ---
 
-## 4. Next Priorities
+## 4. UI/UX Fix: Checkout Modal Mobile Bottom Sheet & Question Visibility (Completed — Commit: `c78bb52`)
+* **Issues Addressed:**
+  1. **Missing Question Prompts:** Attendees only saw input answer boxes with no question text because `CheckoutModal` looked for `q.label` while the builder created `q.prompt`.
+  2. **Mobile Dialog Cut-off & Missing Cancel Button:** The modal was too tall on mobile, with no viewport height ceiling or sticky headers, causing the header and `X` close button to be pushed off-screen.
+* **Resolution:**
+  - **Question Normalization:** Updated `parseEventMetadata` in `src/lib/eventMetadata.ts` to normalize all questions so that `q.prompt`, `q.label`, and `q.question` are guaranteed to exist.
+  - **Prominent Question Rendering:** Rendered question prompts in bold with clear `* Required` badges.
+  - **Mobile Bottom-Sheet Architecture:**
+    - On mobile, modal mounts as a native-style slide-up bottom sheet (`items-end sm:items-center`, `rounded-t-3xl sm:rounded-2xl`, max height constrained to `92dvh`).
+    - Top drag handle bar for mobile feel.
+    - **Sticky Header with Permanent Cancel Button:** The header is `shrink-0` outside the scroll area, meaning the `X` button is ALWAYS visible on screen at all times.
+    - **Smooth Inner Momentum Scrolling:** Uses `overflow-y-auto overscroll-contain touch-pan-y` so users can scroll through all fields without losing their header or footer.
+    - **Pinned Sticky Action Footer:** The total amount and action button ("Confirm Free Registration" or "Pay ₦...") plus an explicit "Cancel" button are pinned at the bottom, so users never have to search or scroll to submit or dismiss.
+
+---
+
+## 5. Next Priorities
 1. **Direction 2:** Textflow.ng SMS Integration (replacing Termii; configuring lookup and bulk/transactional SMS).
 2. **Direction 1:** Amazon SES direct cloud root email infrastructure and organizer wallet unit-reselling.
