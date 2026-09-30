@@ -45,21 +45,26 @@
     2. Bulk SMS broadcast marketing campaigns sent from organizers' pre-funded wallets.
   - Approved 11-character alphanumeric Sender ID configured in environment.
 
-### Direction 3: Mobile Navigation UI/UX Cleanup *(Currently In Progress)*
+### Direction 3: Mobile Navigation UI/UX Cleanup (Completed — Commit: `fea13df`)
 * **Goal:** Clean up the mobile hamburger menu in `src/components/navigation/SiteHeader.tsx`.
-* **Issue:** Tapping the hamburger icon expands all 8 feature capability cards under "PLATFORM CAPABILITIES", overwhelming mobile screens and pushing primary CTAs out of view.
-* **Resolution:**
-  - Remove the cluttered list of capability cards from the mobile drawer.
-  - Replace it with a clean, single navigation item: **"Features"** (linking directly to `/features`).
-  - Keep the mobile menu standard, lightweight, and professional:
-    - **Features** (`/features`)
-    - **Explore Events** (`/events`)
-    - **Guides & Resources** (`/guides`)
-    - **FAQ** (`/#faq`)
-    - Primary CTA buttons (Dashboard or Create Event / Log In)
+* **Delivered:**
+  - Removed bloated "PLATFORM CAPABILITIES" cards and `Sparkles` icons from the mobile drawer.
+  - Replaced with a streamlined mobile menu: **Features** (`/features`), **Explore Events** (`/events`), **Guides & Resources** (`/guides`), **FAQ** (`/#faq`), and clean CTAs.
 
 ---
 
-## 3. Immediate Execution Step
-- Refactor `src/components/navigation/SiteHeader.tsx` mobile drawer to remove the expanded "PLATFORM CAPABILITIES" cards and install the streamlined "Features" navigation button.
-- Verify across responsive breakpoints and run build checks.
+## 3. Bug Fix: Event Publish Runtime Error (Completed — Commit: `316c22e`)
+* **Symptom:** User saw a red toast: `Cannot read properties of undefined (reading 'id')` when publishing an event.
+* **Root Cause:**
+  - In `src/pages/dashboard/CreateEvent.tsx`, lines 351 and 364 referenced `event.id` within ticket creation loops, but `event` was not in scope during submission.
+  - Furthermore, relying on `insertRes.data.id` after insert was vulnerable to RLS select restrictions.
+* **Resolution:**
+  - Pre-generate UUID `newEventId = crypto.randomUUID()` before calling `supabase.from("events").insert()`.
+  - Pass `id: newEventId` in event payload, and use `eventIdResult` reliably for `ticket_types.insert()`.
+  - Tested with `vitest` and `tsc --noEmit` (0 errors).
+
+---
+
+## 4. Next Priorities
+1. **Direction 2:** Textflow.ng SMS Integration (replacing Termii; configuring lookup and bulk/transactional SMS).
+2. **Direction 1:** Amazon SES direct cloud root email infrastructure and organizer wallet unit-reselling.
