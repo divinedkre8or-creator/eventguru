@@ -235,7 +235,8 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
       if (q.required) {
         const val = customAnswers[q.id];
         if (val === undefined || val === null || val === "" || (Array.isArray(val) && val.length === 0)) {
-          toast.error(`Please answer required question: "${q.label}"`);
+          const qText = (q.prompt || (q as any).label || (q as any).question || "Question").trim();
+          toast.error(`Please answer required question: "${qText}"`);
           return;
         }
       }
@@ -278,8 +279,9 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
     const isLoggedIn = !!user;
 
     return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 font-sans">
-        <div className="bg-card border border-border rounded-2xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-foreground">
+      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 font-sans">
+        <div className="bg-card border-t sm:border border-border rounded-t-3xl sm:rounded-2xl w-full max-w-lg max-h-[92dvh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 text-foreground">
+          <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto mt-2.5 mb-0.5 sm:hidden shrink-0" />
           {/* Modal Header */}
           <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-card shrink-0">
             <div>
@@ -451,213 +453,243 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-sans">
-      <div className="bg-card rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-foreground">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 font-sans">
+      <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full max-w-lg max-h-[92dvh] sm:max-h-[88vh] flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 text-foreground border-t sm:border border-border">
         
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <div>
-            <h2 className="font-heading font-bold text-xl text-foreground">Checkout</h2>
-            <p className="text-muted-foreground text-[13px] mt-0.5">{event.title}</p>
+        {/* Mobile drag handle bar */}
+        <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto mt-2.5 mb-0.5 sm:hidden shrink-0" />
+
+        {/* Sticky Header with Permanent Cancel Button */}
+        <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-border bg-card shrink-0 z-10">
+          <div className="min-w-0 pr-3">
+            <div className="flex items-center gap-2">
+              <h2 className="font-heading font-extrabold text-lg sm:text-xl text-foreground truncate">Checkout</h2>
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-secondary/15 text-secondary px-2 py-0.5 rounded shrink-0">
+                {isFree ? "Free Pass" : "Ticket"}
+              </span>
+            </div>
+            <p className="text-muted-foreground text-xs truncate mt-0.5">{event.title}</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-muted text-muted-foreground transition-colors">
+          <button 
+            type="button"
+            onClick={onClose} 
+            className="p-2 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
+            aria-label="Close checkout"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleCheckout} className="p-6 space-y-5">
-          <div className="bg-muted/50 p-4 rounded-xl border border-border space-y-2">
-            <div className="flex justify-between items-center text-[13px] text-muted-foreground">
-              <span>{ticket.name} {quantity > 1 ? `(${quantity}x @ ₦${breakdown.unitPrice.toLocaleString()})` : "Ticket"}</span>
-              <span className="font-medium text-foreground">
-                {breakdown.unitPrice === 0 ? "Free" : `₦${breakdown.subtotal.toLocaleString()}`}
-              </span>
-            </div>
-
-            {breakdown.discountAmount > 0 && (
-              <div className="flex justify-between items-center text-xs text-secondary font-medium">
-                <span>Discount ({breakdown.discountPercentage}% off)</span>
-                <span>-₦{breakdown.discountAmount.toLocaleString()}</span>
+        {/* Form Container with Flex-1 Scrollable Body and Pinned Footer */}
+        <form onSubmit={handleCheckout} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-6 sm:py-4 space-y-3.5 touch-pan-y">
+            
+            {/* Sleek Compact Ticket Summary Card */}
+            <div className="bg-muted/40 p-3 sm:p-3.5 rounded-xl border border-border flex items-center justify-between text-xs">
+              <div className="min-w-0 pr-2">
+                <div className="font-bold text-foreground truncate">{ticket.name}</div>
+                <div className="text-muted-foreground text-[11px] mt-0.5">
+                  {quantity > 1 ? `${quantity}x @ ₦${breakdown.unitPrice.toLocaleString()}` : (isFree ? "Free Admission" : `₦${breakdown.unitPrice.toLocaleString()} per ticket`)}
+                  {breakdown.discountAmount > 0 && <span className="text-secondary ml-1.5 font-semibold">({breakdown.discountPercentage}% off)</span>}
+                </div>
               </div>
-            )}
-
-            <div className="flex justify-between items-center border-t border-border pt-2 mt-2">
-              <span className="font-bold text-sm text-foreground">Total Amount</span>
-              <span className="font-heading font-bold text-lg text-secondary">
-                {isFree ? "Free" : `₦${breakdown.totalAmount.toLocaleString()}`}
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-bold text-muted-foreground">Full Name *</Label>
-              <Input 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
-                placeholder="John Doe" 
-                className="bg-background focus-visible:ring-secondary border-border rounded-lg"
-                required
-              />
+              <div className="text-right shrink-0">
+                <div className="font-heading font-black text-base sm:text-lg text-secondary">
+                  {isFree ? "Free" : `₦${breakdown.totalAmount.toLocaleString()}`}
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-bold text-muted-foreground">Email Address *</Label>
-              <Input 
-                type="email"
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="john@example.com" 
-                className="bg-background focus-visible:ring-secondary border-border rounded-lg"
-                required
-              />
+            {/* Attendee Contact Info */}
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-foreground">Full Name *</Label>
+                <Input 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  placeholder="Your full name" 
+                  className="bg-background focus-visible:ring-secondary border-border rounded-lg h-10 text-xs sm:text-sm"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-foreground">Email Address *</Label>
+                <Input 
+                  type="email"
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  placeholder="your.email@example.com" 
+                  className="bg-background focus-visible:ring-secondary border-border rounded-lg h-10 text-xs sm:text-sm"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-foreground flex items-center justify-between">
+                  <span>Phone Number</span>
+                  <span className="text-muted-foreground/70 text-[10px] font-normal">For SMS gate pass</span>
+                </Label>
+                <Input 
+                  type="tel"
+                  value={phone} 
+                  onChange={(e) => setPhone(e.target.value)} 
+                  placeholder="+234..." 
+                  className="bg-background focus-visible:ring-secondary border-border rounded-lg h-10 text-xs sm:text-sm"
+                />
+              </div>
+
+              {/* Ticket Quantity selector only if not free */}
+              {!isFree && (
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold text-foreground">Quantity</Label>
+                  <select 
+                    value={quantity} 
+                    onChange={(e) => setQuantity(parseInt(e.target.value))}
+                    className="flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                      <option key={n} value={n}>{n} {n === 1 ? "ticket" : "tickets"}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-[13px] font-bold text-muted-foreground">Phone Number <span className="text-xs text-muted-foreground font-normal">(Optional)</span></Label>
-              <Input 
-                type="tel"
-                value={phone} 
-                onChange={(e) => setPhone(e.target.value)} 
-                placeholder="+234..." 
-                className="bg-background focus-visible:ring-secondary border-border rounded-lg"
-              />
-            </div>
-
-            {/* Custom Questions Section */}
+            {/* Custom Questions Section with Prominently Rendered Question Prompts */}
             {customQuestions.length > 0 && (
-              <div className="pt-2 border-t border-border space-y-4">
-                <div className="flex items-center gap-2">
+              <div className="pt-2 border-t border-border space-y-3">
+                <div className="flex items-center justify-between">
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                    Additional Registration Details
+                    Registration Questions ({customQuestions.length})
                   </span>
-                  <div className="h-px flex-1 bg-border/60" />
                 </div>
 
-                {customQuestions.map((q) => (
-                  <div key={q.id} className="space-y-1.5">
-                    <Label className="text-[13px] font-bold text-muted-foreground flex items-center justify-between">
-                      <span>{q.label}</span>
-                      {q.required ? (
-                        <span className="text-destructive text-[11px] font-mono">* Required</span>
-                      ) : (
-                        <span className="text-muted-foreground/60 text-[10px] font-normal">Optional</span>
+                {customQuestions.map((q, idx) => {
+                  const questionText = (q.prompt || (q as any).label || (q as any).question || `Question ${idx + 1}`).trim();
+                  return (
+                    <div key={q.id} className="space-y-1.5 bg-muted/20 p-3 rounded-xl border border-border/70">
+                      <Label className="text-xs font-bold text-foreground flex items-start justify-between gap-2 leading-snug">
+                        <span className="break-words">{questionText}</span>
+                        {q.required ? (
+                          <span className="text-destructive text-[10px] font-mono font-bold shrink-0">* Required</span>
+                        ) : (
+                          <span className="text-muted-foreground/60 text-[10px] font-normal shrink-0">Optional</span>
+                        )}
+                      </Label>
+
+                      {q.type === "text" && (
+                        <Input
+                          value={customAnswers[q.id] || ""}
+                          onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                          placeholder={q.placeholder || "Your answer"}
+                          className="bg-background focus-visible:ring-secondary border-border rounded-lg h-9 text-xs sm:text-sm"
+                          required={q.required}
+                        />
                       )}
-                    </Label>
 
-                    {q.type === "text" && (
-                      <Input
-                        value={customAnswers[q.id] || ""}
-                        onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                        placeholder="Your answer"
-                        className="bg-background focus-visible:ring-secondary border-border rounded-lg"
-                        required={q.required}
-                      />
-                    )}
+                      {q.type === "textarea" && (
+                        <textarea
+                          value={customAnswers[q.id] || ""}
+                          onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                          placeholder={q.placeholder || "Your answer..."}
+                          rows={2}
+                          className="w-full bg-background focus-visible:ring-2 focus-visible:ring-secondary border border-border rounded-lg p-2.5 text-xs sm:text-sm resize-none"
+                          required={q.required}
+                        />
+                      )}
 
-                    {q.type === "textarea" && (
-                      <textarea
-                        value={customAnswers[q.id] || ""}
-                        onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                        placeholder="Your answer..."
-                        rows={3}
-                        className="w-full bg-background focus-visible:ring-2 focus-visible:ring-secondary border border-border rounded-lg p-2.5 text-sm resize-none"
-                        required={q.required}
-                      />
-                    )}
+                      {(q.type === "dropdown" || (q.type as string) === "select") && (
+                        <select
+                          value={customAnswers[q.id] || ""}
+                          onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                          className="flex h-9 w-full rounded-lg border border-border bg-background px-3 py-1.5 text-xs sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                          required={q.required}
+                        >
+                          <option value="">Select an option...</option>
+                          {q.options?.map((opt, oIdx) => (
+                            <option key={oIdx} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      )}
 
-                    {q.type === "select" && (
-                      <select
-                        value={customAnswers[q.id] || ""}
-                        onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                        className="flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-                        required={q.required}
-                      >
-                        <option value="">Select an option...</option>
-                        {q.options?.map((opt, idx) => (
-                          <option key={idx} value={opt}>{opt}</option>
-                        ))}
-                      </select>
-                    )}
-
-                    {q.type === "radio" && (
-                      <div className="space-y-1.5 pt-0.5">
-                        {q.options?.map((opt, idx) => (
-                          <label key={idx} className="flex items-center gap-2.5 p-2 rounded-lg border border-border/60 bg-muted/20 hover:bg-muted/40 cursor-pointer text-xs font-medium">
-                            <input
-                              type="radio"
-                              name={`checkout-q-${q.id}`}
-                              value={opt}
-                              checked={customAnswers[q.id] === opt}
-                              onChange={() => handleAnswerChange(q.id, opt)}
-                              className="accent-secondary h-4 w-4"
-                            />
-                            <span>{opt}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-
-                    {q.type === "checkbox" && (
-                      <div className="space-y-1.5 pt-0.5">
-                        {q.options?.map((opt, idx) => {
-                          const selectedArr = Array.isArray(customAnswers[q.id]) ? customAnswers[q.id] : [];
-                          const isChecked = selectedArr.includes(opt);
-                          return (
-                            <label key={idx} className="flex items-center gap-2.5 p-2 rounded-lg border border-border/60 bg-muted/20 hover:bg-muted/40 cursor-pointer text-xs font-medium">
+                      {q.type === "radio" && (
+                        <div className="space-y-1 pt-0.5">
+                          {q.options?.map((opt, oIdx) => (
+                            <label key={oIdx} className="flex items-center gap-2 p-1.5 rounded-lg border border-border/60 bg-background/50 hover:bg-muted/40 cursor-pointer text-xs font-medium">
                               <input
-                                type="checkbox"
+                                type="radio"
+                                name={`checkout-q-${q.id}`}
                                 value={opt}
-                                checked={isChecked}
-                                onChange={(e) => handleCheckboxChange(q.id, opt, e.target.checked)}
-                                className="accent-secondary h-4 w-4 rounded"
+                                checked={customAnswers[q.id] === opt}
+                                onChange={() => handleAnswerChange(q.id, opt)}
+                                className="accent-secondary h-3.5 w-3.5 shrink-0"
                               />
-                              <span>{opt}</span>
+                              <span className="text-foreground">{opt}</span>
                             </label>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+                          ))}
+                        </div>
+                      )}
 
-            {/* Ticket Quantity selector only if not free */}
-            {!isFree && (
-              <div className="space-y-1.5">
-                 <Label className="text-[13px] font-bold text-muted-foreground">Quantity</Label>
-                 <select 
-                   value={quantity} 
-                   onChange={(e) => setQuantity(parseInt(e.target.value))}
-                   className="flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-                 >
-                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                      <option key={n} value={n}>{n}</option>
-                   ))}
-                 </select>
+                      {q.type === "checkbox" && (
+                        <div className="space-y-1 pt-0.5">
+                          {q.options?.map((opt, oIdx) => {
+                            const selectedArr = Array.isArray(customAnswers[q.id]) ? customAnswers[q.id] : [];
+                            const isChecked = selectedArr.includes(opt);
+                            return (
+                              <label key={oIdx} className="flex items-center gap-2 p-1.5 rounded-lg border border-border/60 bg-background/50 hover:bg-muted/40 cursor-pointer text-xs font-medium">
+                                <input
+                                  type="checkbox"
+                                  value={opt}
+                                  checked={isChecked}
+                                  onChange={(e) => handleCheckboxChange(q.id, opt, e.target.checked)}
+                                  className="accent-secondary h-3.5 w-3.5 rounded shrink-0"
+                                />
+                                <span className="text-foreground">{opt}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
 
-          <div className="pt-2">
-            <Button 
-              type="submit" 
-              disabled={processing} 
-              className="w-full bg-primary text-primary-foreground hover:opacity-90 h-12 rounded-xl font-heading font-bold text-[15px] shadow-lg flex items-center justify-center gap-2"
-            >
-              {processing ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  {isFree ? <Mail className="w-5 h-5" /> : <CreditCard className="w-5 h-5" />}
-                  {isFree ? "Complete Registration" : "Pay Securely"}
-                </>
-              )}
-            </Button>
+          {/* Sticky Pinned Footer with Visible Cancel and Action Buttons */}
+          <div className="p-3.5 sm:p-4 border-t border-border bg-card/95 backdrop-blur-sm shrink-0 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Button 
+                type="button" 
+                variant="outline"
+                onClick={onClose}
+                disabled={processing}
+                className="h-11 px-4 text-xs font-bold border-border text-muted-foreground hover:text-foreground shrink-0"
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={processing} 
+                className="flex-1 bg-primary text-primary-foreground hover:opacity-90 h-11 rounded-xl font-heading font-bold text-sm shadow-md flex items-center justify-center gap-2"
+              >
+                {processing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    {isFree ? <Mail className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
+                    <span>{isFree ? "Confirm Free Registration" : `Pay ₦${breakdown.totalAmount.toLocaleString()}`}</span>
+                  </>
+                )}
+              </Button>
+            </div>
             
-            <div className="mt-4 flex items-center justify-center gap-2 text-muted-foreground text-[11px]">
-               <ShieldCheck className="w-4 h-4 text-chart-green" />
-               <span>{isFree ? "Secure registration pipeline" : "Payments processing secured by 256-bit bank-grade encryption"}</span>
+            <div className="flex items-center justify-center gap-1.5 text-muted-foreground text-[10px]">
+              <ShieldCheck className="w-3.5 h-3.5 text-chart-green shrink-0" />
+              <span>{isFree ? "Instant gate pass generated & sent to your email" : "Payments secured with 256-bit bank-grade encryption"}</span>
             </div>
           </div>
         </form>

@@ -16,6 +16,8 @@ export type CustomQuestionType = "text" | "textarea" | "radio" | "dropdown" | "c
 export interface CustomQuestion {
   id: string;
   prompt: string;
+  label?: string; // alias for backwards and forward compatibility
+  question?: string; // alias for backwards and forward compatibility
   type: CustomQuestionType;
   options: string[]; // choices for radio, dropdown, checkbox
   required: boolean;
@@ -72,6 +74,23 @@ export function parseEventMetadata(rawDesc: string | null | undefined, eventRow?
   let onlineSettings: OnlineSettings = { ...DEFAULT_ONLINE_SETTINGS };
   let customQuestions: CustomQuestion[] = [];
 
+  const normalizeQuestions = (arr: any[]): CustomQuestion[] => {
+    if (!Array.isArray(arr)) return [];
+    return arr.map((q, idx) => {
+      const text = (q.prompt || q.label || q.question || "").trim();
+      return {
+        id: q.id || `q_${idx}`,
+        prompt: text || `Question ${idx + 1}`,
+        label: text || `Question ${idx + 1}`,
+        question: text || `Question ${idx + 1}`,
+        type: q.type || "text",
+        options: Array.isArray(q.options) ? q.options : [],
+        required: Boolean(q.required),
+        placeholder: q.placeholder || "",
+      };
+    });
+  };
+
   // 1. Database column direct hydration (if table has migrations applied)
   if (eventRow) {
     if (eventRow.meeting_link || eventRow.redirect_url || eventRow.access_instructions !== undefined) {
@@ -83,7 +102,7 @@ export function parseEventMetadata(rawDesc: string | null | undefined, eventRow?
       };
     }
     if (Array.isArray(eventRow.custom_questions)) {
-      customQuestions = eventRow.custom_questions;
+      customQuestions = normalizeQuestions(eventRow.custom_questions);
     }
   }
 
@@ -101,7 +120,7 @@ export function parseEventMetadata(rawDesc: string | null | undefined, eventRow?
     try {
       const parsed = JSON.parse(parts[1]);
       if (Array.isArray(parsed) && customQuestions.length === 0) {
-        customQuestions = parsed;
+        customQuestions = normalizeQuestions(parsed);
       }
     } catch (e) {
       console.warn("Failed to parse custom questions metadata", e);

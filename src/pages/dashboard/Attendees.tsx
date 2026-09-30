@@ -77,7 +77,7 @@ const Attendees = () => {
       const meta = parseEventMetadata((r.events as any)?.description, r.events);
       meta.customQuestions.forEach((q) => {
         if (!questionMap.has(q.id)) {
-          questionMap.set(q.id, q.label);
+          questionMap.set(q.id, q.prompt || q.label || q.id);
         }
       });
       if (r.custom_answers && typeof r.custom_answers === "object") {
@@ -313,7 +313,7 @@ const Attendees = () => {
             {(() => {
               if (!selectedAttendee) return null;
               const meta = parseEventMetadata((selectedAttendee.events as any)?.description, selectedAttendee.events);
-              const qMap = new Map(meta.customQuestions.map(q => [q.id, q.label]));
+              const qMap = new Map(meta.customQuestions.map(q => [q.id, q.prompt || q.label || q.id]));
               const answers = selectedAttendee.custom_answers || {};
               const entries = Object.entries(answers);
 
