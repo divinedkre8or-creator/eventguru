@@ -81,6 +81,17 @@
 
 ---
 
-## 5. Next Priorities
+## 5. Mobile Hamburger Header Simplification & Organizer Event Deletion (Completed — Commit: `52d33ca`)
+* **Mobile Menu Streamlining:**
+  - Placed the theme toggle button directly in the mobile top navigation bar right before the hamburger button.
+  - Eliminated the cluttered, redundant `"APPEARANCE & THEME"` section inside the mobile drawer, making the drawer open directly into clean navigation links.
+* **Organizer Event Cancellation (Delist) & Permanent Deletion:**
+  - **Cancel / Delist Event:** Organizers can toggle event status to `cancelled` from both the event directory card actions (`src/pages/dashboard/Events.tsx`) and the event editor (`src/pages/dashboard/CreateEvent.tsx`). This immediately delists the event from public discovery.
+  - **Re-Publish Event:** Cancelled events can be re-published back to active discovery at any time.
+  - **Permanent Delete:** Organizers can permanently delete their events. Triggers a confirmation `AlertDialog` to prevent accidental clicks. Deleting an event delists it and cascades to delete associated ticket types and configurations.
+
+---
+
+## 6. Next Priorities
 1. **Direction 2:** Textflow.ng SMS Integration (replacing Termii; configuring lookup and bulk/transactional SMS).
 2. **Direction 1:** Amazon SES direct cloud root email infrastructure and organizer wallet unit-reselling.
