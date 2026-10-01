@@ -142,15 +142,8 @@ const EventDetails = () => {
     }
   }
 
-  // Parse coupon code from URL
-  const couponCode = searchParams.get("coupon_code");
-  let discountPercentage = 0;
-  if (couponCode) {
-    const match = String(couponCode).match(/(\d+)\s*(?:percent|%|off)/i);
-    if (match) {
-      discountPercentage = Math.min(parseInt(match[1], 10), 100);
-    }
-  }
+  // Promotional coupon discounts require server-side coupon verification
+  const discountPercentage = 0;
 
   // Build rich schema.org Event structured data
   const eventSchema = event

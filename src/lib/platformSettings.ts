@@ -40,7 +40,7 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   support_email: "support@geteventrally.com",
   currency: "NGN",
   
-  gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
+  gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "pk_live_05f315dab83c2ed136a33b33acb5d81812a0f635",
   gateway_provider: "paystack",
   gateway_environment: "live",
   platform_fee_percent: 2.5,
@@ -178,11 +178,17 @@ export async function persistPlatformSettings(updated: Partial<PlatformSettings>
 }> {
   const merged = savePlatformSettings(updated);
   try {
+    // Strip backend secret credentials before persisting to public database table
+    const sanitizedDbSettings = { ...merged };
+    delete (sanitizedDbSettings as any).resend_api_key;
+    delete (sanitizedDbSettings as any).textflow_api_token;
+    delete (sanitizedDbSettings as any).termii_api_key;
+
     const { error } = await (supabase.from as any)("platform_settings")
       .upsert(
         {
           id: "global_settings",
-          settings: merged,
+          settings: sanitizedDbSettings,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "id" }

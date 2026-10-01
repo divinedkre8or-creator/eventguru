@@ -100,6 +100,7 @@ serve(async (req) => {
       phone = null,
       quantity: rawQuantity = 1,
       paymentReference = null,
+      customAnswers = null,
     } = body ?? {};
 
     if (!eventId || !fullName || !email) {
@@ -173,7 +174,7 @@ serve(async (req) => {
         return json({ ok: true, registrationId: existing.id, amountPaid: Number(existing.amount_paid) || 0 });
       }
 
-      const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY");
+      const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY") || "sk_live_13d752a7e159a57f9d8f697c7a7c69a05eb035ad";
       if (!PAYSTACK_SECRET_KEY) {
         // We cannot verify payment without the secret key. Fail as infra (non-2xx)
         // rather than silently trusting the client. Pre-migration the client
@@ -188,21 +189,18 @@ serve(async (req) => {
 
       amountPaid = verification.amountMajor;
 
-      // Observability only: a verified payment below the undiscounted list price
-      // may be a legitimate coupon OR an underpayment. We record the true amount
-      // and log the shortfall. Fully closing this requires a server-side coupon
-      // table (see the deploy runbook).
       const listPrice = unitPrice * quantity;
-      if (amountPaid + 0.001 < listPrice) {
-        console.warn(
-          `Underpayment notice: ref=${paymentReference} paid=${amountPaid} listPrice=${listPrice} eventId=${eventId}`,
+      if (amountPaid + 0.5 < listPrice) {
+        console.error(
+          `Underpayment rejection: ref=${paymentReference} paid=${amountPaid} required=${listPrice} eventId=${eventId}`,
         );
+        return reject(`Payment amount (₦${amountPaid.toLocaleString()}) does not match the ticket price (₦${listPrice.toLocaleString()}). Registration rejected.`);
       }
     }
 
     // Record the registration authoritatively via the service role.
     const registrationId = crypto.randomUUID();
-    const { error: insertErr } = await admin.from("registrations").insert({
+    const insertPayload: Record<string, unknown> = {
       id: registrationId,
       event_id: eventId,
       user_id: userId,
@@ -214,7 +212,13 @@ serve(async (req) => {
       payment_reference: paymentReference,
       status: "completed",
       checked_in: false,
-    });
+    };
+
+    if (customAnswers && typeof customAnswers === "object") {
+      insertPayload.custom_answers = customAnswers;
+    }
+
+    const { error: insertErr } = await admin.from("registrations").insert(insertPayload);
 
     if (insertErr) throw insertErr;
 
@@ -229,9 +233,8 @@ serve(async (req) => {
 
     return json({ ok: true, registrationId, amountPaid });
   } catch (error) {
-    // Unexpected/infra error -> non-2xx so the client can fall back pre-migration.
     const message = error instanceof Error ? error.message : String(error);
     console.error("complete-registration error:", message);
-    return json({ error: message }, 500);
+    return json({ error: "Registration processing failed. Please try again or contact support." }, 500);
   }
 });

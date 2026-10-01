@@ -18,36 +18,102 @@ const slugify = (text: string): string => {
     .replace(/^-+|-+$/g, "");
 };
 
+const escapeHtml = (s: string): string =>
+  String(s || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const { registrationId } = await req.json();
+    const { registrationId, paymentReference } = await req.json().catch(() => ({}));
 
     if (!registrationId) {
-      throw new Error("Missing 'registrationId' payload");
+      return new Response(JSON.stringify({ error: "Missing 'registrationId' payload" }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      });
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+    const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+
+    const supabaseClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
     const { data: registration, error: dbError } = await supabaseClient
       .from('registrations')
-      .select('*, events(title, date, venue, city, country), ticket_types(name)')
+      .select('*, events(title, date, venue, city, country, organiser_id), ticket_types(name)')
       .eq('id', registrationId)
       .single();
 
     if (dbError || !registration) {
       console.error("Database query failed:", dbError);
-      throw new Error(`Registration not found or unreadable`);
+      return new Response(JSON.stringify({ error: "Registration not found" }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 404,
+      });
     }
 
     if (!['completed', 'confirmed'].includes(registration.status)) {
-      throw new Error(`Cannot dispatch ticket for an unpaid/incomplete registration`);
+      return new Response(JSON.stringify({ error: "Cannot dispatch ticket for an unpaid/incomplete registration" }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      });
+    }
+
+    // Caller authorization: verify that the caller is authorized to trigger this ticket dispatch
+    const authHeader = req.headers.get("Authorization") ?? "";
+    let isAuthorized = false;
+
+    if (authHeader && ANON_KEY) {
+      try {
+        const authScoped = createClient(SUPABASE_URL, ANON_KEY, {
+          global: { headers: { Authorization: authHeader } },
+        });
+        const { data: userData } = await authScoped.auth.getUser();
+        const callerId = userData?.user?.id;
+        const callerEmail = userData?.user?.email?.toLowerCase().trim();
+
+        if (callerId) {
+          if (
+            callerId === registration.user_id ||
+            callerId === registration.events?.organiser_id ||
+            (callerEmail && callerEmail === registration.email?.toLowerCase().trim())
+          ) {
+            isAuthorized = true;
+          }
+        }
+      } catch (_e) {
+        // Fall back to reference check
+      }
+    }
+
+    // Guest checkout authorization: match payment_reference or recent creation window
+    if (!isAuthorized) {
+      if (paymentReference && registration.payment_reference && paymentReference === registration.payment_reference) {
+        isAuthorized = true;
+      } else {
+        const createdAt = new Date(registration.created_at).getTime();
+        const now = Date.now();
+        // Allow automatic dispatch within 30 minutes of registration creation
+        if (now - createdAt < 30 * 60 * 1000) {
+          isAuthorized = true;
+        }
+      }
+    }
+
+    if (!isAuthorized) {
+      return new Response(JSON.stringify({ error: "Unauthorized ticket dispatch request" }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 403,
+      });
     }
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
@@ -109,10 +175,10 @@ serve(async (req) => {
               <div style="padding: 32px 24px;">
                 
                 <h1 style="color: #0F172A; font-size: 22px; margin: 0 0 8px 0; font-weight: 900; line-height: 1.2;">
-                  You're going to ${eventTitle}!
+                  You're going to ${escapeHtml(eventTitle)}!
                 </h1>
                 <p style="color: #64748B; font-size: 14px; margin: 0 0 24px 0; line-height: 1.5;">
-                  Hi <strong>${registration.full_name}</strong>, your registration has been successfully confirmed. Present your digital pass at the entrance on event day.
+                  Hi <strong>${escapeHtml(registration.full_name || 'there')}</strong>, your registration has been successfully confirmed. Present your digital pass at the entrance on event day.
                 </p>
 
                 <!-- Ticket Pass Box -->
@@ -124,19 +190,19 @@ serve(async (req) => {
                   <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                     <tr>
                       <td style="padding: 6px 0; color: #64748B; width: 35%;">Pass Type:</td>
-                      <td style="padding: 6px 0; color: #0F172A; font-weight: bold;">${ticketName}</td>
+                      <td style="padding: 6px 0; color: #0F172A; font-weight: bold;">${escapeHtml(ticketName)}</td>
                     </tr>
                     <tr>
                       <td style="padding: 6px 0; color: #64748B;">Date & Time:</td>
-                      <td style="padding: 6px 0; color: #0F172A; font-weight: bold;">${eventDate}</td>
+                      <td style="padding: 6px 0; color: #0F172A; font-weight: bold;">${escapeHtml(eventDate)}</td>
                     </tr>
                     <tr>
                       <td style="padding: 6px 0; color: #64748B;">Venue:</td>
-                      <td style="padding: 6px 0; color: #0F172A; font-weight: bold;">${venueName}</td>
+                      <td style="padding: 6px 0; color: #0F172A; font-weight: bold;">${escapeHtml(venueName)}</td>
                     </tr>
                     <tr>
                       <td style="padding: 6px 0; color: #64748B;">Reference ID:</td>
-                      <td style="padding: 6px 0; font-family: monospace; font-weight: bold; color: #0058BE;">${orderRef}</td>
+                      <td style="padding: 6px 0; font-family: monospace; font-weight: bold; color: #0058BE;">${escapeHtml(orderRef)}</td>
                     </tr>
                   </table>
 
@@ -196,7 +262,7 @@ serve(async (req) => {
 
     // Optional instant gate pass SMS notification (non-blocking)
     const rawPhone = (registration.phone_number || registration.phone || "").trim().replace(/[\s\-\(\)]/g, "");
-    const TEXTFLOW_API_TOKEN = Deno.env.get("TEXTFLOW_API_TOKEN") || "75|2mf7WIUhaQNTIoN2ikse4WSYtFilTaEtxHm0VA5x8d05e518";
+    const TEXTFLOW_API_TOKEN = Deno.env.get("TEXTFLOW_API_TOKEN");
     const TEXTFLOW_SENDER_ID = Deno.env.get("TEXTFLOW_SENDER_ID") || "Textflow";
     const TERMII_API_KEY = Deno.env.get("TERMII_API_KEY");
     const TERMII_SENDER_ID = Deno.env.get("TERMII_SENDER_ID") || "EventRally";
@@ -252,8 +318,8 @@ serve(async (req) => {
     });
 
   } catch (error: any) {
-    console.error("Edge Function Error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("Edge Function Error:", error?.message || error);
+    return new Response(JSON.stringify({ error: "Failed to dispatch ticket. Please try again or contact support." }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 400,
     });

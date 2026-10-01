@@ -16,7 +16,6 @@ import { getEventDpUrl, getEventUrl } from "@/lib/slugUtils";
 import { DigitalTicketCard } from "@/components/tickets/DigitalTicketCard";
 import { TicketActions } from "@/components/tickets/TicketActions";
 import { getActiveGatewayPublicKey, calculatePaymentBreakdown } from "@/lib/platformSettings";
-import { sendTicketConfirmationEmail } from "@/lib/emailService";
 import { submitRegistration, RegistrationRejectedError } from "@/lib/registrationService";
 import { parseEventMetadata, CustomQuestion } from "@/lib/eventMetadata";
 
@@ -123,34 +122,10 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
   const sendConfirmationEmail = async (registrationId: string, paymentRef: string | null) => {
     try {
-      // 1. Direct Resend dispatch using configured Super Admin API key
-      const isOnline = isOnlineEvent;
-      const venueStr = isOnline
-        ? "Online / Virtual Event"
-        : [event.venue, event.city, event.country].filter(Boolean).join(", ") || "Venue TBA";
-      const dateStr = event.date ? new Date(event.date).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'TBA';
-
-      await sendTicketConfirmationEmail({
-        attendeeName: name,
-        attendeeEmail: email,
-        eventTitle: event.title || "Event",
-        eventDate: dateStr,
-        venueName: venueStr,
-        ticketName: ticket?.name || "Standard Pass",
-        orderReference: paymentRef || registrationId.slice(0, 8).toUpperCase(),
-        amountPaid: totalAmount,
-        eventUrl: window.location.origin + getEventUrl(event),
-        dpUrl: window.location.origin + getEventDpUrl(event),
-        isOnline,
-        meetingLink: onlineSettings?.meeting_link,
-        whatsappLink: onlineSettings?.whatsapp_group_link,
-        accessInstructions: onlineSettings?.access_instructions,
-      });
-
-      // 2. Also trigger Supabase Edge Function as secondary background pipeline
+      // 1. Dispatch ticket & SMS through the secure server-side edge function
       await supabase.functions.invoke('send-ticket', {
-        body: { registrationId }
-      }).catch((err) => console.warn("Edge function fallback notice:", err));
+        body: { registrationId, paymentReference: paymentRef }
+      }).catch((err) => console.warn("Edge function dispatch notice:", err));
     } catch (err) {
       console.error("Failed to execute ticket email dispatch:", err);
     }

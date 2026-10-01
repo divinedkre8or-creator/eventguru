@@ -34,14 +34,14 @@ CREATE POLICY "Public read platform_settings"
   FOR SELECT
   USING (true);
 
--- Allow authenticated users / admins to write settings
+-- Allow authenticated admins to write settings
 DROP POLICY IF EXISTS "Admin write platform_settings" ON public.platform_settings;
 CREATE POLICY "Admin write platform_settings"
   ON public.platform_settings
   FOR ALL
   TO authenticated
-  USING (true)
-  WITH CHECK (true);
+  USING (EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin'));
 
 -- Seed initial row
 INSERT INTO public.platform_settings (id, settings, updated_at)
