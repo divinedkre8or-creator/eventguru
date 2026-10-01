@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Mail, Send, MessageSquare, Users, Loader2, AlertCircle,
-  Wallet, Gauge, Crown, ShieldCheck, Plus, Smartphone,
+  Wallet, Gauge, Crown, ShieldCheck, Plus, Smartphone, Sparkles,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,24 @@ import { formatBrandedSms, calculateSmsSegments } from "@/lib/phoneUtils";
 // The campaigns/wallet/usage tables are newer than the generated Supabase types,
 // so we access them through an untyped handle.
 const db = supabase as any;
+
+const SMS_QUICK_TEMPLATES = [
+  {
+    id: "reminder_24h",
+    label: "24h Countdown",
+    body: "Hi {{name}}, counting down to our event! Doors open tomorrow on schedule. Please have your digital pass ready on your phone for rapid gate scanning.",
+  },
+  {
+    id: "venue_gate",
+    label: "Venue Directions",
+    body: "Hi {{name}}, venue update: Fast-track check-in is located at the main entrance. Parking is available on site. We look forward to hosting you!",
+  },
+  {
+    id: "thank_you",
+    label: "Post-Event Note",
+    body: "Hi {{name}}, thank you for attending! We hope you had an unforgettable experience. Stay tuned for future editions on EventRally.",
+  },
+];
 
 interface EventOption {
   id: string;
@@ -49,13 +68,33 @@ const Campaigns = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const period = getCurrentUsagePeriod();
+  const [searchParams] = useSearchParams();
 
-  const [selectedEventId, setSelectedEventId] = useState<string>("all");
-  const [channel, setChannel] = useState<"email" | "sms">("email");
+  const paramEventId = searchParams.get("event_id");
+  const paramChannel = searchParams.get("channel");
+  const paramTemplate = searchParams.get("template");
+
+  const [selectedEventId, setSelectedEventId] = useState<string>(paramEventId || "all");
+  const [channel, setChannel] = useState<"email" | "sms">(paramChannel === "sms" ? "sms" : "email");
   const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(() => {
+    if (paramTemplate) {
+      const match = SMS_QUICK_TEMPLATES.find((t) => t.id === paramTemplate);
+      if (match) return match.body;
+    }
+    return "";
+  });
   const [brandHeader, setBrandHeader] = useState("EventRally");
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (paramEventId && selectedEventId !== paramEventId) {
+      setSelectedEventId(paramEventId);
+    }
+    if (paramChannel === "sms" && channel !== "sms") {
+      setChannel("sms");
+    }
+  }, [paramEventId, paramChannel]);
 
   // --- Organiser events (target selector) -----------------------------------
   const { data: events = [] } = useQuery({
@@ -424,6 +463,26 @@ const Campaigns = () => {
                 </label>
                 <span className="text-[10px] text-muted-foreground">Supports variables: <code>{"{{name}}"}</code></span>
               </div>
+
+              {channel === "sms" && (
+                <div className="flex flex-wrap items-center gap-1.5 pb-1">
+                  <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase flex items-center gap-1 mr-0.5">
+                    <Sparkles className="w-3 h-3 text-secondary" /> Quick Starters:
+                  </span>
+                  {SMS_QUICK_TEMPLATES.map((tmpl) => (
+                    <button
+                      key={tmpl.id}
+                      type="button"
+                      onClick={() => setMessage(tmpl.body)}
+                      className="px-2.5 py-1 rounded bg-muted/60 hover:bg-muted text-foreground border border-border text-[11px] font-medium transition-colors cursor-pointer"
+                      title={tmpl.body}
+                    >
+                      {tmpl.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <Textarea
                 placeholder={
                   channel === "email"

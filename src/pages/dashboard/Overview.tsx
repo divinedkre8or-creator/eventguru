@@ -229,6 +229,11 @@ const Overview = () => {
                       Manage Event <ArrowRight className="w-3.5 h-3.5" />
                     </Button>
                   </Link>
+                  <Link to={`/dashboard/campaigns?event_id=${featuredEvent.id}&channel=sms`}>
+                    <Button variant="outline" size="sm" className="text-xs font-bold h-9 px-3 border-border rounded-lg flex items-center gap-1.5 text-foreground hover:bg-muted">
+                      <MessageSquare className="w-3.5 h-3.5 text-secondary" /> Broadcast (SMS)
+                    </Button>
+                  </Link>
                   <Link to={`/events/${featuredEvent.id}`} target="_blank">
                     <Button variant="outline" size="sm" className="text-xs font-medium h-9 px-3 border-border rounded-lg flex items-center gap-1.5">
                       View Page <ExternalLink className="w-3.5 h-3.5" />
@@ -351,9 +356,9 @@ const Overview = () => {
                 </Button>
               </Link>
 
-              <Link to="/dashboard/campaigns">
+              <Link to="/dashboard/campaigns?channel=sms">
                 <Button variant="outline" size="sm" className="w-full h-11 text-xs font-medium justify-start bg-background border-border text-foreground hover:bg-muted">
-                  <Megaphone className="w-4 h-4 mr-2 text-muted-foreground" /> Campaign
+                  <MessageSquare className="w-4 h-4 mr-2 text-primary" /> SMS & Broadcast
                 </Button>
               </Link>
             </div>

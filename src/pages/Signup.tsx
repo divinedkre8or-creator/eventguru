@@ -157,6 +157,25 @@ const Signup = () => {
               </div>
             </div>
 
+            <div className="text-[11px] text-muted-foreground text-center leading-relaxed px-1">
+              By creating an account, you agree to EventRally&apos;s{" "}
+              <Link to="/terms" target="_blank" className="text-secondary font-semibold hover:underline">
+                Terms of Service
+              </Link>{" "}
+              and acknowledge our{" "}
+              <Link to="/privacy" target="_blank" className="text-secondary font-semibold hover:underline">
+                Privacy Policy
+              </Link>
+              {role === "organiser" && (
+                <>
+                  {" "}and the{" "}
+                  <Link to="/organizer-terms" target="_blank" className="text-secondary font-semibold hover:underline">
+                    Organizer Agreement
+                  </Link>
+                </>
+              )}.
+            </div>
+
             <Button
               type="submit"
               variant="secondary"
@@ -180,8 +199,12 @@ const Signup = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6 px-4 text-center text-xs text-muted-foreground">
-        © 2026 EventRally. All rights reserved.
+      <footer className="border-t border-border py-6 px-4 text-center text-xs text-muted-foreground flex flex-wrap items-center justify-center gap-3">
+        <span>© 2026 EventRally. All rights reserved.</span>
+        <span>•</span>
+        <Link to="/terms" className="hover:text-foreground">Terms</Link>
+        <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+        <Link to="/cookies" className="hover:text-foreground">Cookies</Link>
       </footer>
     </div>
   );

@@ -131,8 +131,12 @@ const Login = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6 px-4 text-center text-xs text-muted-foreground">
-        © 2026 EventRally. All rights reserved.
+      <footer className="border-t border-border py-6 px-4 text-center text-xs text-muted-foreground flex flex-wrap items-center justify-center gap-3">
+        <span>© 2026 EventRally. All rights reserved.</span>
+        <span>•</span>
+        <Link to="/terms" className="hover:text-foreground">Terms</Link>
+        <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+        <Link to="/cookies" className="hover:text-foreground">Cookies</Link>
       </footer>
     </div>
   );

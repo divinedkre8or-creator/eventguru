@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { 
   PlusCircle, Calendar, MapPin, Users, Search, Edit3, Copy, 
   ExternalLink, Image, Zap, MoreVertical, Trash2, Ban, CheckCircle2,
-  Loader2
+  Loader2, MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -253,11 +253,18 @@ const Events = () => {
                   </div>
 
                   {/* DP Setup Shortcut Link */}
-                  <Link to={`/dashboard/dp?event_id=${event.id}`} className="block">
-                    <div className="w-full bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/30 text-[11px] font-bold py-1.5 rounded-md flex items-center justify-center gap-1.5 transition-colors">
-                      <Image className="w-3.5 h-3.5" /> Setup DP Generator Frame
-                    </div>
-                  </Link>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Link to={`/dashboard/dp?event_id=${event.id}`} className="block">
+                      <div className="w-full bg-secondary/10 hover:bg-secondary/20 text-secondary border border-secondary/30 text-[11px] font-bold py-1.5 rounded-md flex items-center justify-center gap-1.5 transition-colors">
+                        <Image className="w-3.5 h-3.5" /> Setup DP Frame
+                      </div>
+                    </Link>
+                    <Link to={`/dashboard/campaigns?event_id=${event.id}&channel=sms`} className="block">
+                      <div className="w-full bg-primary/5 hover:bg-primary/10 text-primary border border-primary/20 text-[11px] font-bold py-1.5 rounded-md flex items-center justify-center gap-1.5 transition-colors">
+                        <MessageSquare className="w-3.5 h-3.5" /> Broadcast (SMS)
+                      </div>
+                    </Link>
+                  </div>
 
                   <div className="flex items-center gap-2 w-full min-w-0">
                     <Link to={`/dashboard/events/${event.id}/edit`} className="flex-1 min-w-0">
@@ -297,6 +304,13 @@ const Events = () => {
                           <Link to={`/dashboard/dp?event_id=${event.id}`}>
                             <Image className="w-3.5 h-3.5 mr-2 text-secondary" />
                             Setup DP Frame
+                          </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild className="text-xs font-medium cursor-pointer">
+                          <Link to={`/dashboard/campaigns?event_id=${event.id}&channel=sms`}>
+                            <MessageSquare className="w-3.5 h-3.5 mr-2 text-primary" />
+                            Broadcast to Guests
                           </Link>
                         </DropdownMenuItem>
 

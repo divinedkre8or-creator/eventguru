@@ -9,7 +9,7 @@ export const SiteFooter: React.FC = () => {
       <div className="max-w-[1440px] mx-auto space-y-12">
         
         {/* Main Footer Links Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
           
           {/* Brand & Entity Summary */}
           <div className="col-span-2 space-y-4 pr-0 lg:pr-6">
@@ -147,15 +147,60 @@ export const SiteFooter: React.FC = () => {
             </ul>
           </div>
 
+          {/* Trust & Legal Column */}
+          <div className="space-y-3">
+            <h3 className="font-mono text-[11px] font-bold uppercase tracking-wider text-foreground">
+              Trust & Legal
+            </h3>
+            <ul className="space-y-2 text-xs text-muted-foreground">
+              <li>
+                <Link to="/terms" className="hover:text-foreground transition-colors font-medium">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="hover:text-foreground transition-colors font-medium">
+                  Privacy Policy (NDPA)
+                </Link>
+              </li>
+              <li>
+                <Link to="/organizer-terms" className="hover:text-foreground transition-colors font-medium">
+                  Organizer Agreement
+                </Link>
+              </li>
+              <li>
+                <Link to="/refund-policy" className="hover:text-foreground transition-colors font-medium">
+                  Ticketing & Refunds
+                </Link>
+              </li>
+              <li>
+                <Link to="/acceptable-use" className="hover:text-foreground transition-colors">
+                  Acceptable Use & DP
+                </Link>
+              </li>
+              <li>
+                <Link to="/cookies" className="hover:text-foreground transition-colors">
+                  Cookie Policy
+                </Link>
+              </li>
+            </ul>
+          </div>
+
         </div>
 
         {/* Bottom Legal / Copyright Bar */}
         <div className="border-t border-border pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>© 2026 EVENTRALLY (geteventrally.com). All rights reserved.</span>
+            <span className="hidden sm:inline">•</span>
+            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link to="/refund-policy" className="hover:text-foreground transition-colors">Refunds</Link>
+            <Link to="/organizer-terms" className="hover:text-foreground transition-colors">Merchant Terms</Link>
+            <Link to="/cookies" className="hover:text-foreground transition-colors">Cookies</Link>
           </div>
           <div className="flex items-center gap-4">
-            <span className="font-mono text-[11px]">WHERE EVERYONE'S GOING.</span>
+            <span className="font-mono text-[11px]">WHERE EVERYONE&apos;S GOING.</span>
           </div>
         </div>
 

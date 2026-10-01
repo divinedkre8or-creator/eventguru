@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Copy, Check, Share2, Facebook, Twitter, Linkedin } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Copy, Check, Share2, Facebook, Twitter, Linkedin, MessageSquare } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +10,10 @@ interface ShareEventModalProps {
   onClose: () => void;
   eventUrl: string;
   eventTitle: string;
+  eventId?: string;
 }
 
-export function ShareEventModal({ isOpen, onClose, eventUrl, eventTitle }: ShareEventModalProps) {
+export function ShareEventModal({ isOpen, onClose, eventUrl, eventTitle, eventId }: ShareEventModalProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -86,6 +88,29 @@ export function ShareEventModal({ isOpen, onClose, eventUrl, eventTitle }: Share
               <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noreferrer">
                 <Linkedin className="w-4 h-4 fill-current" />
               </a>
+            </Button>
+          </div>
+        </div>
+
+        {/* Recommended Next Step for Event Day */}
+        <div className="mt-5 pt-4 border-t border-border space-y-2">
+          <p className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider text-center">
+            Recommended Next Step
+          </p>
+          <div className="bg-muted/40 border border-border rounded-xl p-3 flex items-center justify-between gap-3 text-left">
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5 text-primary shrink-0" />
+                <span>Direct Attendee Broadcast</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">
+                Send gate passes, venue directions, or reminders directly to confirmed phones.
+              </p>
+            </div>
+            <Button asChild size="sm" variant="outline" className="text-xs font-bold shrink-0 border-border h-8 px-3">
+              <Link to={eventId ? `/dashboard/campaigns?event_id=${eventId}&channel=sms` : "/dashboard/campaigns?channel=sms"}>
+                Broadcast
+              </Link>
             </Button>
           </div>
         </div>

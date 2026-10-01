@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { 
   ArrowLeft, ArrowRight, Calendar, MapPin, Tag, Ticket, Plus, Trash2, 
   Loader2, ImagePlus, Palette, Globe, Building2, Link2, MessageCircle, HelpCircle,
-  Ban, CheckCircle2 
+  Ban, CheckCircle2, Sparkles 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -767,6 +767,15 @@ const CreateEvent = () => {
             <Switch checked={isFree} onCheckedChange={setIsFree} />
           </div>
 
+          {isFree && (
+            <div className="p-3.5 rounded-lg bg-muted/40 border border-border/80 flex items-start gap-2.5 text-xs text-muted-foreground transition-all">
+              <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-foreground">Turnout Tip:</span> Free events often experience higher drop-off rates. You can broadcast on-demand SMS reminders directly to confirmed attendee phones from your dashboard to keep attendance high.
+              </div>
+            </div>
+          )}
+
           <Button onClick={() => setStep(2)} disabled={!canProceedStep1} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold">
             Next: {isFree ? "Review" : "Tickets"} <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
@@ -782,7 +791,7 @@ const CreateEvent = () => {
               <div className="text-center p-6 border border-dashed border-border rounded-xl bg-background/50">
                 <Ticket className="w-10 h-10 mx-auto mb-3 text-emerald-500" />
                 <h3 className="font-heading text-sm font-bold text-foreground mb-1">Free Event</h3>
-                <p className="text-muted-foreground text-xs font-medium mb-4">Attendees can register without payment</p>
+                <p className="text-muted-foreground text-xs font-medium mb-4">Attendees can register without payment &bull; You can message them with updates anytime via Campaign Studio</p>
                 <div className="space-y-2 max-w-xs mx-auto text-left">
                   <Label className="font-heading text-sm font-bold">Max Attendees (optional)</Label>
                   <Input type="number" value={maxAttendees} onChange={(e) => setMaxAttendees(e.target.value)} placeholder="Unlimited" className="bg-background border-border text-center text-foreground" />
@@ -1014,6 +1023,7 @@ const CreateEvent = () => {
         }} 
         eventUrl={`${domain}/events/${publishedEventId || id}`}
         eventTitle={title}
+        eventId={publishedEventId || id}
       />
     </div>
   );

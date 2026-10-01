@@ -27,6 +27,16 @@ const FeatureDetail = lazy(() => import("./pages/features/FeatureDetail"));
 const GuidesHub = lazy(() => import("./pages/guides/GuidesHub"));
 const GuideDetail = lazy(() => import("./pages/guides/GuideDetail"));
 
+// Legal & Regulatory Framework
+const TermsOfService = lazy(() => import("./pages/legal/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
+const OrganizerAgreement = lazy(() => import("./pages/legal/OrganizerAgreement"));
+const RefundPolicy = lazy(() => import("./pages/legal/RefundPolicy"));
+const AcceptableUsePolicy = lazy(() => import("./pages/legal/AcceptableUsePolicy"));
+const CookiePolicy = lazy(() => import("./pages/legal/CookiePolicy"));
+
+import { CookieBanner } from "@/components/legal/CookieBanner";
+
 const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
 const DashboardOverview = lazy(() => import("./pages/dashboard/Overview"));
 const Events = lazy(() => import("./pages/dashboard/Events"));
@@ -69,6 +79,7 @@ const App = () => (
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <AuthProvider>
             <ScrollToTop />
+            <CookieBanner />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Core Public Hubs & Marketing */}
@@ -87,6 +98,14 @@ const App = () => (
                 {/* Educational Guides & Search Intent Hub */}
                 <Route path="/guides" element={<GuidesHub />} />
                 <Route path="/guides/:slug" element={<GuideDetail />} />
+
+                {/* Legal, Regulatory & Consumer Protection Hub */}
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/organizer-terms" element={<OrganizerAgreement />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/acceptable-use" element={<AcceptableUsePolicy />} />
+                <Route path="/cookies" element={<CookiePolicy />} />
 
                 {/* Dashboard (Organisers & Attendees) */}
                 <Route

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Users, Search, Download, CheckCircle2, XCircle, Clock, Mail, Phone, Filter, FileText } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Users, Search, Download, CheckCircle2, XCircle, Clock, Mail, Phone, Filter, FileText, MessageSquare, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
@@ -157,9 +158,16 @@ const Attendees = () => {
           <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Attendee Directory</h1>
           <p className="text-muted-foreground text-xs font-medium mt-1">Manage guest lists, tickets, and check-in statuses across all events</p>
         </div>
-        <Button onClick={handleExport} disabled={filtered.length === 0} variant="outline" className="w-full sm:w-auto border-border text-foreground hover:bg-muted font-bold text-xs h-10 px-4 rounded-lg flex items-center justify-center gap-2">
-          <Download className="w-4 h-4" /> Export CSV
-        </Button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+          <Link to="/dashboard/campaigns?channel=sms" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto bg-primary text-primary-foreground hover:opacity-90 font-bold text-xs h-10 px-4 rounded-lg flex items-center justify-center gap-2 shadow-xs">
+              <MessageSquare className="w-4 h-4" /> Broadcast to Guests
+            </Button>
+          </Link>
+          <Button onClick={handleExport} disabled={filtered.length === 0} variant="outline" className="w-full sm:w-auto border-border text-foreground hover:bg-muted font-bold text-xs h-10 px-4 rounded-lg flex items-center justify-center gap-2">
+            <Download className="w-4 h-4" /> Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* KPI Stats */}
@@ -177,6 +185,28 @@ const Attendees = () => {
           <div className="font-heading text-3xl font-black text-chart-blue mt-1">{checkedIn.toLocaleString()}</div>
         </div>
       </div>
+
+      {/* Contextual Direct Reach Banner */}
+      {totalAttendees > 0 && (
+        <div className="bg-card border border-border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary shrink-0 mt-0.5 sm:mt-0">
+              <Smartphone className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs font-bold text-foreground">Direct Attendee Reach via SMS</h4>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-normal">
+                You have {totalAttendees.toLocaleString()} registered guests. Send venue directions, parking notes, or gate passes straight to their phone lock screens with 98% open rates.
+              </p>
+            </div>
+          </div>
+          <Link to="/dashboard/campaigns?channel=sms" className="shrink-0 w-full sm:w-auto">
+            <Button variant="outline" size="sm" className="w-full text-xs font-bold h-9 border-border bg-background hover:bg-muted">
+              Compose SMS Broadcast
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between w-full min-w-0">
