@@ -1,7 +1,8 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, CalendarDays, Users, CreditCard,
-  AlertTriangle, Settings, Menu, X, Shield, MessageSquarePlus, LogOut, ArrowLeft
+  AlertTriangle, Settings, Menu, X, Shield, MessageSquarePlus, LogOut, ArrowLeft,
+  MessageSquare
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ const navItems = [
   { title: "All Events", path: "/admin/events", icon: CalendarDays },
   { title: "Organisers", path: "/admin/organisers", icon: Users },
   { title: "Transactions", path: "/admin/transactions", icon: CreditCard },
+  { title: "SMS & Messaging", path: "/admin/sms", icon: MessageSquare },
   { title: "Disputes", path: "/admin/disputes", icon: AlertTriangle },
   { title: "Feedback & Support", path: "/admin/feedback", icon: MessageSquarePlus },
   { title: "Settings", path: "/admin/settings", icon: Settings },
