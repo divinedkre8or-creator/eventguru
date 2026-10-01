@@ -83,7 +83,9 @@ export function getPlatformSettings(): PlatformSettings {
     const resolved: PlatformSettings = {
       ...DEFAULT_PLATFORM_SETTINGS,
       ...parsed,
-      gateway_public_key: parsed.gateway_public_key || import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
+      gateway_public_key: (parsed.gateway_public_key && parsed.gateway_public_key.trim() !== "")
+        ? parsed.gateway_public_key.trim()
+        : (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || DEFAULT_PLATFORM_SETTINGS.gateway_public_key),
     };
     memorySettingsCache = resolved;
     return resolved;
@@ -138,8 +140,11 @@ export async function fetchRemotePlatformSettings(): Promise<PlatformSettingsFet
       const merged: PlatformSettings = {
         ...local,
         ...data.settings,
-        // If remote has empty gateway key but local has one, keep local (and vice-versa)
-        gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || data.settings.gateway_public_key || local.gateway_public_key || "",
+        gateway_public_key: (data.settings.gateway_public_key && data.settings.gateway_public_key.trim() !== "")
+          ? data.settings.gateway_public_key.trim()
+          : ((local.gateway_public_key && local.gateway_public_key.trim() !== "")
+            ? local.gateway_public_key.trim()
+            : (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || DEFAULT_PLATFORM_SETTINGS.gateway_public_key)),
         resend_api_key: import.meta.env.VITE_RESEND_API_KEY || data.settings.resend_api_key || local.resend_api_key || "",
         textflow_api_token: import.meta.env.VITE_TEXTFLOW_API_TOKEN || data.settings.textflow_api_token || local.textflow_api_token || "",
         textflow_sender_id: data.settings.textflow_sender_id || import.meta.env.VITE_TEXTFLOW_SENDER_ID || local.textflow_sender_id || "Textflow",
@@ -227,7 +232,11 @@ export function getActiveGatewayPublicKey(): string {
   if (settings.gateway_public_key && settings.gateway_public_key.trim() !== "") {
     return settings.gateway_public_key.trim();
   }
-  return import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "";
+  return (
+    import.meta.env.VITE_PAYSTACK_PUBLIC_KEY ||
+    DEFAULT_PLATFORM_SETTINGS.gateway_public_key ||
+    "pk_live_05f315dab83c2ed136a33b33acb5d81812a0f635"
+  );
 }
 
 export interface PaymentBreakdownInput {

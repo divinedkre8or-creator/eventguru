@@ -156,7 +156,7 @@ serve(async (req) => {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          recipient: normalized,
+          recipients: normalized,
           sender_id: senderId,
           message: testMsg,
         }),
@@ -295,7 +295,7 @@ serve(async (req) => {
               Accept: "application/json",
             },
             body: JSON.stringify({
-              recipient: phone,
+              recipients: phone,
               sender_id: TEXTFLOW_SENDER_ID,
               message: fullText,
             }),

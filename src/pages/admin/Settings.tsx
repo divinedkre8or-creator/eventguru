@@ -179,6 +179,25 @@ const AdminSettings = () => {
               />
               <p className="text-[10px] text-muted-foreground">Platform commission automatically deducted from paid ticket sales (e.g. 2.5%).</p>
             </div>
+
+            <div className="space-y-1.5 min-w-0 sm:col-span-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-bold text-foreground">Paystack Public Key</Label>
+                <span className="text-[10px] font-mono font-bold text-muted-foreground">
+                  {settings.gateway_public_key?.startsWith("pk_live_") ? "🟢 Live Production Key" : "🟡 Test Key"}
+                </span>
+              </div>
+              <Input
+                type="text"
+                value={settings.gateway_public_key}
+                onChange={(e) => setSettings({ ...settings, gateway_public_key: e.target.value.trim() })}
+                placeholder="pk_live_... or pk_test_..."
+                className="bg-background border-border text-xs h-10 rounded-lg font-mono"
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Public key used for Paystack checkout popups (ticket purchases and organizer SMS wallet top-ups).
+              </p>
+            </div>
           </div>
         </div>
 

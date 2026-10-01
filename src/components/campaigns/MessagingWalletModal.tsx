@@ -86,12 +86,15 @@ export const MessagingWalletModal = ({
   const totalPriceNgn = isCustom ? calculatedCustomPrice : (activePack?.priceNgn || 0);
 
   const publicKey = getActiveGatewayPublicKey();
+  const activeEmail = (userEmail && userEmail.trim().length > 3 && userEmail.includes("@"))
+    ? userEmail.trim()
+    : "billing@eventrally.app";
 
   const paystackConfig = {
     reference: `SMS-WALLET-${organiserId.slice(0, 8)}-${Date.now()}`,
-    email: userEmail,
+    email: activeEmail,
     amount: totalPriceNgn * 100, // amount in kobo
-    publicKey: publicKey || "",
+    publicKey: publicKey || "pk_live_05f315dab83c2ed136a33b33acb5d81812a0f635",
     currency: "NGN",
     metadata: {
       custom_fields: [
@@ -106,46 +109,27 @@ export const MessagingWalletModal = ({
 
   const handlePaymentSuccess = async (response: { reference: string }) => {
     try {
-      // 1. Fetch current wallet or initialize
-      const { data: existingWallet } = await db
-        .from("organiser_wallets")
-        .select("sms_balance, plan")
-        .eq("organiser_id", organiserId)
-        .maybeSingle();
+      const ref = response?.reference || paystackConfig.reference;
 
-      const newBalance = (Number(existingWallet?.sms_balance) || 0) + totalPriceNgn;
-
-      // 2. Upsert wallet balance
-      const { error: walletErr } = await db
-        .from("organiser_wallets")
-        .upsert(
-          {
-            organiser_id: organiserId,
-            sms_balance: newBalance,
-            plan: existingWallet?.plan || "free",
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "organiser_id" }
-        );
-
-      if (walletErr) throw walletErr;
-
-      // 3. Record transaction ledger
-      await db.from("wallet_transactions").insert({
-        organiser_id: organiserId,
-        type: "fund",
-        amount: totalPriceNgn,
-        balance_after: newBalance,
-        reference: response?.reference || paystackConfig.reference,
-        description: `Top-up: ${totalUnits.toLocaleString()} SMS Credits (₦${totalPriceNgn.toLocaleString()})`,
+      // Invoke server-side secure edge function to verify transaction and credit wallet
+      const { data, error } = await supabase.functions.invoke("fund-wallet", {
+        body: {
+          paymentReference: ref,
+        },
       });
 
-      toast.success(`Wallet credited with ₦${totalPriceNgn.toLocaleString()} (${totalUnits.toLocaleString()} SMS Units)!`);
+      if (error || !data?.ok) {
+        throw new Error(data?.error || error?.message || "Failed to confirm payment with server");
+      }
+
+      toast.success(
+        `Wallet credited with ₦${(data.amountPaidNaira || totalPriceNgn).toLocaleString()} (${(data.unitsAdded || totalUnits).toLocaleString()} SMS Units)!`
+      );
       onSuccess();
       onClose();
     } catch (err: any) {
       console.error("Wallet credit error:", err);
-      toast.error("Payment received, but recording wallet transaction failed. Please contact support.");
+      toast.error(err.message || "Payment received, but recording wallet transaction failed. Please contact support.");
     } finally {
       setIsProcessing(false);
     }
