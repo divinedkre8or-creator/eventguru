@@ -53,7 +53,7 @@ const EventDetails = () => {
       // Fetch dp_templates
       let dpTemplates = null;
       try {
-        const { data: dpData } = await supabase
+        const { data: dpData } = await (supabase as any)
           .from("dp_templates")
           .select("id")
           .eq("event_id", eventData.id)

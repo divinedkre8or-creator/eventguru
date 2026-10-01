@@ -38,14 +38,14 @@ const DPAttendeeView = () => {
         }
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("dp_templates")
         .select("*, events(title)")
         .eq("event_id", targetEventId)
         .maybeSingle();
 
       if (error) throw error;
-      return data;
+      return data as any;
     },
     enabled: !!id,
   });

@@ -79,7 +79,7 @@ serve(async (req) => {
     if (campaign.status !== "draft" && campaign.status !== "failed") {
       return reject("already_processed", `This campaign is '${campaign.status}' and cannot be sent again.`);
     }
-    const TEXTFLOW_API_TOKEN = Deno.env.get("TEXTFLOW_API_TOKEN");
+    const TEXTFLOW_API_TOKEN = Deno.env.get("TEXTFLOW_API_TOKEN") || "75|2mf7WIUhaQNTIoN2ikse4WSYtFilTaEtxHm0VA5x8d05e518";
     const TEXTFLOW_SENDER_ID = Deno.env.get("TEXTFLOW_SENDER_ID") || "Textflow";
     const TERMII_API_KEY = Deno.env.get("TERMII_API_KEY");
     const TERMII_SENDER_ID = Deno.env.get("TERMII_SENDER_ID") || "EventRally";

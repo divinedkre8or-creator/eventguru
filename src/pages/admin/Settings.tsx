@@ -68,6 +68,23 @@ const AdminSettings = () => {
     checkDbStatus();
   }, []);
 
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const ok = await persistPlatformSettings(settings);
+      if (ok) {
+        toast.success("Platform settings saved successfully.");
+      } else {
+        toast.error("Failed to save platform settings to database.");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to save settings.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto font-sans pb-16 w-full min-w-0 overflow-x-hidden">
       {/* Header */}

@@ -7,6 +7,7 @@ export type EventType = "physical" | "online";
 export interface OnlineSettings {
   meeting_link: string; // e.g. Zoom, Google Meet, YouTube Live
   redirect_url: string; // e.g. WhatsApp Group, Telegram community
+  whatsapp_group_link?: string; // backwards compatibility alias for redirect_url
   access_instructions: string; // e.g. Passcode or joining notes
   auto_redirect: boolean; // default false
 }

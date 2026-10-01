@@ -76,7 +76,7 @@ const DPGenerator = () => {
     queryKey: ["dp-template-v2", selectedEventId],
     queryFn: async () => {
       if (!selectedEventId) return null;
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("dp_templates")
         .select("*")
         .eq("event_id", selectedEventId)
@@ -85,7 +85,7 @@ const DPGenerator = () => {
       if (error) throw error;
       
       if (data) {
-        setTemplate(data);
+        setTemplate(data as DpTemplate);
         setIsEditing(true);
       } else {
         setTemplate({ ...defaultTemplate, event_id: selectedEventId });
@@ -100,10 +100,10 @@ const DPGenerator = () => {
   const saveMutation = useMutation({
     mutationFn: async (payload: DpTemplate) => {
       if (payload.id) {
-        const { error } = await supabase.from("dp_templates").update(payload).eq("id", payload.id);
+        const { error } = await (supabase as any).from("dp_templates").update(payload).eq("id", payload.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("dp_templates").insert({ ...payload, id: undefined });
+        const { error } = await (supabase as any).from("dp_templates").insert({ ...payload, id: undefined });
         if (error) throw error;
       }
     },
