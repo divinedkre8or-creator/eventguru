@@ -135,7 +135,18 @@ serve(async (req) => {
 
     const currentBalance = Number(existingWallet?.sms_balance) || 0;
     const newBalance = currentBalance + amountPaidNaira;
-    const unitsAdded = Math.floor(amountPaidNaira / 6.5);
+
+    // Resolve units added from Paystack metadata or volume-tiered pricing
+    let unitsAdded = 0;
+    const metaUnits = txData?.metadata?.custom_fields?.find(
+      (f: any) => f.variable_name === "sms_units"
+    )?.value;
+    if (metaUnits && !isNaN(Number(metaUnits)) && Number(metaUnits) > 0) {
+      unitsAdded = Math.floor(Number(metaUnits));
+    } else {
+      const fallbackRate = amountPaidNaira > 4000 ? 8 : amountPaidNaira > 900 ? 9 : 10;
+      unitsAdded = Math.floor(amountPaidNaira / fallbackRate);
+    }
 
     // 6. Upsert wallet balance
     const { error: walletError } = await supabaseAdmin
