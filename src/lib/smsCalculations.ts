@@ -3,7 +3,7 @@
 // Shared financial and operational calculations for EventRally SMS & Messaging infrastructure.
 
 export const DEFAULT_WHOLESALE_SMS_PRICE_NGN = 3.75;
-export const DEFAULT_RETAIL_SMS_PRICE_NGN = 6.5;
+export const DEFAULT_RETAIL_SMS_PRICE_NGN = 10.0;
 
 export interface CentralBalanceHealth {
   status: "healthy" | "warning" | "critical";

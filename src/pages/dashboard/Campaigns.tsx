@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { FREE_EMAIL_MONTHLY_LIMIT, getCurrentUsagePeriod } from "@/lib/campaignConstants";
 import { MessagingWalletModal } from "@/components/campaigns/MessagingWalletModal";
 import { formatBrandedSms, calculateSmsSegments } from "@/lib/phoneUtils";
+import { getSmsUnitRate, BASE_SMS_PRICE_NGN } from "@/lib/smsPricing";
 
 // The campaigns/wallet/usage tables are newer than the generated Supabase types,
 // so we access them through an untyped handle.
@@ -61,8 +62,6 @@ const STATUS_STYLES: Record<string, string> = {
   failed: "bg-destructive/10 text-destructive",
   draft: "bg-muted text-muted-foreground",
 };
-
-const SMS_UNIT_PRICE_NAIRA = 6.5;
 
 const Campaigns = () => {
   const { user } = useAuth();
@@ -201,8 +200,6 @@ const Campaigns = () => {
 
   const targetCount = channel === "email" ? audience.emailCount : audience.phoneCount;
   const currentSmsBalance = Number(wallet?.sms_balance) || 0;
-  const estimatedSmsCost = targetCount * SMS_UNIT_PRICE_NAIRA;
-  const hasEnoughSmsBalance = currentSmsBalance >= estimatedSmsCost;
 
   // SMS character length and segments calculation using branded prefix
   const effectiveBrand = (brandHeader || "").trim() || "EventRally";
@@ -210,6 +207,12 @@ const Campaigns = () => {
   const smsCalculation = calculateSmsSegments(message ? previewSmsMessage : `[${effectiveBrand}] `);
   const smsCharLength = smsCalculation.charCount;
   const smsSegments = Math.max(1, smsCalculation.segments);
+
+  // Volume-tiered SMS cost calculation: 10 NGN (1-100), 9 NGN (101-500), 8 NGN (>500)
+  const totalSmsUnitsNeeded = targetCount * smsSegments;
+  const currentSmsRate = getSmsUnitRate(totalSmsUnitsNeeded);
+  const estimatedSmsCost = totalSmsUnitsNeeded * currentSmsRate;
+  const hasEnoughSmsBalance = currentSmsBalance >= estimatedSmsCost;
 
   const eventTitleFor = (id: string | null) =>
     !id ? "All Attendees" : events.find((e) => e.id === id)?.title || "Event";
@@ -502,7 +505,7 @@ const Campaigns = () => {
                     {smsSegments > 1 && <span className="text-amber-500 font-sans text-[10px] font-medium">(multi-part SMS)</span>}
                   </span>
                   <span className="font-bold text-foreground">
-                    Est. Cost: ₦{(targetCount * SMS_UNIT_PRICE_NAIRA * smsSegments).toLocaleString()} ({targetCount} phones)
+                    Est. Cost: ₦{estimatedSmsCost.toLocaleString()} ({targetCount} {targetCount === 1 ? "phone" : "phones"} &bull; {totalSmsUnitsNeeded} unit{totalSmsUnitsNeeded === 1 ? "" : "s"} @ ₦{currentSmsRate}/SMS)
                   </span>
                 </div>
               )}
@@ -645,7 +648,7 @@ const Campaigns = () => {
                   ₦{currentSmsBalance.toLocaleString()}
                 </div>
                 <div className="text-[11px] text-muted-foreground">
-                  ~{Math.floor(currentSmsBalance / SMS_UNIT_PRICE_NAIRA).toLocaleString()} SMS units available
+                  ~{Math.floor(currentSmsBalance / BASE_SMS_PRICE_NGN).toLocaleString()} SMS units available
                 </div>
               </div>
               <Button
@@ -657,7 +660,7 @@ const Campaigns = () => {
               </Button>
             </div>
             <p className="text-[11px] text-muted-foreground/70 leading-relaxed">
-              Credits never expire. Top up in bundles of 250, 750, or 2,500 units via Paystack to send instant mobile SMS reminders.
+              Credits never expire. Pay as you go at ₦10/SMS standard rate, with automatic volume discounts to ₦9 (&gt;100 units) and ₦8 (&gt;500 units) via Paystack.
             </p>
           </div>
 

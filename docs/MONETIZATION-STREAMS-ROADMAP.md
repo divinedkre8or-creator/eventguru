@@ -65,16 +65,14 @@ flowchart LR
 Event attendance rates increase by over 40% when attendees receive an SMS reminder 2 hours before an event. Organizers gladly pay for SMS reminders.
 
 #### Unit Economics:
-* **Termii Base Cost (Nigeria DND/Non-DND Route)**: ~₦2.80 - ₦3.50 per SMS.
-* **EventRally Retail Pricing**: ₦6.00 - ₦7.00 per SMS unit.
-* **Gross Profit Margin**: **50% - 60% per SMS sent**.
-
-#### Proposed Organizer SMS Bundles (Prepaid via Paystack):
-| Bundle Name | SMS Units | Organizer Price | Platform Cost (Termii) | Net Platform Profit |
-| :--- | :--- | :--- | :--- | :--- |
-| **Starter Pulse** | 250 SMS | ₦1,750 | ~₦875 | **₦875 (50%)** |
-| **Growth Booster** | 750 SMS | ₦4,500 | ~₦2,250 | **₦2,250 (50%)** |
-| **Mega Rally** | 2,500 SMS | ₦13,500 | ~₦6,500 | **₦7,000 (52%)** |
+* **Gateway Base Cost (Termii / Textflow Route)**: ~₦2.80 - ₦3.75 per SMS.
+* **EventRally Retail Pricing**:
+  - **1 – 100 SMS**: ₦10.00 / SMS (Standard rate)
+  - **101 – 500 SMS**: ₦9.00 / SMS (10% volume discount)
+  - **> 500 SMS**: ₦8.00 / SMS (20% bulk discount)
+* **Gross Profit Margin**: **53% - 62% net margin per SMS sent**.
+* **Zero Free Credits**: Every SMS unit is paid via organizer Paystack wallet top-up.
+* **Custom SMS by Default**: No fixed bundles or starter packs; organizers input exact attendee volume and the platform calculates real-time tiered pricing.
 
 ### 4.2 Extra Email Broadcast Credits
 When organizers surpass 100 free emails:

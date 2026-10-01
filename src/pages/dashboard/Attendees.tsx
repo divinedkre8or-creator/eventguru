@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 
 const statusConfig: Record<string, { color: string; label: string }> = {
@@ -325,7 +326,7 @@ const Attendees = () => {
 
       {/* Attendee Custom Answers Modal */}
       <Dialog open={!!selectedAttendee} onOpenChange={(open) => !open && setSelectedAttendee(null)}>
-        <DialogContent className="max-w-md bg-card text-foreground border-border rounded-2xl p-6">
+        <DialogContent className="sm:max-w-md bg-card text-foreground border-border">
           <DialogHeader>
             <div className="flex items-center gap-2 text-[11px] font-mono font-bold uppercase text-secondary">
               <FileText className="w-3.5 h-3.5" />
@@ -371,6 +372,18 @@ const Attendees = () => {
               });
             })()}
           </div>
+
+          <DialogFooter className="pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedAttendee(null)}
+              className="w-full sm:w-auto text-xs font-bold"
+            >
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

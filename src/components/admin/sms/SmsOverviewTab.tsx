@@ -291,7 +291,7 @@ export function SmsOverviewTab({
             {formatNaira(estimatedGrossMargin)}
           </div>
           <p className="text-[11px] text-muted-foreground mt-1">
-            Spread between ₦6.50 retail &amp; ₦3.75 wholesale
+            Spread between ₦10.00 base retail &amp; ₦3.75 wholesale
           </p>
         </div>
 

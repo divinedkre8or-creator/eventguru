@@ -114,6 +114,18 @@ export function ShareEventModal({ isOpen, onClose, eventUrl, eventTitle, eventId
             </Button>
           </div>
         </div>
+
+        <div className="mt-2 pt-2 border-t border-border sm:hidden">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+            className="w-full text-xs font-bold"
+          >
+            Close
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -103,6 +103,15 @@ export const FeedbackWidget = () => {
           >
             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4 mr-2" /> Send Message</>}
           </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setOpen(false)}
+            className="w-full text-muted-foreground hover:text-foreground text-sm font-semibold h-9"
+          >
+            Cancel
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

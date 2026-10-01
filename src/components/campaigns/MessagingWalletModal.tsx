@@ -132,7 +132,7 @@ export const MessagingWalletModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl p-4 sm:p-6 bg-card border-border font-sans flex flex-col max-h-[85vh] max-h-[85dvh] overflow-hidden">
+      <DialogContent className="sm:max-w-xl p-4 sm:p-6 bg-card border-border font-sans flex flex-col max-h-[85vh] max-h-[85dvh] overflow-hidden">
         <DialogHeader className="space-y-1 text-left shrink-0 pr-8">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
