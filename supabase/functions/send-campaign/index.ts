@@ -83,7 +83,13 @@ serve(async (req) => {
     const TEXTFLOW_SENDER_ID = Deno.env.get("TEXTFLOW_SENDER_ID") || "Textflow";
     const TERMII_API_KEY = Deno.env.get("TERMII_API_KEY");
     const TERMII_SENDER_ID = Deno.env.get("TERMII_SENDER_ID") || "EventRally";
-    const SMS_UNIT_PRICE_NAIRA = 6.5; // Retail price per SMS charged to organiser wallet
+
+    // Volume-tiered SMS retail pricing: <=100 -> ₦10, 101-500 -> ₦9, >500 -> ₦8
+    const getSmsRate = (count: number): number => {
+      if (count > 500) return 8;
+      if (count > 100) return 9;
+      return 10;
+    };
 
     await admin.from("campaigns").update({ status: "sending", error: null }).eq("id", campaignId);
 
@@ -178,11 +184,12 @@ serve(async (req) => {
     const currentSmsBalance = Number(wallet?.sms_balance) || 0;
 
     if (isSms) {
-      const requiredCost = recipients.length * SMS_UNIT_PRICE_NAIRA;
+      const smsUnitRate = getSmsRate(recipients.length);
+      const requiredCost = recipients.length * smsUnitRate;
       if (currentSmsBalance < requiredCost) {
-        const msg = `Insufficient SMS balance. This send requires ₦${requiredCost.toLocaleString()} (${recipients.length} SMS units), but your wallet balance is ₦${currentSmsBalance.toLocaleString()}. Please top up your wallet.`;
+        const msg = `Insufficient SMS balance. This send requires ₦${requiredCost.toLocaleString()} (${recipients.length} SMS units at ₦${smsUnitRate}/SMS), but your wallet balance is ₦${currentSmsBalance.toLocaleString()}. Please top up your wallet.`;
         await admin.from("campaigns").update({ status: "failed", error: msg, recipient_count: recipients.length }).eq("id", campaignId);
-        return reject("insufficient_funds", msg, { required: requiredCost, balance: currentSmsBalance });
+        return reject("insufficient_funds", msg, { required: requiredCost, balance: currentSmsBalance, rate: smsUnitRate });
       }
 
       if (!TEXTFLOW_API_TOKEN && !TERMII_API_KEY) {
@@ -311,7 +318,8 @@ serve(async (req) => {
 
       // Deduct spent funds from wallet
       if (sent > 0) {
-        const amountDebited = sent * SMS_UNIT_PRICE_NAIRA;
+        const smsUnitRate = getSmsRate(sent);
+        const amountDebited = sent * smsUnitRate;
         const newBalance = Math.max(0, currentSmsBalance - amountDebited);
         await admin.from("organiser_wallets").update({ sms_balance: newBalance, updated_at: new Date().toISOString() }).eq("organiser_id", organiserId);
         await admin.from("wallet_transactions").insert({
@@ -319,7 +327,7 @@ serve(async (req) => {
           type: "debit",
           amount: amountDebited,
           balance_after: newBalance,
-          description: `SMS Broadcast: ${sent} messages sent (₦${amountDebited.toFixed(2)})`,
+          description: `SMS Broadcast: ${sent} messages sent at ₦${smsUnitRate}/SMS (₦${amountDebited.toFixed(2)})`,
         });
       }
     } else {

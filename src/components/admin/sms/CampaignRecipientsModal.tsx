@@ -6,7 +6,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, CheckCircle2, AlertCircle, Clock, Send } from "lucide-react";
@@ -205,6 +207,18 @@ export function CampaignRecipientsModal({
             </table>
           )}
         </div>
+
+        <DialogFooter className="pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+            className="w-full sm:w-auto"
+          >
+            Close
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

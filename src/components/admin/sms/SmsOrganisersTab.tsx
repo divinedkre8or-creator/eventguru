@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { GrantCreditsModal } from "./GrantCreditsModal";
 import {
@@ -331,6 +332,18 @@ export function SmsOrganisersTab({
               </table>
             )}
           </div>
+
+          <DialogFooter className="pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setLedgerOrganiser(null)}
+              className="w-full sm:w-auto"
+            >
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
