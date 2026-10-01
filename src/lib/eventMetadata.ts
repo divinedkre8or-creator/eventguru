@@ -66,33 +66,38 @@ const TAGS = {
  * Gracefully handles legacy events, missing tags, and corrupted JSON.
  */
 export function parseEventMetadata(rawDesc: string | null | undefined, eventRow?: any): ParsedEventMetadata {
-  let content = (rawDesc || "").trim();
+  const content = (rawDesc || "").trim();
   let brandColor = "";
   let additionalInfo = "";
   let schedule: ScheduleDay[] = [];
-  let eventType: EventType = eventRow?.event_type === "online" ? "online" : "physical";
+  let eventType: EventType = "physical";
   let onlineSettings: OnlineSettings = { ...DEFAULT_ONLINE_SETTINGS };
   let customQuestions: CustomQuestion[] = [];
 
   const normalizeQuestions = (arr: any[]): CustomQuestion[] => {
     if (!Array.isArray(arr)) return [];
-    return arr.map((q, idx) => {
-      const text = (q.prompt || q.label || q.question || "").trim();
-      return {
-        id: q.id || `q_${idx}`,
-        prompt: text || `Question ${idx + 1}`,
-        label: text || `Question ${idx + 1}`,
-        question: text || `Question ${idx + 1}`,
-        type: q.type || "text",
-        options: Array.isArray(q.options) ? q.options : [],
-        required: Boolean(q.required),
-        placeholder: q.placeholder || "",
-      };
-    });
+    return arr
+      .filter((q) => q && typeof q === "object")
+      .map((q, idx) => {
+        const text = (q.prompt || q.label || q.question || q.title || q.name || "").trim();
+        return {
+          id: String(q.id || `q_${idx + 1}`),
+          prompt: text || `Question ${idx + 1}`,
+          label: text || `Question ${idx + 1}`,
+          question: text || `Question ${idx + 1}`,
+          type: (q.type || "text") as CustomQuestionType,
+          options: Array.isArray(q.options) ? q.options.map(String) : [],
+          required: Boolean(q.required),
+          placeholder: q.placeholder || "",
+        };
+      });
   };
 
-  // 1. Database column direct hydration (if table has migrations applied)
+  // 1. Direct database column extraction (if migrations or columns exist on eventRow)
   if (eventRow) {
+    if (eventRow.event_type === "online") {
+      eventType = "online";
+    }
     if (eventRow.meeting_link || eventRow.redirect_url || eventRow.access_instructions !== undefined) {
       onlineSettings = {
         meeting_link: eventRow.meeting_link || "",
@@ -101,82 +106,104 @@ export function parseEventMetadata(rawDesc: string | null | undefined, eventRow?
         auto_redirect: Boolean(eventRow.auto_redirect),
       };
     }
-    if (Array.isArray(eventRow.custom_questions)) {
-      customQuestions = normalizeQuestions(eventRow.custom_questions);
+    if (eventRow.brand_color) {
+      brandColor = String(eventRow.brand_color).trim();
     }
-  }
+    if (eventRow.additional_info || eventRow.additionalInfo) {
+      additionalInfo = String(eventRow.additional_info || eventRow.additionalInfo).trim();
+    }
 
-  // 2. Extract brand color
-  if (content.includes(TAGS.BRAND_COLOR)) {
-    const parts = content.split(TAGS.BRAND_COLOR);
-    content = parts[0].trim();
-    brandColor = (parts[1] || "").trim();
-  }
-
-  // 3. Extract custom questions
-  if (content.includes(TAGS.CUSTOM_QUESTIONS)) {
-    const parts = content.split(TAGS.CUSTOM_QUESTIONS);
-    content = parts[0].trim();
-    try {
-      const parsed = JSON.parse(parts[1]);
-      if (Array.isArray(parsed) && customQuestions.length === 0) {
-        customQuestions = normalizeQuestions(parsed);
+    // Support custom_questions as array or JSON string
+    let rowQuestions = eventRow.custom_questions ?? eventRow.customQuestions;
+    if (typeof rowQuestions === "string" && rowQuestions.trim()) {
+      try {
+        rowQuestions = JSON.parse(rowQuestions);
+      } catch (e) {
+        // ignore malformed string
       }
-    } catch (e) {
-      console.warn("Failed to parse custom questions metadata", e);
+    }
+    if (Array.isArray(rowQuestions) && rowQuestions.length > 0) {
+      customQuestions = normalizeQuestions(rowQuestions);
     }
   }
 
-  // 4. Extract online settings
-  if (content.includes(TAGS.ONLINE_SETTINGS)) {
-    const parts = content.split(TAGS.ONLINE_SETTINGS);
-    content = parts[0].trim();
-    try {
-      const parsed = JSON.parse(parts[1]);
-      onlineSettings = {
-        meeting_link: parsed.meeting_link || onlineSettings.meeting_link,
-        redirect_url: parsed.redirect_url || onlineSettings.redirect_url,
-        access_instructions: parsed.access_instructions || onlineSettings.access_instructions,
-        auto_redirect: Boolean(parsed.auto_redirect ?? onlineSettings.auto_redirect),
-      };
-    } catch (e) {
-      console.warn("Failed to parse online settings metadata", e);
+  // 2. Parse delimiter tags from description in ANY order
+  // A tag block starts with |||TAG_NAME||| and continues until the next |||[A-Z_]+||| or end of string
+  const tagRegex = /\|\|\|([A-Z_]+)\|\|\|([\s\S]*?)(?=(?:\|\|\|[A-Z_]+\|\|\||$))/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = tagRegex.exec(content)) !== null) {
+    const tagName = match[1];
+    const payload = (match[2] || "").trim();
+
+    switch (tagName) {
+      case "BRAND_COLOR":
+        if (payload && !brandColor) {
+          brandColor = payload;
+        }
+        break;
+
+      case "EVENT_TYPE":
+        if (payload.toLowerCase() === "online" || payload.toLowerCase() === "physical") {
+          eventType = payload.toLowerCase() as EventType;
+        }
+        break;
+
+      case "ADDITIONAL_INFO":
+        if (payload && !additionalInfo) {
+          additionalInfo = payload;
+        }
+        break;
+
+      case "CUSTOM_QUESTIONS":
+        if (customQuestions.length === 0 && payload) {
+          try {
+            const parsed = JSON.parse(payload);
+            if (Array.isArray(parsed)) {
+              customQuestions = normalizeQuestions(parsed);
+            }
+          } catch (e) {
+            console.warn("Failed to parse custom questions metadata payload", e);
+          }
+        }
+        break;
+
+      case "ONLINE_SETTINGS":
+        if (payload) {
+          try {
+            const parsed = JSON.parse(payload);
+            onlineSettings = {
+              meeting_link: parsed.meeting_link || onlineSettings.meeting_link,
+              redirect_url: parsed.redirect_url || onlineSettings.redirect_url,
+              access_instructions: parsed.access_instructions || onlineSettings.access_instructions,
+              auto_redirect: Boolean(parsed.auto_redirect ?? onlineSettings.auto_redirect),
+            };
+          } catch (e) {
+            console.warn("Failed to parse online settings metadata payload", e);
+          }
+        }
+        break;
+
+      case "SCHEDULE":
+        if (schedule.length === 0 && payload) {
+          try {
+            const parsed = JSON.parse(payload);
+            if (Array.isArray(parsed)) {
+              schedule = parsed;
+            }
+          } catch (e) {
+            console.warn("Failed to parse schedule metadata payload", e);
+          }
+        }
+        break;
     }
   }
 
-  // 5. Extract event type
-  if (content.includes(TAGS.EVENT_TYPE)) {
-    const parts = content.split(TAGS.EVENT_TYPE);
-    content = parts[0].trim();
-    const parsedType = (parts[1] || "").trim().toLowerCase();
-    if (parsedType === "online" || parsedType === "physical") {
-      eventType = parsedType;
-    }
-  }
-
-  // 6. Extract additional info
-  if (content.includes(TAGS.ADDITIONAL_INFO)) {
-    const parts = content.split(TAGS.ADDITIONAL_INFO);
-    content = parts[0].trim();
-    additionalInfo = (parts[1] || "").trim();
-  }
-
-  // 7. Extract schedule
-  if (content.includes(TAGS.SCHEDULE)) {
-    const parts = content.split(TAGS.SCHEDULE);
-    content = parts[0].trim();
-    try {
-      const parsed = JSON.parse(parts[1]);
-      if (Array.isArray(parsed)) {
-        schedule = parsed;
-      }
-    } catch (e) {
-      console.warn("Failed to parse schedule metadata", e);
-    }
-  }
+  // Extract clean human-readable description: everything before the first ||| tag
+  const cleanDescription = content.split(/\|\|\|[A-Z_]+\|\|\|/)[0].trim();
 
   return {
-    cleanDescription: content,
+    cleanDescription,
     eventType,
     onlineSettings,
     customQuestions,

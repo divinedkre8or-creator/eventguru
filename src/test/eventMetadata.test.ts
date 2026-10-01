@@ -80,4 +80,49 @@ describe("eventMetadata parser and serializer", () => {
     expect(parsed.schedule.length).toBe(1);
     expect(parsed.customQuestions).toEqual([]);
   });
+
+  it("handles out-of-order tags where CUSTOM_QUESTIONS comes before ADDITIONAL_INFO without parse failure", () => {
+    const raw = `Annual Tech Gala
+|||CUSTOM_QUESTIONS|||[{"id":"q_size","prompt":"T-shirt size?","type":"dropdown","options":["S","M","L","XL"],"required":true}]
+|||ADDITIONAL_INFO|||Please arrive 15 minutes before opening doors.
+|||SCHEDULE|||[{"date":"2026-12-01","startTime":"08:30"}]`;
+
+    const parsed = parseEventMetadata(raw);
+
+    expect(parsed.cleanDescription).toBe("Annual Tech Gala");
+    expect(parsed.customQuestions.length).toBe(1);
+    expect(parsed.customQuestions[0].prompt).toBe("T-shirt size?");
+    expect(parsed.customQuestions[0].options).toEqual(["S", "M", "L", "XL"]);
+    expect(parsed.additionalInfo).toBe("Please arrive 15 minutes before opening doors.");
+    expect(parsed.schedule.length).toBe(1);
+  });
+
+  it("hydrates custom questions from database row if stored as JSON string or array", () => {
+    const eventRow = {
+      event_type: "online",
+      custom_questions: JSON.stringify([
+        { id: "q1", prompt: "Your GitHub username?", type: "text", required: true },
+      ]),
+      additional_info: "Zoom credentials will be emailed.",
+    };
+
+    const parsed = parseEventMetadata("Online Hackathon", eventRow);
+
+    expect(parsed.eventType).toBe("online");
+    expect(parsed.customQuestions.length).toBe(1);
+    expect(parsed.customQuestions[0].prompt).toBe("Your GitHub username?");
+    expect(parsed.additionalInfo).toBe("Zoom credentials will be emailed.");
+  });
+
+  it("falls back to description tags if database row custom_questions is an empty array", () => {
+    const raw = `Special Summit\n\n|||CUSTOM_QUESTIONS|||[{"id":"q1","prompt":"Company name?","type":"text","required":false}]`;
+    const eventRow = {
+      custom_questions: [], // Postgres default empty array
+    };
+
+    const parsed = parseEventMetadata(raw, eventRow);
+
+    expect(parsed.customQuestions.length).toBe(1);
+    expect(parsed.customQuestions[0].prompt).toBe("Company name?");
+  });
 });

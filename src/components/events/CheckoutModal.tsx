@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { 
   X, Loader2, Mail, CreditCard, ShieldCheck, CheckCircle2, 
   Image as ImageIcon, ArrowRight, Wallet, ExternalLink,
-  Globe, MessageSquare, Info
+  Globe, MessageSquare, Info, HelpCircle
 } from "lucide-react";
 import { usePaystackPayment } from "react-paystack";
 import { Button } from "@/components/ui/button";
@@ -462,11 +462,16 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
         {/* Sticky Header with Permanent Cancel Button */}
         <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-border bg-card shrink-0 z-10">
           <div className="min-w-0 pr-3">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h2 className="font-heading font-extrabold text-lg sm:text-xl text-foreground truncate">Checkout</h2>
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-secondary/15 text-secondary px-2 py-0.5 rounded shrink-0">
                 {isFree ? "Free Pass" : "Ticket"}
               </span>
+              {customQuestions.length > 0 && (
+                <span className="text-[10px] font-mono font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded flex items-center gap-1 shrink-0">
+                  <HelpCircle className="w-3 h-3" /> {customQuestions.length} Question{customQuestions.length === 1 ? "" : "s"}
+                </span>
+              )}
             </div>
             <p className="text-muted-foreground text-xs truncate mt-0.5">{event.title}</p>
           </div>
@@ -483,7 +488,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
         {/* Form Container with Flex-1 Scrollable Body and Pinned Footer */}
         <form onSubmit={handleCheckout} className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-6 sm:py-4 space-y-3.5 touch-pan-y">
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-6 sm:py-4 space-y-3.5 touch-pan-y pb-8">
             
             {/* Sleek Compact Ticket Summary Card */}
             <div className="bg-muted/40 p-3 sm:p-3.5 rounded-xl border border-border flex items-center justify-between text-xs">
@@ -500,6 +505,32 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
                 </div>
               </div>
             </div>
+
+            {/* Message from Organizer / Event Instructions */}
+            {meta.additionalInfo && (
+              <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 sm:p-3.5 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-heading font-bold text-primary">
+                  <Info className="w-3.5 h-3.5 shrink-0" />
+                  <span>Message from Organizer</span>
+                </div>
+                <p className="text-xs text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                  {meta.additionalInfo}
+                </p>
+              </div>
+            )}
+
+            {/* Online Event Access Note */}
+            {isOnlineEvent && onlineSettings?.access_instructions && (
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 sm:p-3.5 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-heading font-bold text-emerald-600 dark:text-emerald-400">
+                  <Globe className="w-3.5 h-3.5 shrink-0" />
+                  <span>Virtual Attendance Note</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {onlineSettings.access_instructions}
+                </p>
+              </div>
+            )}
 
             {/* Attendee Contact Info */}
             <div className="space-y-3">
@@ -559,23 +590,32 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
 
             {/* Custom Questions Section with Prominently Rendered Question Prompts */}
             {customQuestions.length > 0 && (
-              <div className="pt-2 border-t border-border space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                    Registration Questions ({customQuestions.length})
+              <div className="pt-3 border-t border-border space-y-3">
+                <div className="flex items-center justify-between bg-muted/60 px-3 py-2 rounded-xl border border-border/80">
+                  <div className="flex items-center gap-1.5">
+                    <HelpCircle className="w-4 h-4 text-secondary shrink-0" />
+                    <span className="text-xs font-heading font-bold text-foreground">
+                      Organizer Questions ({customQuestions.length})
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-secondary uppercase">
+                    {customQuestions.some(q => q.required) ? "Required" : "Optional"}
                   </span>
                 </div>
 
                 {customQuestions.map((q, idx) => {
                   const questionText = (q.prompt || (q as any).label || (q as any).question || `Question ${idx + 1}`).trim();
                   return (
-                    <div key={q.id} className="space-y-1.5 bg-muted/20 p-3 rounded-xl border border-border/70">
+                    <div key={q.id} className="space-y-2 bg-muted/20 p-3 sm:p-3.5 rounded-xl border border-border/80 shadow-2xs">
                       <Label className="text-xs font-bold text-foreground flex items-start justify-between gap-2 leading-snug">
-                        <span className="break-words">{questionText}</span>
+                        <span className="break-words font-heading">
+                          <span className="text-muted-foreground font-mono mr-1.5 font-normal">#{idx + 1}</span>
+                          {questionText}
+                        </span>
                         {q.required ? (
-                          <span className="text-destructive text-[10px] font-mono font-bold shrink-0">* Required</span>
+                          <span className="text-destructive text-[10px] font-mono font-bold shrink-0 bg-destructive/10 px-1.5 py-0.5 rounded">* Required</span>
                         ) : (
-                          <span className="text-muted-foreground/60 text-[10px] font-normal shrink-0">Optional</span>
+                          <span className="text-muted-foreground/70 text-[10px] font-normal shrink-0">Optional</span>
                         )}
                       </Label>
 
@@ -584,7 +624,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
                           value={customAnswers[q.id] || ""}
                           onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                           placeholder={q.placeholder || "Your answer"}
-                          className="bg-background focus-visible:ring-secondary border-border rounded-lg h-9 text-xs sm:text-sm"
+                          className="bg-background focus-visible:ring-secondary border-border rounded-lg h-10 text-xs sm:text-sm"
                           required={q.required}
                         />
                       )}
@@ -604,7 +644,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
                         <select
                           value={customAnswers[q.id] || ""}
                           onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                          className="flex h-9 w-full rounded-lg border border-border bg-background px-3 py-1.5 text-xs sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                          className="flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                           required={q.required}
                         >
                           <option value="">Select an option...</option>
@@ -615,16 +655,16 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
                       )}
 
                       {q.type === "radio" && (
-                        <div className="space-y-1 pt-0.5">
+                        <div className="space-y-1.5 pt-0.5">
                           {q.options?.map((opt, oIdx) => (
-                            <label key={oIdx} className="flex items-center gap-2 p-1.5 rounded-lg border border-border/60 bg-background/50 hover:bg-muted/40 cursor-pointer text-xs font-medium">
+                            <label key={oIdx} className="flex items-center gap-2.5 p-2 rounded-lg border border-border/70 bg-background/60 hover:bg-muted/50 cursor-pointer text-xs font-medium transition-colors">
                               <input
                                 type="radio"
                                 name={`checkout-q-${q.id}`}
                                 value={opt}
                                 checked={customAnswers[q.id] === opt}
                                 onChange={() => handleAnswerChange(q.id, opt)}
-                                className="accent-secondary h-3.5 w-3.5 shrink-0"
+                                className="accent-secondary h-4 w-4 shrink-0"
                               />
                               <span className="text-foreground">{opt}</span>
                             </label>
@@ -633,18 +673,18 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
                       )}
 
                       {q.type === "checkbox" && (
-                        <div className="space-y-1 pt-0.5">
+                        <div className="space-y-1.5 pt-0.5">
                           {q.options?.map((opt, oIdx) => {
                             const selectedArr = Array.isArray(customAnswers[q.id]) ? customAnswers[q.id] : [];
                             const isChecked = selectedArr.includes(opt);
                             return (
-                              <label key={oIdx} className="flex items-center gap-2 p-1.5 rounded-lg border border-border/60 bg-background/50 hover:bg-muted/40 cursor-pointer text-xs font-medium">
+                              <label key={oIdx} className="flex items-center gap-2.5 p-2 rounded-lg border border-border/70 bg-background/60 hover:bg-muted/50 cursor-pointer text-xs font-medium transition-colors">
                                 <input
                                   type="checkbox"
                                   value={opt}
                                   checked={isChecked}
                                   onChange={(e) => handleCheckboxChange(q.id, opt, e.target.checked)}
-                                  className="accent-secondary h-3.5 w-3.5 rounded shrink-0"
+                                  className="accent-secondary h-4 w-4 rounded shrink-0"
                                 />
                                 <span className="text-foreground">{opt}</span>
                               </label>
@@ -687,9 +727,16 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
               </Button>
             </div>
             
-            <div className="flex items-center justify-center gap-1.5 text-muted-foreground text-[10px]">
-              <ShieldCheck className="w-3.5 h-3.5 text-chart-green shrink-0" />
-              <span>{isFree ? "Instant gate pass generated & sent to your email" : "Payments secured with 256-bit bank-grade encryption"}</span>
+            <div className="flex items-center justify-between text-muted-foreground text-[10px] px-0.5">
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-chart-green shrink-0" />
+                <span>{isFree ? "Instant gate pass generated & sent to your email" : "Payments secured with 256-bit encryption"}</span>
+              </div>
+              {customQuestions.length > 0 && customQuestions.some(q => q.required) && (
+                <span className="font-mono text-[10px] text-amber-600 dark:text-amber-400 font-semibold hidden sm:inline">
+                  * Questions required
+                </span>
+              )}
             </div>
           </div>
         </form>
