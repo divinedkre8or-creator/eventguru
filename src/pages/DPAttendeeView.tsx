@@ -199,6 +199,17 @@ const DPAttendeeView = () => {
                     <><Download className="w-5 h-5 mr-2" /> Download DP</>
                   )}
                 </Button>
+
+                <p className="text-[10px] text-muted-foreground text-center leading-relaxed pt-2 px-1">
+                  By generating this flyer, you confirm you own the rights to the uploaded photo and agree to our{" "}
+                  <Link to="/acceptable-use" target="_blank" className="text-secondary font-semibold hover:underline">
+                    Acceptable Use Policy
+                  </Link>{" "}
+                  and{" "}
+                  <Link to="/privacy" target="_blank" className="text-secondary font-semibold hover:underline">
+                    Privacy Policy
+                  </Link>.
+                </p>
              </div>
              
              <div className="text-center pt-2">

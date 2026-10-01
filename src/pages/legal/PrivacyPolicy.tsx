@@ -259,8 +259,8 @@ export const PrivacyPolicy: React.FC = () => {
         </p>
         <div className="p-4 rounded-xl bg-card border border-border text-xs space-y-1.5 not-prose">
           <p className="font-bold text-foreground">Data Protection Officer (DPO) — EventRally</p>
-          <p className="text-muted-foreground">Email: <a href="mailto:dpo@geteventrally.com" className="text-secondary font-medium hover:underline">dpo@geteventrally.com</a></p>
-          <p className="text-muted-foreground">Privacy Desk: <a href="mailto:privacy@geteventrally.com" className="text-secondary font-medium hover:underline">privacy@geteventrally.com</a></p>
+          <p className="text-muted-foreground">Email: <a href="mailto:eventrallyinfo@gmail.com" className="text-secondary font-medium hover:underline">eventrallyinfo@gmail.com</a></p>
+          <p className="text-muted-foreground">Privacy Desk: <a href="mailto:eventrallyinfo@gmail.com" className="text-secondary font-medium hover:underline">eventrallyinfo@gmail.com</a></p>
           <p className="text-muted-foreground">Lagos, Federal Republic of Nigeria</p>
         </div>
       </section>

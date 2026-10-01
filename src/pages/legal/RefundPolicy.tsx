@@ -156,7 +156,7 @@ export const RefundPolicy: React.FC = () => {
         </p>
         <ol className="list-decimal pl-5 space-y-1.5 text-xs sm:text-sm">
           <li>Contact the Event Organizer directly using the organizer contact button on the event page.</li>
-          <li>If the organizer is unresponsive within forty-eight (48) hours or has improperly refused a refund for a cancelled event, open a dispute by emailing our support desk at <a href="mailto:disputes@geteventrally.com" className="text-secondary font-semibold underline">disputes@geteventrally.com</a>.</li>
+          <li>If the organizer is unresponsive within forty-eight (48) hours or has improperly refused a refund for a cancelled event, open a dispute by emailing our support desk at <a href="mailto:eventrallyinfo@gmail.com" className="text-secondary font-semibold underline">eventrallyinfo@gmail.com</a>.</li>
           <li>Include your <strong>Ticket Reference ID</strong> (e.g. <code className="text-foreground">EVR-...</code>), the email used during checkout, and evidence of event cancellation.</li>
         </ol>
       </section>

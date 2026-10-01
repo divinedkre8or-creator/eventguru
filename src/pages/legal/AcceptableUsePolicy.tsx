@@ -111,7 +111,7 @@ export const AcceptableUsePolicy: React.FC = () => {
         </p>
         <p>
           If you believe an event flyer, DP template, or listing infringes your copyright or trademark, please send a written takedown notice to 
-          <a href="mailto:copyright@geteventrally.com" className="text-secondary font-semibold underline"> copyright@geteventrally.com</a> containing:
+          <a href="mailto:eventrallyinfo@gmail.com" className="text-secondary font-semibold underline"> eventrallyinfo@gmail.com</a> containing:
         </p>
         <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm">
           <li>Identification of the copyrighted work claimed to have been infringed.</li>
@@ -134,7 +134,7 @@ export const AcceptableUsePolicy: React.FC = () => {
           forfeiture of platform messaging credits, and submission of incident reports to law enforcement agencies or the FCCPC where criminal fraud is detected.
         </p>
         <p>
-          To report a suspicious event or abusive content, email <a href="mailto:trust@geteventrally.com" className="text-secondary font-semibold underline">trust@geteventrally.com</a>.
+          To report a suspicious event or abusive content, email <a href="mailto:eventrallyinfo@gmail.com" className="text-secondary font-semibold underline">eventrallyinfo@gmail.com</a>.
         </p>
       </section>
     </LegalLayout>

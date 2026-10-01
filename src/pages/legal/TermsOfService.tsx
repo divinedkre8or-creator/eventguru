@@ -97,7 +97,7 @@ export const TermsOfService: React.FC = () => {
           You agree to maintain the confidentiality of your login credentials and accept responsibility for all activities that occur under your account.
         </p>
         <p>
-          You must immediately notify EventRally at <a href="mailto:support@geteventrally.com" className="text-secondary font-semibold underline">support@geteventrally.com</a> of 
+          You must immediately notify EventRally at <a href="mailto:eventrallyinfo@gmail.com" className="text-secondary font-semibold underline">eventrallyinfo@gmail.com</a> of 
           any unauthorized use of your account or security breach. EventRally will not be liable for any loss or damage arising from your failure to protect your login information.
         </p>
       </section>
@@ -243,8 +243,8 @@ export const TermsOfService: React.FC = () => {
         </p>
         <div className="p-4 rounded-xl bg-card border border-border text-xs space-y-1.5 not-prose">
           <p className="font-bold text-foreground">EventRally Legal & Regulatory Affairs</p>
-          <p className="text-muted-foreground">Email: <a href="mailto:legal@geteventrally.com" className="text-secondary font-medium hover:underline">legal@geteventrally.com</a></p>
-          <p className="text-muted-foreground">General Support: <a href="mailto:support@geteventrally.com" className="text-secondary font-medium hover:underline">support@geteventrally.com</a></p>
+          <p className="text-muted-foreground">Email: <a href="mailto:eventrallyinfo@gmail.com" className="text-secondary font-medium hover:underline">eventrallyinfo@gmail.com</a></p>
+          <p className="text-muted-foreground">General Support: <a href="mailto:eventrallyinfo@gmail.com" className="text-secondary font-medium hover:underline">eventrallyinfo@gmail.com</a></p>
           <p className="text-muted-foreground">Lagos, Nigeria</p>
         </div>
       </section>

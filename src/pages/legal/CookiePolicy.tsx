@@ -145,7 +145,7 @@ export const CookiePolicy: React.FC = () => {
           6. Inquiries
         </h2>
         <p>
-          For any questions regarding our use of cookies or tracking technologies, please contact <a href="mailto:privacy@geteventrally.com" className="text-secondary font-medium hover:underline">privacy@geteventrally.com</a>.
+          For any questions regarding our use of cookies or tracking technologies, please contact <a href="mailto:eventrallyinfo@gmail.com" className="text-secondary font-medium hover:underline">eventrallyinfo@gmail.com</a>.
         </p>
       </section>
     </LegalLayout>

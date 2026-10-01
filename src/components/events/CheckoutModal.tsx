@@ -254,8 +254,11 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
     const isLoggedIn = !!user;
 
     return (
-      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 font-sans">
-        <div className="bg-card border-t sm:border border-border rounded-t-3xl sm:rounded-2xl w-full max-w-lg max-h-[92dvh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 text-foreground">
+      <div 
+        onClick={(e) => { if (e.target === e.currentTarget) handleModalClose(); }}
+        className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 font-sans animate-in fade-in duration-200"
+      >
+        <div className="bg-card border-t sm:border border-border rounded-t-3xl sm:rounded-2xl w-full max-w-lg max-h-[85vh] max-h-[85dvh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 text-foreground">
           <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto mt-2.5 mb-0.5 sm:hidden shrink-0" />
           {/* Modal Header */}
           <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-card shrink-0">
@@ -428,8 +431,11 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 font-sans">
-      <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full max-w-lg max-h-[92dvh] sm:max-h-[88vh] flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 text-foreground border-t sm:border border-border">
+    <div 
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-0 sm:p-4 font-sans animate-in fade-in duration-200"
+    >
+      <div className="bg-card rounded-t-3xl sm:rounded-2xl w-full max-w-lg max-h-[85vh] max-h-[85dvh] sm:max-h-[88vh] flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 text-foreground border-t sm:border border-border">
         
         {/* Mobile drag handle bar */}
         <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto mt-2.5 mb-0.5 sm:hidden shrink-0" />
@@ -453,10 +459,11 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
           <button 
             type="button"
             onClick={onClose} 
-            className="p-2 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors shrink-0 text-xs font-semibold border border-border/50"
             aria-label="Close checkout"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
+            <span>Cancel</span>
           </button>
         </div>
 
@@ -672,47 +679,56 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
                 })}
               </div>
             )}
-          </div>
 
-          {/* Sticky Pinned Footer with Visible Cancel and Action Buttons */}
-          <div className="p-3.5 sm:p-4 border-t border-border bg-card/95 backdrop-blur-sm shrink-0 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Button 
-                type="button" 
-                variant="outline"
-                onClick={onClose}
-                disabled={processing}
-                className="h-11 px-4 text-xs font-bold border-border text-muted-foreground hover:text-foreground shrink-0"
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={processing} 
-                className="flex-1 bg-primary text-primary-foreground hover:opacity-90 h-11 rounded-xl font-heading font-bold text-sm shadow-md flex items-center justify-center gap-2"
-              >
-                {processing ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <>
-                    {isFree ? <Mail className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
-                    <span>{isFree ? "Confirm Free Registration" : `Pay ₦${breakdown.totalAmount.toLocaleString()}`}</span>
-                  </>
-                )}
-              </Button>
-            </div>
-            
-            <div className="flex items-center justify-between text-muted-foreground text-[10px] px-0.5">
+            {/* Trust and Policy Notes inside scrollable body */}
+            <div className="pt-3 pb-1 space-y-2 border-t border-border/50 text-[11px] text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-chart-green shrink-0" />
                 <span>{isFree ? "Instant gate pass generated & sent to your email" : "Payments secured with 256-bit encryption"}</span>
               </div>
-              {customQuestions.length > 0 && customQuestions.some(q => q.required) && (
-                <span className="font-mono text-[10px] text-amber-600 dark:text-amber-400 font-semibold hidden sm:inline">
-                  * Questions required
-                </span>
-              )}
+              <div className="text-[10px] leading-relaxed">
+                By clicking {isFree ? "Confirm Free Registration" : "Pay"}, you agree to EventRally&apos;s{" "}
+                <a href="/terms" target="_blank" rel="noreferrer" className="text-secondary font-semibold hover:underline">
+                  Terms
+                </a>
+                ,{" "}
+                <a href="/privacy" target="_blank" rel="noreferrer" className="text-secondary font-semibold hover:underline">
+                  Privacy Policy
+                </a>
+                , and the{" "}
+                <a href="/refund-policy" target="_blank" rel="noreferrer" className="text-secondary font-semibold hover:underline">
+                  Refund Policy
+                </a>
+                .
+              </div>
             </div>
+          </div>
+
+          {/* Sticky Pinned Footer with Visible Cancel and Action Buttons */}
+          <div className="p-3 sm:p-4 border-t border-border bg-card shrink-0 flex items-center gap-2">
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={onClose}
+              disabled={processing}
+              className="h-11 px-4 text-xs font-bold border-border text-muted-foreground hover:text-foreground shrink-0"
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={processing} 
+              className="flex-1 bg-primary text-primary-foreground hover:opacity-90 h-11 rounded-xl font-heading font-bold text-sm shadow-md flex items-center justify-center gap-2"
+            >
+              {processing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  {isFree ? <Mail className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
+                  <span>{isFree ? "Confirm Free Registration" : `Pay ₦${breakdown.totalAmount.toLocaleString()}`}</span>
+                </>
+              )}
+            </Button>
           </div>
         </form>
 

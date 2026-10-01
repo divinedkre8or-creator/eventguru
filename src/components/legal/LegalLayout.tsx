@@ -144,10 +144,10 @@ export const LegalLayout: React.FC<LegalLayoutProps> = ({
                     Have questions about this policy or regulatory inquiries?
                   </div>
                   <a
-                    href="mailto:legal@geteventrally.com"
+                    href="mailto:eventrallyinfo@gmail.com"
                     className="inline-flex items-center gap-1 text-xs text-secondary font-bold hover:underline"
                   >
-                    Contact Legal Counsel <ExternalLink className="w-3 h-3" />
+                    Contact Legal & Support <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
               </div>
