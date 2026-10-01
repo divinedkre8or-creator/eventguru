@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   Mail, Send, MessageSquare, Users, Loader2, AlertCircle,
-  Wallet, Gauge, Crown, ShieldCheck, Plus, Sparkles,
+  Wallet, Gauge, Crown, ShieldCheck, Plus, Smartphone,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { FREE_EMAIL_MONTHLY_LIMIT, getCurrentUsagePeriod } from "@/lib/campaignConstants";
 import { MessagingWalletModal } from "@/components/campaigns/MessagingWalletModal";
+import { formatBrandedSms, calculateSmsSegments } from "@/lib/phoneUtils";
 
 // The campaigns/wallet/usage tables are newer than the generated Supabase types,
 // so we access them through an untyped handle.
@@ -53,6 +54,7 @@ const Campaigns = () => {
   const [channel, setChannel] = useState<"email" | "sms">("email");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [brandHeader, setBrandHeader] = useState("EventRally");
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
 
   // --- Organiser events (target selector) -----------------------------------
@@ -163,17 +165,39 @@ const Campaigns = () => {
   const estimatedSmsCost = targetCount * SMS_UNIT_PRICE_NAIRA;
   const hasEnoughSmsBalance = currentSmsBalance >= estimatedSmsCost;
 
-  // SMS character length and segments calculation
-  const smsCharLength = message.length;
-  const smsSegments = Math.max(1, Math.ceil(smsCharLength / 160));
+  // SMS character length and segments calculation using branded prefix
+  const effectiveBrand = (brandHeader || "").trim() || "EventRally";
+  const previewSmsMessage = formatBrandedSms(effectiveBrand, message);
+  const smsCalculation = calculateSmsSegments(message ? previewSmsMessage : `[${effectiveBrand}] `);
+  const smsCharLength = smsCalculation.charCount;
+  const smsSegments = Math.max(1, smsCalculation.segments);
 
   const eventTitleFor = (id: string | null) =>
     !id ? "All Attendees" : events.find((e) => e.id === id)?.title || "Event";
+
+  const handleSelectEvent = (eventId: string) => {
+    setSelectedEventId(eventId);
+    if (eventId !== "all") {
+      const ev = events.find((e) => e.id === eventId);
+      if (ev?.title && (brandHeader === "EventRally" || !brandHeader)) {
+        const cleanTitle = ev.title.replace(/[^\w\s]/gi, "").trim().slice(0, 15);
+        if (cleanTitle) {
+          setBrandHeader(cleanTitle);
+        }
+      }
+    } else {
+      if (brandHeader !== "EventRally") {
+        setBrandHeader("EventRally");
+      }
+    }
+  };
 
   // --- Send mutation: create the campaign row, then invoke the server sender -
   const sendMutation = useMutation({
     mutationFn: async () => {
       if (!user?.id) throw new Error("You must be signed in.");
+
+      const finalBody = channel === "sms" ? formatBrandedSms(effectiveBrand, message.trim()) : message.trim();
 
       const { data: created, error: insErr } = await db
         .from("campaigns")
@@ -182,7 +206,7 @@ const Campaigns = () => {
           event_id: selectedEventId === "all" ? null : selectedEventId,
           channel,
           subject: channel === "email" ? subject.trim() : null,
-          body: message.trim(),
+          body: finalBody,
           status: "draft",
         })
         .select("id")
@@ -274,7 +298,7 @@ const Campaigns = () => {
               </label>
               <select
                 value={selectedEventId}
-                onChange={(e) => setSelectedEventId(e.target.value)}
+                onChange={(e) => handleSelectEvent(e.target.value)}
                 className="w-full h-10 rounded-lg border border-border bg-background px-3 text-xs text-foreground font-medium focus:ring-2 focus:ring-primary outline-none"
               >
                 <option value="all">All Attendees (Across All Events)</option>
@@ -349,6 +373,49 @@ const Campaigns = () => {
               </div>
             )}
 
+            {/* Sender Brand Header (Only for SMS) */}
+            {channel === "sms" && (
+              <div className="space-y-1.5 rounded-lg border border-border/70 bg-muted/20 p-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-foreground font-mono uppercase tracking-wider flex items-center gap-1.5">
+                    Sender Brand Header
+                  </label>
+                  <span className="text-[10px] font-mono font-bold text-chart-green bg-chart-green/10 px-2 py-0.5 rounded">
+                    Free Customization
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-muted-foreground select-none">
+                      [
+                    </span>
+                    <Input
+                      value={brandHeader}
+                      onChange={(e) => setBrandHeader(e.target.value.replace(/[\[\]]/g, "").slice(0, 15))}
+                      placeholder="EventRally"
+                      maxLength={15}
+                      className="bg-background border-border text-xs h-10 rounded-lg pl-6 pr-6 font-mono font-bold text-foreground"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-muted-foreground select-none">
+                      ]
+                    </span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setBrandHeader("EventRally")}
+                    className="text-[11px] h-10 px-3 border-border text-muted-foreground hover:text-foreground"
+                  >
+                    Reset
+                  </Button>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-normal">
+                  Appears as <strong className="text-foreground font-mono">[{effectiveBrand}]</strong> at the start of your text so attendees recognize your event instantly on their mobile lock screen.
+                </p>
+              </div>
+            )}
+
             {/* Message Body */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
@@ -365,14 +432,15 @@ const Campaigns = () => {
                 }
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="bg-background border-border text-xs min-h-[130px] rounded-lg leading-relaxed"
+                className="bg-background border-border text-xs min-h-[120px] rounded-lg leading-relaxed"
                 required
               />
               {/* Live SMS Counter */}
               {channel === "sms" && (
-                <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground pt-1">
-                  <span>
-                    {smsCharLength} / 160 characters ({smsSegments} segment{smsSegments > 1 ? "s" : ""})
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] font-mono text-muted-foreground pt-1 border-t border-border/50">
+                  <span className="flex items-center gap-1.5">
+                    <strong className="text-foreground">{smsCharLength}</strong> chars &bull; <strong className="text-foreground">{smsSegments}</strong> segment{smsSegments > 1 ? "s" : ""}
+                    {smsSegments > 1 && <span className="text-amber-500 font-sans text-[10px] font-medium">(multi-part SMS)</span>}
                   </span>
                   <span className="font-bold text-foreground">
                     Est. Cost: ₦{(targetCount * SMS_UNIT_PRICE_NAIRA * smsSegments).toLocaleString()} ({targetCount} phones)
@@ -380,6 +448,51 @@ const Campaigns = () => {
                 </div>
               )}
             </div>
+
+            {/* Live Smartphone Lock-Screen Notification Preview card */}
+            {channel === "sms" && (
+              <div className="rounded-xl border border-border bg-muted/30 p-3.5 space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-mono font-bold text-[11px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Smartphone className="w-3.5 h-3.5 text-secondary" /> Lock-Screen Push Preview
+                  </span>
+                  <span className="text-[10px] font-mono text-muted-foreground bg-background px-2 py-0.5 rounded border border-border">
+                    Lock Screen Notification
+                  </span>
+                </div>
+
+                {/* Smartphone notification bubble */}
+                <div className="rounded-xl bg-card border border-border p-3.5 shadow-xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-md bg-secondary text-secondary-foreground flex items-center justify-center shadow-xs">
+                        <MessageSquare className="w-3 h-3" />
+                      </div>
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-foreground">
+                        Messages &bull; now
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-mono text-muted-foreground uppercase">SMS</span>
+                  </div>
+
+                  <p className="text-xs text-foreground/90 font-sans leading-relaxed pl-7">
+                    <span className="font-mono font-extrabold text-primary bg-primary/10 px-1 py-0.5 rounded mr-1 text-[11px]">
+                      [{effectiveBrand}]
+                    </span>
+                    <span className="break-words">
+                      {message.trim()
+                        ? message.replace(/\{\{name\}\}/gi, "Sarah")
+                        : "Hello Sarah, your admission pass is ready. Doors open at 9:00 AM."}
+                    </span>
+                  </p>
+
+                  <div className="pl-7 text-[10px] text-muted-foreground flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-chart-green shrink-0" />
+                    Bypasses telco carrier filters &bull; 100% instant lock-screen preview
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Submit */}
             <Button

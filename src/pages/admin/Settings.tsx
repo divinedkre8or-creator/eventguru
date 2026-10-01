@@ -93,7 +93,7 @@ const AdminSettings = () => {
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-chart-green/10 text-chart-green uppercase">Hardened</span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Paystack, Resend, and Termii API keys are bound to the secure runtime environment to prevent accidental browser exposure or tampering.
+              Paystack, Resend, Textflow, and Termii API keys are bound to the secure runtime environment to prevent accidental browser exposure or tampering.
             </p>
           </div>
         </div>
@@ -180,14 +180,14 @@ const AdminSettings = () => {
             <div className="p-3.5 rounded-xl bg-muted/40 border border-border/80 space-y-1 sm:col-span-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-chart-green" /> Resend & Termii Pipelines
+                  <CheckCircle2 className="w-3.5 h-3.5 text-chart-green" /> Resend & Textflow / Termii Pipelines
                 </span>
                 <span className="text-[10px] font-mono font-bold text-chart-green uppercase bg-chart-green/10 px-2 py-0.5 rounded">
                   System Configured
                 </span>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Automated ticket delivery, entry QR passes, organizer alerts, and promotional broadcasts are dispatched using server-level API keys.
+                Automated ticket delivery, entry QR passes, organizer alerts, and promotional broadcasts are dispatched using server-level API keys with lock-screen brand prefixing.
               </p>
             </div>
 
@@ -216,8 +216,20 @@ const AdminSettings = () => {
               <p className="text-[10px] text-muted-foreground">Appears in attendee inboxes as the sender identity.</p>
             </div>
 
-            <div className="space-y-1.5 min-w-0 sm:col-span-2">
-              <Label className="text-xs font-bold text-foreground">SMS Sender ID (Termii)</Label>
+            <div className="space-y-1.5 min-w-0">
+              <Label className="text-xs font-bold text-foreground">SMS Sender ID (Textflow)</Label>
+              <Input
+                value={settings.textflow_sender_id}
+                onChange={(e) => setSettings({ ...settings, textflow_sender_id: e.target.value })}
+                placeholder="Textflow"
+                maxLength={11}
+                className="bg-background border-border text-xs h-10 rounded-lg font-mono uppercase"
+              />
+              <p className="text-[10px] text-muted-foreground">Default: "Textflow" for 100% DND bypass without CAC paperwork.</p>
+            </div>
+
+            <div className="space-y-1.5 min-w-0">
+              <Label className="text-xs font-bold text-foreground">SMS Sender ID (Termii Fallback)</Label>
               <Input
                 value={settings.termii_sender_id}
                 onChange={(e) => setSettings({ ...settings, termii_sender_id: e.target.value })}

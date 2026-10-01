@@ -22,7 +22,9 @@ export interface PlatformSettings {
   email_sender_name: string;
   email_reply_to: string;
 
-  // SMS Delivery Service (Termii)
+  // SMS Delivery Service (Textflow & Termii)
+  textflow_api_token: string;
+  textflow_sender_id: string; // e.g. "Textflow" or approved "EventRally"
   termii_api_key: string;
   termii_sender_id: string; // e.g. "Termii" or "EventRally"
   
@@ -48,6 +50,8 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   email_sender_name: import.meta.env.VITE_RESEND_SENDER_NAME || "EventRally Tickets",
   email_reply_to: import.meta.env.VITE_RESEND_REPLY_TO || "support@geteventrally.com",
 
+  textflow_api_token: import.meta.env.VITE_TEXTFLOW_API_TOKEN || "",
+  textflow_sender_id: import.meta.env.VITE_TEXTFLOW_SENDER_ID || "Textflow",
   termii_api_key: import.meta.env.VITE_TERMII_API_KEY || "",
   termii_sender_id: import.meta.env.VITE_TERMII_SENDER_ID || "Termii",
   
@@ -137,6 +141,8 @@ export async function fetchRemotePlatformSettings(): Promise<PlatformSettingsFet
         // If remote has empty gateway key but local has one, keep local (and vice-versa)
         gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || data.settings.gateway_public_key || local.gateway_public_key || "",
         resend_api_key: import.meta.env.VITE_RESEND_API_KEY || data.settings.resend_api_key || local.resend_api_key || "",
+        textflow_api_token: import.meta.env.VITE_TEXTFLOW_API_TOKEN || data.settings.textflow_api_token || local.textflow_api_token || "",
+        textflow_sender_id: data.settings.textflow_sender_id || import.meta.env.VITE_TEXTFLOW_SENDER_ID || local.textflow_sender_id || "Textflow",
         termii_api_key: import.meta.env.VITE_TERMII_API_KEY || data.settings.termii_api_key || local.termii_api_key || "",
       };
       savePlatformSettings(merged);

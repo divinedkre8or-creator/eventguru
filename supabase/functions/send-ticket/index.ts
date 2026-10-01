@@ -194,6 +194,58 @@ serve(async (req) => {
       throw new Error(`Failed to send email via Resend API: ${(body as any)?.message || JSON.stringify(body)}`);
     }
 
+    // Optional instant gate pass SMS notification (non-blocking)
+    const rawPhone = (registration.phone_number || registration.phone || "").trim().replace(/[\s\-\(\)]/g, "");
+    const TEXTFLOW_API_TOKEN = Deno.env.get("TEXTFLOW_API_TOKEN");
+    const TEXTFLOW_SENDER_ID = Deno.env.get("TEXTFLOW_SENDER_ID") || "Textflow";
+    const TERMII_API_KEY = Deno.env.get("TERMII_API_KEY");
+    const TERMII_SENDER_ID = Deno.env.get("TERMII_SENDER_ID") || "EventRally";
+
+    if (rawPhone && rawPhone.length >= 10 && (TEXTFLOW_API_TOKEN || TERMII_API_KEY)) {
+      try {
+        let normalizedPhone = rawPhone;
+        if (normalizedPhone.startsWith("0")) {
+          normalizedPhone = "234" + normalizedPhone.slice(1);
+        } else if (normalizedPhone.startsWith("+")) {
+          normalizedPhone = normalizedPhone.slice(1);
+        }
+
+        const attendeeFirst = (registration.full_name || "there").split(" ")[0];
+        const smsMessage = `[EventRally] Hi ${attendeeFirst}, your pass for ${eventTitle} is confirmed! Pass ID: ${orderRef}. View your ticket: ${ticketUrl}`;
+
+        if (TEXTFLOW_API_TOKEN) {
+          await fetch("https://textflow.ng/api/v1/sms/send", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${TEXTFLOW_API_TOKEN}`,
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+            },
+            body: JSON.stringify({
+              sender_id: TEXTFLOW_SENDER_ID,
+              recipients: normalizedPhone,
+              message: smsMessage,
+            }),
+          });
+        } else if (TERMII_API_KEY) {
+          await fetch("https://api.ng.termii.com/api/sms/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              to: normalizedPhone,
+              from: TERMII_SENDER_ID,
+              sms: smsMessage,
+              type: "plain",
+              channel: "generic",
+              api_key: TERMII_API_KEY,
+            }),
+          });
+        }
+      } catch (smsErr) {
+        console.warn("Gate pass SMS dispatch warning (non-blocking):", smsErr);
+      }
+    }
+
     return new Response(JSON.stringify({ message: "Ticket dispatched successfully", data: body }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,

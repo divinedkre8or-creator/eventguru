@@ -79,6 +79,8 @@ serve(async (req) => {
     if (campaign.status !== "draft" && campaign.status !== "failed") {
       return reject("already_processed", `This campaign is '${campaign.status}' and cannot be sent again.`);
     }
+    const TEXTFLOW_API_TOKEN = Deno.env.get("TEXTFLOW_API_TOKEN");
+    const TEXTFLOW_SENDER_ID = Deno.env.get("TEXTFLOW_SENDER_ID") || "Textflow";
     const TERMII_API_KEY = Deno.env.get("TERMII_API_KEY");
     const TERMII_SENDER_ID = Deno.env.get("TERMII_SENDER_ID") || "EventRally";
     const SMS_UNIT_PRICE_NAIRA = 6.5; // Retail price per SMS charged to organiser wallet
@@ -183,9 +185,9 @@ serve(async (req) => {
         return reject("insufficient_funds", msg, { required: requiredCost, balance: currentSmsBalance });
       }
 
-      if (!TERMII_API_KEY) {
-        await admin.from("campaigns").update({ status: "failed", error: "TERMII_API_KEY is not configured", recipient_count: recipients.length }).eq("id", campaignId);
-        return reject("sms_not_configured", "SMS delivery service is being connected. Please set the TERMII_API_KEY secret.");
+      if (!TEXTFLOW_API_TOKEN && !TERMII_API_KEY) {
+        await admin.from("campaigns").update({ status: "failed", error: "SMS service is not configured (missing TEXTFLOW_API_TOKEN or TERMII_API_KEY)", recipient_count: recipients.length }).eq("id", campaignId);
+        return reject("sms_not_configured", "SMS delivery service is being connected. Please set the TEXTFLOW_API_TOKEN secret.");
       }
     } else {
       const { data: usageRow } = await admin
@@ -245,32 +247,61 @@ serve(async (req) => {
     const sentIds: string[] = [];
 
     if (isSms) {
-      // Dispatch SMS via Termii
+      // Dispatch SMS via Textflow (primary) or Termii (fallback)
       for (const rec of inserted as any[]) {
         const smsContent = campaign.body.replace(/\{\{name\}\}/gi, rec.name || "there");
         try {
-          const res = await fetch("https://api.ng.termii.com/api/sms/send", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              to: rec.contact,
-              from: TERMII_SENDER_ID,
-              sms: smsContent,
-              type: "plain",
-              channel: "generic",
-              api_key: TERMII_API_KEY,
-            }),
-          });
-          const termiiRes = await res.json().catch(() => ({}));
-          if (res.ok && termiiRes.code === "ok") {
-            sent++;
-            sentIds.push(rec.id);
+          if (TEXTFLOW_API_TOKEN) {
+            // Textflow.ng API
+            const res = await fetch("https://textflow.ng/api/v1/sms/send", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${TEXTFLOW_API_TOKEN}`,
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+              },
+              body: JSON.stringify({
+                sender_id: TEXTFLOW_SENDER_ID,
+                recipients: rec.contact,
+                message: smsContent,
+              }),
+            });
+            const textflowRes = await res.json().catch(() => ({}));
+            if (res.ok && textflowRes?.status !== "error") {
+              sent++;
+              sentIds.push(rec.id);
+            } else {
+              failed++;
+              await admin.from("campaign_recipients").update({ 
+                status: "failed", 
+                error: textflowRes?.message || `Textflow Error (HTTP ${res.status})` 
+              }).eq("id", rec.id);
+            }
           } else {
-            failed++;
-            await admin.from("campaign_recipients").update({ 
-              status: "failed", 
-              error: termiiRes.message || `Termii Error (HTTP ${res.status})` 
-            }).eq("id", rec.id);
+            // Fallback: Termii API
+            const res = await fetch("https://api.ng.termii.com/api/sms/send", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                to: rec.contact,
+                from: TERMII_SENDER_ID,
+                sms: smsContent,
+                type: "plain",
+                channel: "generic",
+                api_key: TERMII_API_KEY,
+              }),
+            });
+            const termiiRes = await res.json().catch(() => ({}));
+            if (res.ok && termiiRes?.code === "ok") {
+              sent++;
+              sentIds.push(rec.id);
+            } else {
+              failed++;
+              await admin.from("campaign_recipients").update({ 
+                status: "failed", 
+                error: termiiRes?.message || `Termii Error (HTTP ${res.status})` 
+              }).eq("id", rec.id);
+            }
           }
         } catch (e) {
           failed++;
