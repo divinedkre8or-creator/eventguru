@@ -174,12 +174,12 @@ serve(async (req) => {
         return json({ ok: true, registrationId: existing.id, amountPaid: Number(existing.amount_paid) || 0 });
       }
 
-      const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY") || "sk_live_13d752a7e159a57f9d8f697c7a7c69a05eb035ad";
+      const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY");
       if (!PAYSTACK_SECRET_KEY) {
         // We cannot verify payment without the secret key. Fail as infra (non-2xx)
-        // rather than silently trusting the client. Pre-migration the client
-        // falls back; post-migration the DB blocks the fallback (fail closed).
-        return json({ error: "Payment verification is not configured (PAYSTACK_SECRET_KEY missing)" }, 500);
+        // rather than silently trusting the client.
+        console.error("complete-registration: PAYSTACK_SECRET_KEY environment variable is not configured.");
+        return json({ error: "Payment verification gateway is not configured. Please contact support." }, 500);
       }
 
       const verification = await verifyPaystack(paymentReference, PAYSTACK_SECRET_KEY);

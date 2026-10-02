@@ -40,7 +40,7 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   support_email: "support@geteventrally.com",
   currency: "NGN",
   
-  gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "pk_live_05f315dab83c2ed136a33b33acb5d81812a0f635",
+  gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
   gateway_provider: "paystack",
   gateway_environment: "live",
   platform_fee_percent: 2.5,
@@ -232,11 +232,7 @@ export function getActiveGatewayPublicKey(): string {
   if (settings.gateway_public_key && settings.gateway_public_key.trim() !== "") {
     return settings.gateway_public_key.trim();
   }
-  return (
-    import.meta.env.VITE_PAYSTACK_PUBLIC_KEY ||
-    DEFAULT_PLATFORM_SETTINGS.gateway_public_key ||
-    "pk_live_05f315dab83c2ed136a33b33acb5d81812a0f635"
-  );
+  return import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "";
 }
 
 export interface PaymentBreakdownInput {

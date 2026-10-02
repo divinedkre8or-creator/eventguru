@@ -57,9 +57,14 @@ serve(async (req) => {
     }
 
     // 3. Verify transaction with Paystack API
-    const PAYSTACK_SECRET_KEY =
-      Deno.env.get("PAYSTACK_SECRET_KEY") ||
-      "sk_live_13d752a7e159a57f9d8f697c7a7c69a05eb035ad";
+    const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY");
+    if (!PAYSTACK_SECRET_KEY) {
+      console.error("fund-wallet: PAYSTACK_SECRET_KEY secret is not set in environment.");
+      return jsonResponse(
+        { error: "Payment verification gateway is not configured (missing PAYSTACK_SECRET_KEY). Please contact support." },
+        500
+      );
+    }
 
     const paystackRes = await fetch(
       `https://api.paystack.co/transaction/verify/${encodeURIComponent(paymentReference.trim())}`,

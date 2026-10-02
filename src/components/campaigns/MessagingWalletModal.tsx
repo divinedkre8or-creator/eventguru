@@ -59,7 +59,7 @@ export const MessagingWalletModal = ({
     reference: `SMS-WALLET-${organiserId.slice(0, 8)}-${Date.now()}`,
     email: activeEmail,
     amount: totalPriceNgn * 100, // amount in kobo
-    publicKey: publicKey || "pk_live_05f315dab83c2ed136a33b33acb5d81812a0f635",
+    publicKey: publicKey || import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
     currency: "NGN",
     metadata: {
       custom_fields: [
