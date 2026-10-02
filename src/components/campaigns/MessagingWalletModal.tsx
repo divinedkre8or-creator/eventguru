@@ -59,7 +59,7 @@ export const MessagingWalletModal = ({
     reference: `SMS-WALLET-${organiserId.slice(0, 8)}-${Date.now()}`,
     email: activeEmail,
     amount: totalPriceNgn * 100, // amount in kobo
-    publicKey: publicKey || import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
+    publicKey: publicKey,
     currency: "NGN",
     metadata: {
       custom_fields: [
@@ -112,7 +112,7 @@ export const MessagingWalletModal = ({
       return;
     }
 
-    if (!publicKey) {
+    if (!publicKey || (!publicKey.startsWith("pk_live_") && !publicKey.startsWith("pk_test_"))) {
       toast.error("Payment gateway is not yet configured. Please contact platform support.");
       return;
     }

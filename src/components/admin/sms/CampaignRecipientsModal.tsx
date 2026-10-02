@@ -48,14 +48,13 @@ export function CampaignRecipientsModal({
     const fetchRecipients = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from("campaign_recipients")
+        const { data, error } = await (supabase.from as any)("campaign_recipients")
           .select("id, contact, name, status, error, sent_at, created_at")
           .eq("campaign_id", campaignId)
           .order("created_at", { ascending: true });
 
         if (error) throw error;
-        setRecipients((data as CampaignRecipient[]) || []);
+        setRecipients(((data || []) as unknown) as CampaignRecipient[]);
       } catch (err) {
         console.error("Failed to fetch recipients:", err);
       } finally {

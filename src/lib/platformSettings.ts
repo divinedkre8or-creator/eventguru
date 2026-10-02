@@ -35,12 +35,14 @@ export interface PlatformSettings {
 
 const STORAGE_KEY = "eventrally_platform_settings_v1";
 
+export const FALLBACK_PAYSTACK_PUBLIC_KEY = "pk_live_05f315dab83c2ed136a33b33acb5d81812a0f635";
+
 export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   platform_name: "EventRally",
   support_email: "support@geteventrally.com",
   currency: "NGN",
   
-  gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "",
+  gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || FALLBACK_PAYSTACK_PUBLIC_KEY,
   gateway_provider: "paystack",
   gateway_environment: "live",
   platform_fee_percent: 2.5,
@@ -80,12 +82,14 @@ export function getPlatformSettings(): PlatformSettings {
       return DEFAULT_PLATFORM_SETTINGS;
     }
     const parsed = JSON.parse(raw);
+    const validStoredKey = (parsed.gateway_public_key && typeof parsed.gateway_public_key === "string" && (parsed.gateway_public_key.startsWith("pk_live_") || parsed.gateway_public_key.startsWith("pk_test_")))
+      ? parsed.gateway_public_key.trim()
+      : (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || FALLBACK_PAYSTACK_PUBLIC_KEY);
+
     const resolved: PlatformSettings = {
       ...DEFAULT_PLATFORM_SETTINGS,
       ...parsed,
-      gateway_public_key: (parsed.gateway_public_key && parsed.gateway_public_key.trim() !== "")
-        ? parsed.gateway_public_key.trim()
-        : (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || DEFAULT_PLATFORM_SETTINGS.gateway_public_key),
+      gateway_public_key: validStoredKey,
     };
     memorySettingsCache = resolved;
     return resolved;
@@ -140,11 +144,11 @@ export async function fetchRemotePlatformSettings(): Promise<PlatformSettingsFet
       const merged: PlatformSettings = {
         ...local,
         ...data.settings,
-        gateway_public_key: (data.settings.gateway_public_key && data.settings.gateway_public_key.trim() !== "")
+        gateway_public_key: (data.settings.gateway_public_key && (data.settings.gateway_public_key.startsWith("pk_live_") || data.settings.gateway_public_key.startsWith("pk_test_")))
           ? data.settings.gateway_public_key.trim()
-          : ((local.gateway_public_key && local.gateway_public_key.trim() !== "")
+          : ((local.gateway_public_key && (local.gateway_public_key.startsWith("pk_live_") || local.gateway_public_key.startsWith("pk_test_")))
             ? local.gateway_public_key.trim()
-            : (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || DEFAULT_PLATFORM_SETTINGS.gateway_public_key)),
+            : (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || FALLBACK_PAYSTACK_PUBLIC_KEY)),
         resend_api_key: import.meta.env.VITE_RESEND_API_KEY || data.settings.resend_api_key || local.resend_api_key || "",
         textflow_api_token: import.meta.env.VITE_TEXTFLOW_API_TOKEN || data.settings.textflow_api_token || local.textflow_api_token || "",
         textflow_sender_id: data.settings.textflow_sender_id || import.meta.env.VITE_TEXTFLOW_SENDER_ID || local.textflow_sender_id || "Textflow",
@@ -226,13 +230,22 @@ export async function persistPlatformSettings(updated: Partial<PlatformSettings>
 
 /**
  * Helper to fetch the active public gateway key.
+ * Prioritizes environment variables, then persisted database settings, and falls back
+ * to the verified live public key. Guaranteed to return a valid 'pk_live_' or 'pk_test_' key.
  */
 export function getActiveGatewayPublicKey(): string {
-  const settings = getPlatformSettings();
-  if (settings.gateway_public_key && settings.gateway_public_key.trim() !== "") {
-    return settings.gateway_public_key.trim();
+  const envKey = (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "").trim();
+  if (envKey.startsWith("pk_live_") || envKey.startsWith("pk_test_")) {
+    return envKey;
   }
-  return import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "";
+
+  const settings = getPlatformSettings();
+  const dbCandidate = (settings.gateway_public_key || "").trim();
+  if (dbCandidate.startsWith("pk_live_") || dbCandidate.startsWith("pk_test_")) {
+    return dbCandidate;
+  }
+
+  return FALLBACK_PAYSTACK_PUBLIC_KEY;
 }
 
 export interface PaymentBreakdownInput {

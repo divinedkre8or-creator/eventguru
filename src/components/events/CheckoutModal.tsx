@@ -222,7 +222,7 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
     if (isFree) {
       completeRegistration(null);
     } else {
-      if (!gatewayPublicKey) {
+      if (!gatewayPublicKey || (!gatewayPublicKey.startsWith("pk_live_") && !gatewayPublicKey.startsWith("pk_test_"))) {
         toast.error("Online payments are not configured yet. Please contact the event organiser.");
         setProcessing(false);
         return;

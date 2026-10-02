@@ -73,13 +73,12 @@ export default function SMSControlPanel() {
     setLoadingOrganisers(true);
     try {
       // 1. Fetch all wallets
-      const { data: wallets, error: wErr } = await supabase
-        .from("organiser_wallets")
+      const { data: wallets, error: wErr } = await (supabase.from as any)("organiser_wallets")
         .select("organiser_id, sms_balance, plan, updated_at");
 
       if (wErr) throw wErr;
 
-      const walletList = wallets || [];
+      const walletList = (wallets || []) as any[];
       const userIds = walletList.map((w) => w.organiser_id);
 
       // 2. Fetch profiles
@@ -89,7 +88,6 @@ export default function SMSControlPanel() {
             .select("user_id, full_name")
             .in("user_id", userIds)
         : { data: [] };
-
       const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p.full_name]));
 
       // 3. Fetch user roles for email lookup
@@ -101,13 +99,12 @@ export default function SMSControlPanel() {
         : { data: [] };
 
       // 4. Fetch wallet transactions to sum funded amounts
-      const { data: transactions } = await supabase
-        .from("wallet_transactions")
+      const { data: transactions } = await (supabase.from as any)("wallet_transactions")
         .select("organiser_id, type, amount");
 
       const fundedMap = new Map<string, number>();
       let allSoldNgn = 0;
-      (transactions || []).forEach((tx) => {
+      ((transactions || []) as any[]).forEach((tx) => {
         if (tx.type === "fund") {
           const curr = fundedMap.get(tx.organiser_id) || 0;
           fundedMap.set(tx.organiser_id, curr + Number(tx.amount));
@@ -116,13 +113,12 @@ export default function SMSControlPanel() {
       });
 
       // 5. Fetch sent count from campaigns
-      const { data: camps } = await supabase
-        .from("campaigns")
+      const { data: camps } = await (supabase.from as any)("campaigns")
         .select("organiser_id, sent_count, channel")
         .eq("channel", "sms");
 
       const sentMap = new Map<string, number>();
-      (camps || []).forEach((c) => {
+      ((camps || []) as any[]).forEach((c) => {
         const curr = sentMap.get(c.organiser_id) || 0;
         sentMap.set(c.organiser_id, curr + (c.sent_count || 0));
       });
@@ -159,8 +155,7 @@ export default function SMSControlPanel() {
   const fetchCampaigns = useCallback(async () => {
     setLoadingCampaigns(true);
     try {
-      const { data: camps, error } = await supabase
-        .from("campaigns")
+      const { data: camps, error } = await (supabase.from as any)("campaigns")
         .select("id, subject, body, status, recipient_count, sent_count, failed_count, created_at, organiser_id, event_id")
         .eq("channel", "sms")
         .order("created_at", { ascending: false });

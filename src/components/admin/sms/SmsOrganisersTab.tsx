@@ -77,14 +77,13 @@ export function SmsOrganisersTab({
     setLedgerOrganiser(org);
     setLoadingLedger(true);
     try {
-      const { data, error } = await supabase
-        .from("wallet_transactions")
+      const { data, error } = await (supabase.from as any)("wallet_transactions")
         .select("id, type, amount, balance_after, reference, description, created_at")
         .eq("organiser_id", org.organiser_id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setLedgerTransactions((data as WalletTransaction[]) || []);
+      setLedgerTransactions(((data || []) as unknown) as WalletTransaction[]);
     } catch (err) {
       console.error("Failed to fetch wallet transactions:", err);
     } finally {
