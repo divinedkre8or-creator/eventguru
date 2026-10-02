@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,19 +11,21 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const { session, roles, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (loading && !session && roles.length === 0) {
     return (
-      <div className="min-h-screen bg-ink flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-amber border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-7 h-7 text-primary animate-spin" />
+        <span className="text-xs font-mono font-medium text-muted-foreground">Loading workspace...</span>
       </div>
     );
   }
 
-  if (!session) {
+  if (!session && !loading) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requiredRole && !roles.includes(requiredRole) && !roles.includes("admin")) {
+  // Prevent premature redirect while roles are being fetched
+  if (requiredRole && !loading && !roles.includes(requiredRole) && !roles.includes("admin")) {
     return <Navigate to="/" replace />;
   }
 

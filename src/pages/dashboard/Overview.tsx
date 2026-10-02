@@ -13,7 +13,16 @@ import { Button } from "@/components/ui/button";
 import AttendeeOverview from "./AttendeeOverview";
 
 const Overview = () => {
-  const { user, profile, roles } = useAuth();
+  const { user, profile, roles, loading } = useAuth();
+
+  if (loading && roles.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 space-y-3">
+        <Loader2 className="w-7 h-7 animate-spin text-primary" />
+        <p className="text-muted-foreground text-xs font-mono">Loading dashboard workspace...</p>
+      </div>
+    );
+  }
 
   // If user is strictly an attendee, render the Attendee Portal
   const isOrganiserOrAdmin = roles.includes("organiser") || roles.includes("admin");
@@ -325,40 +334,46 @@ const Overview = () => {
           <div className="bg-card border border-border rounded-lg p-5 shadow-sm space-y-4">
             <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">QUICK ACTIONS</h3>
             
-            <div className="grid grid-cols-2 gap-2">
-              <Link to="/dashboard/events/create">
-                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-bold justify-start bg-secondary/10 border-secondary/30 text-secondary hover:bg-secondary/20">
-                  <PlusCircle className="w-4 h-4 mr-2" /> Create Event
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
+              <Link to="/dashboard/events/create" className="min-w-0 block">
+                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-bold justify-start px-2.5 bg-secondary/10 border-secondary/30 text-secondary hover:bg-secondary/20 overflow-hidden">
+                  <PlusCircle className="w-4 h-4 mr-1.5 shrink-0" />
+                  <span className="truncate">Create Event</span>
                 </Button>
               </Link>
               
-              <Link to="/dashboard/tickets">
-                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-medium justify-start bg-background border-border text-foreground hover:bg-muted">
-                  <Ticket className="w-4 h-4 mr-2 text-muted-foreground" /> Add Ticket
+              <Link to="/dashboard/tickets" className="min-w-0 block">
+                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-medium justify-start px-2.5 bg-background border-border text-foreground hover:bg-muted overflow-hidden">
+                  <Ticket className="w-4 h-4 mr-1.5 text-muted-foreground shrink-0" />
+                  <span className="truncate">Add Ticket</span>
                 </Button>
               </Link>
 
-              <Link to="/dashboard/checkin">
-                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-medium justify-start bg-background border-border text-foreground hover:bg-muted">
-                  <ScanLine className="w-4 h-4 mr-2 text-muted-foreground" /> Check-In
+              <Link to="/dashboard/checkin" className="min-w-0 block">
+                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-medium justify-start px-2.5 bg-background border-border text-foreground hover:bg-muted overflow-hidden">
+                  <ScanLine className="w-4 h-4 mr-1.5 text-muted-foreground shrink-0" />
+                  <span className="truncate">Check-In</span>
                 </Button>
               </Link>
 
-              <Link to="/dashboard/dp">
-                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-medium justify-start bg-background border-border text-foreground hover:bg-muted">
-                  <ImageIcon className="w-4 h-4 mr-2 text-muted-foreground" /> Generate DP
+              <Link to="/dashboard/dp" className="min-w-0 block">
+                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-medium justify-start px-2.5 bg-background border-border text-foreground hover:bg-muted overflow-hidden">
+                  <ImageIcon className="w-4 h-4 mr-1.5 text-muted-foreground shrink-0" />
+                  <span className="truncate">Generate DP</span>
                 </Button>
               </Link>
 
-              <Link to="/dashboard/attendees">
-                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-medium justify-start bg-background border-border text-foreground hover:bg-muted">
-                  <Users className="w-4 h-4 mr-2 text-muted-foreground" /> Attendees
+              <Link to="/dashboard/attendees" className="min-w-0 block">
+                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-medium justify-start px-2.5 bg-background border-border text-foreground hover:bg-muted overflow-hidden">
+                  <Users className="w-4 h-4 mr-1.5 text-muted-foreground shrink-0" />
+                  <span className="truncate">Attendees</span>
                 </Button>
               </Link>
 
-              <Link to="/dashboard/campaigns?channel=sms">
-                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-medium justify-start bg-background border-border text-foreground hover:bg-muted">
-                  <MessageSquare className="w-4 h-4 mr-2 text-primary" /> SMS & Broadcast
+              <Link to="/dashboard/campaigns?channel=sms" className="min-w-0 block">
+                <Button variant="outline" size="sm" className="w-full h-11 text-xs font-semibold justify-start px-2.5 bg-background border-border text-foreground hover:bg-muted overflow-hidden">
+                  <MessageSquare className="w-4 h-4 mr-1.5 text-primary shrink-0" />
+                  <span className="truncate">SMS Broadcast</span>
                 </Button>
               </Link>
             </div>

@@ -370,30 +370,40 @@ const Campaigns = () => {
               <label className="text-xs font-bold text-foreground font-mono uppercase tracking-wider">
                 Communication Channel
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => setChannel("email")}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded-lg border text-xs font-bold transition-all ${
+                  className={`flex items-center justify-between sm:justify-center gap-2.5 px-3.5 py-3 sm:py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                     channel === "email"
-                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                      : "bg-background border-border text-muted-foreground hover:bg-muted"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs ring-1 ring-primary"
+                      : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-muted/70"
                   }`}
                 >
-                  <Mail className="w-4 h-4" /> Email Broadcast
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Mail className="w-4 h-4 shrink-0" />
+                    <span className="truncate">Email Broadcast</span>
+                  </div>
+                  <span className="text-[10px] font-mono font-medium opacity-80 sm:hidden">
+                    Included
+                  </span>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setChannel("sms")}
-                  className={`relative flex items-center justify-center gap-2 py-2.5 rounded-lg border text-xs font-bold transition-all ${
+                  className={`relative flex items-center justify-between sm:justify-center gap-2.5 px-3.5 py-3 sm:py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                     channel === "sms"
-                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                      : "bg-background border-border text-muted-foreground hover:bg-muted"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs ring-1 ring-primary"
+                      : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-muted/70"
                   }`}
                 >
-                  <MessageSquare className="w-4 h-4" /> SMS Notification
-                  <span className="text-[9px] font-mono font-bold uppercase bg-chart-green/20 text-chart-green px-1.5 py-0.2 rounded-full">
-                    Active
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <MessageSquare className="w-4 h-4 shrink-0 text-secondary" />
+                    <span className="truncate">SMS Notification</span>
+                  </div>
+                  <span className="text-[9px] font-mono font-bold uppercase bg-chart-green/20 text-chart-green px-2 py-0.5 rounded-full shrink-0">
+                    Direct SMS
                   </span>
                 </button>
               </div>
@@ -570,20 +580,21 @@ const Campaigns = () => {
             >
               {sending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Dispatching Broadcast...
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Dispatching Broadcast...
                 </>
               ) : channel === "email" && emailAtLimit ? (
                 <>
-                  <AlertCircle className="w-4 h-4" /> Monthly Free Limit Reached
+                  <AlertCircle className="w-4 h-4 shrink-0" /> Monthly Free Limit Reached
                 </>
               ) : channel === "sms" && !hasEnoughSmsBalance ? (
                 <>
-                  <Wallet className="w-4 h-4" /> Insufficient SMS Wallet Balance
+                  <Wallet className="w-4 h-4 shrink-0" /> Insufficient SMS Wallet Balance
                 </>
               ) : (
-                <>
-                  <Send className="w-4 h-4" /> Send {channel === "email" ? "Email Broadcast" : `SMS Broadcast (${targetCount} Attendees)`}
-                </>
+                <div className="flex items-center gap-2 min-w-0">
+                  <Send className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Send {channel === "email" ? "Email Broadcast" : `SMS Broadcast (${targetCount} Attendees)`}</span>
+                </div>
               )}
             </Button>
           </form>

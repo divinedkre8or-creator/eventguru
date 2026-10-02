@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Loader2 } from "lucide-react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Lazy-load all page components for optimal code splitting and performance
 const Index = lazy(() => import("./pages/Index"));
@@ -68,7 +69,16 @@ const PageLoader = () => (
   </div>
 );
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 3, // 3 minutes cache for snappy, instant page transitions
+      gcTime: 1000 * 60 * 10,
+      retry: 1,
+      refetchOnWindowFocus: false, // Prevents unnecessary re-fetches and flashes when switching tabs/windows
+    },
+  },
+});
 
 const App = () => (
   <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
@@ -80,7 +90,8 @@ const App = () => (
           <AuthProvider>
             <ScrollToTop />
             <CookieBanner />
-            <Suspense fallback={<PageLoader />}>
+            <ErrorBoundary>
+              <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Core Public Hubs & Marketing */}
                 <Route path="/" element={<Index />} />
@@ -152,7 +163,8 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
-          </AuthProvider>
+          </ErrorBoundary>
+        </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

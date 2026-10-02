@@ -1,11 +1,8 @@
-import { useState } from "react";
-import { 
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription 
-} from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
-  Wallet, ShieldCheck, Loader2, CreditCard, Sparkles, TrendingDown, Check 
+  Wallet, ShieldCheck, Loader2, CreditCard, Sparkles, TrendingDown, Check, X 
 } from "lucide-react";
 import { toast } from "sonner";
 import { usePaystackPayment } from "react-paystack";
@@ -61,6 +58,7 @@ export const MessagingWalletModal = ({
     amount: totalPriceNgn * 100, // amount in kobo
     publicKey: publicKey,
     currency: "NGN",
+    channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'] as any,
     metadata: {
       custom_fields: [
         { display_name: "Organiser ID", variable_name: "organiser_id", value: organiserId },
@@ -72,6 +70,22 @@ export const MessagingWalletModal = ({
   };
 
   const initializePayment = usePaystackPayment(paystackConfig);
+
+  const handleModalClose = () => {
+    setIsProcessing(false);
+    onClose();
+  };
+
+  // Close on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        handleModalClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   const handlePaymentSuccess = async (response: { reference: string }) => {
     try {
@@ -92,7 +106,7 @@ export const MessagingWalletModal = ({
         `Wallet credited with ₦${(data.amountPaidNaira || totalPriceNgn).toLocaleString()} (${(data.unitsAdded || totalUnits).toLocaleString()} SMS Units)!`
       );
       onSuccess();
-      onClose();
+      handleModalClose();
     } catch (err: any) {
       console.error("Wallet credit error:", err);
       toast.error(err.message || "Payment received, but recording wallet transaction failed. Please contact support.");
@@ -103,7 +117,7 @@ export const MessagingWalletModal = ({
 
   const handlePaymentClose = () => {
     setIsProcessing(false);
-    toast.info("Wallet funding transaction was closed.");
+    toast.info("Payment window was closed.");
   };
 
   const handlePaystackPayment = () => {
@@ -130,25 +144,51 @@ export const MessagingWalletModal = ({
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-xl p-4 sm:p-6 bg-card border-border font-sans flex flex-col max-h-[85vh] max-h-[85dvh] overflow-hidden">
-        <DialogHeader className="space-y-1 text-left shrink-0 pr-8">
-          <div className="flex items-center gap-2">
+    <div 
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleModalClose();
+        }
+      }}
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 font-sans animate-in fade-in duration-200"
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="w-full sm:max-w-xl bg-card border border-border sm:rounded-2xl rounded-t-3xl max-h-[88vh] max-h-[88dvh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
+      >
+        {/* Mobile drag handle */}
+        <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto mt-2.5 sm:hidden shrink-0" />
+
+        {/* Modal Header */}
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0 pr-2">
             <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <Wallet className="w-4 h-4" />
             </div>
-            <DialogTitle className="font-heading text-lg sm:text-xl font-bold text-foreground">
-              SMS Messaging Wallet
-            </DialogTitle>
+            <div className="min-w-0">
+              <h2 className="font-heading text-base sm:text-lg font-bold text-foreground leading-tight truncate">
+                SMS Messaging Wallet
+              </h2>
+              <p className="text-[11px] text-muted-foreground truncate">
+                Top up on-demand SMS credits with instant delivery.
+              </p>
+            </div>
           </div>
-          <DialogDescription className="text-xs text-muted-foreground">
-            Top up on-demand SMS credits. Direct delivery to mobile phone lock screens with 98% open rates.
-          </DialogDescription>
-        </DialogHeader>
+          <button
+            type="button"
+            onClick={handleModalClose}
+            className="rounded-full p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+            aria-label="Close dialog"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto overscroll-contain pr-1 space-y-4 py-1">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-4">
           {/* Current Balance Overview */}
           <div className="bg-muted/40 border border-border rounded-xl p-3.5 sm:p-4 flex items-center justify-between">
             <div>
@@ -297,13 +337,12 @@ export const MessagingWalletModal = ({
         </div>
 
         {/* Pinned Action Footer */}
-        <div className="shrink-0 flex items-center justify-between gap-3 pt-3 border-t border-border bg-card mt-auto">
+        <div className="shrink-0 flex items-center justify-between gap-3 p-4 sm:p-5 border-t border-border bg-card mt-auto">
           <Button
             type="button"
             variant="outline"
-            onClick={onClose}
-            disabled={isProcessing}
-            className="text-xs font-bold border-border text-muted-foreground hover:text-foreground h-11 px-4"
+            onClick={handleModalClose}
+            className="text-xs font-bold border-border text-muted-foreground hover:text-foreground h-11 px-4 cursor-pointer"
           >
             Cancel
           </Button>
@@ -324,7 +363,7 @@ export const MessagingWalletModal = ({
             )}
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };

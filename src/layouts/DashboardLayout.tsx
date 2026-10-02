@@ -94,7 +94,7 @@ const DashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { profile, user, roles, signOut } = useAuth();
+  const { profile, user, roles, loading, signOut } = useAuth();
   const isAdmin = roles.includes("admin");
 
   const fullName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
@@ -105,12 +105,12 @@ const DashboardLayout = () => {
   const isActive = (path: string) =>
     path === "/dashboard" ? location.pathname === path : location.pathname.startsWith(path);
 
-  // Route Guard: Prevent attendees from accessing organizer management pages
+  // Route Guard: Prevent attendees from accessing organizer management pages (only after auth finishes loading)
   useEffect(() => {
-    if (!isOrganiserOrAdmin && location.pathname !== "/dashboard" && location.pathname !== "/dashboard/settings") {
+    if (!loading && !isOrganiserOrAdmin && location.pathname !== "/dashboard" && location.pathname !== "/dashboard/settings") {
       navigate("/dashboard", { replace: true });
     }
-  }, [isOrganiserOrAdmin, location.pathname, navigate]);
+  }, [loading, isOrganiserOrAdmin, location.pathname, navigate]);
 
   return (
     <div className="min-h-screen bg-background font-sans flex text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-clip w-full max-w-full">

@@ -115,7 +115,8 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
     email: email,
     amount: breakdown.amountInMinorUnits, // Gateway minor units (e.g. kobo)
     publicKey: gatewayPublicKey,
-    currency: 'NGN', 
+    currency: 'NGN',
+    channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'] as any,
   };
 
   const initializePayment = usePaystackPayment(config);
