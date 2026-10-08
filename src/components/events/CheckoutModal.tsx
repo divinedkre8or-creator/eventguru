@@ -16,7 +16,7 @@ import { getEventDpUrl, getEventUrl } from "@/lib/slugUtils";
 import { DigitalTicketCard } from "@/components/tickets/DigitalTicketCard";
 import { TicketActions } from "@/components/tickets/TicketActions";
 import { getActiveGatewayPublicKey, calculatePaymentBreakdown } from "@/lib/platformSettings";
-import { submitRegistration, RegistrationRejectedError } from "@/lib/registrationService";
+import { submitRegistration, initializeOrder, RegistrationRejectedError } from "@/lib/registrationService";
 import { parseEventMetadata, CustomQuestion } from "@/lib/eventMetadata";
 
 interface CheckoutModalProps {
@@ -228,7 +228,44 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
         setProcessing(false);
         return;
       }
-      initializePayment({ onSuccess: onSuccessPayment, onClose: onClosePayment });
+
+      // Authoritatively initialize the order on the server BEFORE opening Paystack modal
+      initializeOrder({
+        eventId: event.id,
+        ticketTypeId: ticket?.id || null,
+        fullName: name,
+        email: email,
+        phone: phone || null,
+        quantity,
+        customAnswers: Object.keys(customAnswers).length > 0 ? customAnswers : null,
+      })
+        .then((initRes) => {
+          if (initRes.isFree) {
+            completeRegistration(null);
+            return;
+          }
+
+          initializePayment({
+            onSuccess: (response: any) => {
+              const verifiedRef = response?.reference || initRes.paymentReference;
+              completeRegistration(verifiedRef);
+            },
+            onClose: onClosePayment,
+            config: {
+              reference: initRes.paymentReference,
+              email: email,
+              amount: initRes.amountKobo || breakdown.amountInMinorUnits,
+              currency: "NGN",
+              channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'] as any,
+              metadata: (initRes as any).metadata,
+            },
+          });
+        })
+        .catch((initErr: any) => {
+          setProcessing(false);
+          console.error("Order reservation error:", initErr);
+          toast.error(initErr.message || "Failed to initialize payment with server");
+        });
     }
   };
 

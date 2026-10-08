@@ -113,7 +113,30 @@ serve(async (req) => {
       return jsonResponse({ error: "Invalid payment amount recorded by gateway." }, 400);
     }
 
+    // Cross-Service Isolation: Reject event ticket transactions from being used as SMS wallet funding
+    const trimmedRef = paymentReference.trim();
+    if (trimmedRef.startsWith("EVR-") || txData?.metadata?.purpose === "event_ticket") {
+      return jsonResponse(
+        { error: "Invalid payment reference: Event ticket transactions cannot be credited to the SMS messaging wallet." },
+        400
+      );
+    }
+
     const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+
+    // Cross-Service Double Check: verify reference has not been used in orders
+    const { data: existingOrder } = await supabaseAdmin
+      .from("orders")
+      .select("id")
+      .eq("payment_reference", trimmedRef)
+      .maybeSingle();
+
+    if (existingOrder) {
+      return jsonResponse(
+        { error: "This payment reference is already bound to an event ticket order and cannot be credited to SMS wallet." },
+        400
+      );
+    }
 
     // 4. Idempotency Check: verify reference has not already been credited
     const { data: existingTx } = await supabaseAdmin

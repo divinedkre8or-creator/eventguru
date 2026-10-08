@@ -7,7 +7,7 @@ export const OrganizerAgreement: React.FC = () => {
     { id: "overview", label: "Merchant Terms & Relationship" },
     { id: "eligibility", label: "Event Eligibility & Verification" },
     { id: "payouts-escrow", label: "Ticket Settlements & Payout Escrow" },
-    { id: "fees-pricing", label: "Platform Fees & Invoicing" },
+    { id: "fees-pricing", label: "Platform Fees & Net Settlements" },
     { id: "cancellations-refunds", label: "Cancellation & Refund Obligations" },
     { id: "attendee-data", label: "Attendee Data Privacy (NDPA Compliance)" },
     { id: "campaign-broadcasts", label: "SMS & Email Broadcast Regulations" },
@@ -98,10 +98,22 @@ export const OrganizerAgreement: React.FC = () => {
       {/* Section 4 */}
       <section id="fees-pricing" className="space-y-3 pt-4 border-t border-border/60">
         <h2 className="text-xl font-heading font-bold text-foreground">
-          4. Platform Fees & Taxation
+          4. Platform Fees, Payment Processing & Net Settlements
         </h2>
         <p>
-          <strong>Platform Convenience Fee:</strong> For paid events, EventRally charges a transaction service fee (a small percentage plus payment gateway processing costs). The exact fee is displayed transparently when creating ticket tiers. Free events incur zero fees.
+          <strong>EventRally Platform Fee:</strong> For paid events, EventRally charges a platform service commission of 2.5% on gross ticket sales. Free events incur zero platform fees.
+        </p>
+        <p>
+          <strong>Payment Gateway Processing Fees:</strong> Payment collection is processed securely via our licensed payment gateway partner, Paystack. The Organizer expressly acknowledges and agrees that the Organizer absorbs actual payment gateway processing fees incurred on ticket purchases. Such processing fees are deducted at the time of transaction settlement based on the actual verified fee charged by the payment gateway.
+        </p>
+        <p>
+          <strong>Authoritative Net Settlement Formula:</strong> The Organizer&apos;s net earnings for each completed paid order are calculated strictly as:
+        </p>
+        <div className="bg-muted/40 border border-border p-3.5 rounded-lg font-mono text-xs text-foreground">
+          Net Organizer Proceeds = Gross Ticket Sales − EventRally Platform Fee (2.5%) − Actual Gateway Processing Fee
+        </div>
+        <p>
+          <strong>Available Payout Ceiling:</strong> The Organizer may request payout disbursements only up to their authoritative Available Balance, defined as cumulative Net Organizer Proceeds minus previously disbursed settlements and any currently pending/processing payout requests. Under no circumstances may an Organizer request or receive funds exceeding this authoritative balance.
         </p>
         <p>
           <strong>Organizer Tax Liabilities:</strong> The Organizer acknowledges that they are exclusively responsible for calculating, reporting, and remitting any Value Added Tax (VAT), Withholding Tax (WHT), or State Entertainment Taxes (such as Lagos State Tourism & Entertainment Tax) arising from ticket sales. EventRally remits VAT solely on its own platform service commission.

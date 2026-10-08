@@ -143,7 +143,10 @@ export const TermsOfService: React.FC = () => {
           <strong>Free Events:</strong> EventRally provides 100% free hosting and ticketing for free events with no listing charges or attendee RSVP fees.
         </p>
         <p>
-          <strong>Paid Events:</strong> For paid ticket sales, EventRally applies a competitive service fee (disclosed transparently during event creation and checkout). Payment processing is executed securely via our licensed payment gateway partners (including Paystack, a registered Payment Solutions Service Provider under the Central Bank of Nigeria).
+          <strong>Paid Events & Fee Allocation:</strong> For paid ticket sales, attendees pay the advertised face value of the ticket with no hidden checkout surcharges. EventRally charges a platform service commission of 2.5% on gross ticket sales. Event Organizers absorb actual third-party payment gateway processing fees charged by our licensed payment processor (Paystack, a Payment Solutions Service Provider regulated under the Central Bank of Nigeria).
+        </p>
+        <p>
+          <strong>Organizer Net Proceeds:</strong> Payout balances available to Organizers are calculated as: Gross Ticket Sales minus EventRally Platform Fee (2.5%) minus Actual Payment Gateway Processing Fees, less any approved refunds or dispute chargebacks.
         </p>
         <p>
           <strong>Taxes:</strong> Fees charged by EventRally are subject to applicable Value Added Tax (VAT) at the statutory rate of 7.5% in Nigeria. Organizers are solely responsible for calculating and remitting any corporate income, withholding, or entertainment consumption taxes owed on their ticket sales.

@@ -1,18 +1,46 @@
 // src/lib/registrationService.ts
 //
-// Single entrypoint the checkout uses to record a registration.
+// Authoritative Registration & Payment Service for EventRally.
 //
-// Strategy (live-safe rollout):
-//   1. Try the secure `complete-registration` edge function first.
-//   2. If the function is deployed and returns a HARD business rejection
-//      (HTTP 200 { ok: false }), surface that error and DO NOT fall back —
-//      falling back would recreate the exact forgery we are closing.
-//   3. If the function is unreachable / not yet deployed / misconfigured
-//      (network error or non-2xx), fall back to the legacy direct insert so the
-//      live site keeps working until the backend is deployed. Once the RLS
-//      hardening migration is applied, that fallback is blocked at the database
-//      and the system fails closed.
+// Guarantees:
+//   1. Paid payments are NEVER created via client-side direct inserts.
+//      If server-side verification fails, it FAILS CLOSED.
+//   2. Order pre-initialization (`initializeOrder`) binds the reference and amount
+//      server-side before opening Paystack.
+//   3. Finalization (`finalizeOrder`) performs cryptographic verification and
+//      atomic multi-ticket provisioning via the database RPC.
+//   4. Free registrations are verified against the database and fail closed if
+//      the selected tier is not genuinely free.
+
 import { supabase } from "@/integrations/supabase/client";
+
+export interface InitializeOrderInput {
+  eventId: string;
+  ticketTypeId: string | null;
+  fullName: string;
+  email: string;
+  phone?: string | null;
+  quantity: number;
+  customAnswers?: Record<string, any> | null;
+}
+
+export interface InitializeOrderResult {
+  ok: boolean;
+  isFree: boolean;
+  orderId?: string;
+  paymentReference?: string;
+  amountKobo?: number;
+  amountMajor?: number;
+  currency?: string;
+  registrationId?: string;
+  ticketIds?: string[];
+  metadata?: Record<string, any>;
+  reason?: string;
+}
+
+export interface FinalizeOrderInput {
+  paymentReference: string;
+}
 
 export interface SubmitRegistrationInput {
   eventId: string;
@@ -21,67 +49,128 @@ export interface SubmitRegistrationInput {
   email: string;
   phone?: string | null;
   quantity: number;
-  /** Client-computed total; used for free tickets and as the fallback record amount. */
   amountPaid: number;
   paymentReference?: string | null;
-  /** Optional linked user id, used only on the legacy fallback path. */
   userId?: string | null;
-  /** Custom question responses captured during checkout */
   customAnswers?: Record<string, any> | null;
 }
 
 export interface SubmitRegistrationResult {
   registrationId: string;
+  ticketIds?: string[];
+  orderId?: string;
   amountPaid: number;
   viaSecureFunction: boolean;
 }
 
-/** Hard rejection from the server (payment unverified, sold out, …). Not retried, not fallen back. */
 export class RegistrationRejectedError extends Error {}
+export class PaymentVerificationError extends Error {}
 
-export async function submitRegistration(input: SubmitRegistrationInput): Promise<SubmitRegistrationResult> {
-  // 1. Secure path — server verifies payment and records the row.
-  try {
-    const { data, error } = await supabase.functions.invoke("complete-registration", {
-      body: {
-        eventId: input.eventId,
-        ticketTypeId: input.ticketTypeId,
-        fullName: input.fullName,
-        email: input.email,
-        phone: input.phone ?? null,
-        quantity: input.quantity,
-        paymentReference: input.paymentReference ?? null,
-        customAnswers: input.customAnswers ?? null,
-      },
-    });
+/**
+ * Authoritatively creates a pending order on the server before payment.
+ */
+export async function initializeOrder(input: InitializeOrderInput): Promise<InitializeOrderResult> {
+  const { data, error } = await supabase.functions.invoke("complete-registration", {
+    body: {
+      action: "initialize",
+      eventId: input.eventId,
+      ticketTypeId: input.ticketTypeId,
+      fullName: input.fullName,
+      email: input.email,
+      phone: input.phone ?? null,
+      quantity: input.quantity,
+      customAnswers: input.customAnswers ?? null,
+    },
+  });
 
-    if (!error && data) {
-      if (data.ok === false) {
-        // HTTP 200 + ok:false => hard business rejection. Propagate, never fall back.
-        throw new RegistrationRejectedError(data.reason || "Registration could not be verified.");
-      }
-      if (data.ok && data.registrationId) {
-        return {
-          registrationId: data.registrationId,
-          amountPaid: typeof data.amountPaid === "number" ? data.amountPaid : input.amountPaid,
-          viaSecureFunction: true,
-        };
-      }
-    }
-    // `error` set (non-2xx / network) or unexpected shape -> fall through to legacy.
-  } catch (err) {
-    if (err instanceof RegistrationRejectedError) throw err; // do not fall back on hard rejections
-    // Any other throw (network/invoke failure) -> fall through to legacy.
+  if (error) {
+    throw new Error(error.message || "Failed to initialize order with server.");
   }
 
-  // 2. Legacy fallback — direct insert + sold increment (pre-deploy behavior).
-  return legacyDirectInsert(input);
+  if (data?.ok === false) {
+    throw new RegistrationRejectedError(data.reason || "Unable to reserve ticket order.");
+  }
+
+  return data as InitializeOrderResult;
 }
 
-async function legacyDirectInsert(input: SubmitRegistrationInput): Promise<SubmitRegistrationResult> {
-  // Pre-generate the id so we never depend on RETURNING-select RLS policies.
-  const registrationId = crypto.randomUUID();
+/**
+ * Authoritatively verifies payment with Paystack and issues tickets atomically.
+ */
+export async function finalizeOrder(paymentReference: string): Promise<SubmitRegistrationResult> {
+  const { data, error } = await supabase.functions.invoke("complete-registration", {
+    body: {
+      action: "finalize",
+      paymentReference,
+    },
+  });
 
+  if (error) {
+    throw new PaymentVerificationError(
+      `Payment confirmation was interrupted. If your card was charged, your reference is: ${paymentReference}. Please contact support.`
+    );
+  }
+
+  if (data?.ok === false) {
+    throw new RegistrationRejectedError(data.reason || "Payment could not be verified by the server.");
+  }
+
+  return {
+    registrationId: data.registrationId,
+    ticketIds: data.ticketIds || (data.registrationId ? [data.registrationId] : []),
+    orderId: data.orderId,
+    amountPaid: typeof data.amountPaid === "number" ? data.amountPaid : 0,
+    viaSecureFunction: true,
+  };
+}
+
+/**
+ * Unified entrypoint for registration submission.
+ * Strictly avoids falling back to client-direct inserts for paid tickets.
+ */
+export async function submitRegistration(input: SubmitRegistrationInput): Promise<SubmitRegistrationResult> {
+  // If payment reference exists, this is a paid checkout confirmation
+  if (input.paymentReference) {
+    return finalizeOrder(input.paymentReference);
+  }
+
+  // Free ticket flow
+  try {
+    const initRes = await initializeOrder({
+      eventId: input.eventId,
+      ticketTypeId: input.ticketTypeId,
+      fullName: input.fullName,
+      email: input.email,
+      phone: input.phone,
+      quantity: input.quantity,
+      customAnswers: input.customAnswers,
+    });
+
+    if (initRes.isFree && initRes.registrationId) {
+      return {
+        registrationId: initRes.registrationId,
+        ticketIds: initRes.ticketIds || [initRes.registrationId],
+        orderId: initRes.orderId,
+        amountPaid: 0,
+        viaSecureFunction: true,
+      };
+    }
+  } catch (err) {
+    if (err instanceof RegistrationRejectedError) throw err;
+    console.warn("Server free ticket initialization failed, attempting hardened direct insert:", err);
+  }
+
+  // Only genuinely free tickets (amountPaid === 0) may use direct insert fallback,
+  // which is guarded at database level by the hardened RLS policy
+  if (input.amountPaid === 0) {
+    return freeTicketDirectInsert(input);
+  }
+
+  throw new PaymentVerificationError("Paid registrations cannot be completed without verified payment reference.");
+}
+
+async function freeTicketDirectInsert(input: SubmitRegistrationInput): Promise<SubmitRegistrationResult> {
+  const registrationId = crypto.randomUUID();
   const insertPayload: any = {
     id: registrationId,
     event_id: input.eventId,
@@ -90,28 +179,24 @@ async function legacyDirectInsert(input: SubmitRegistrationInput): Promise<Submi
     full_name: input.fullName,
     email: input.email,
     phone: input.phone || null,
-    amount_paid: input.amountPaid,
-    payment_reference: input.paymentReference ?? null,
+    amount_paid: 0,
+    payment_reference: `FREE-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
     status: "completed",
     checked_in: false,
+    ticket_index: 1,
+    ticket_code: `TKT-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
   };
 
   if (input.customAnswers && Object.keys(input.customAnswers).length > 0) {
     insertPayload.custom_answers = input.customAnswers;
   }
 
-  let { error: regError } = await supabase.from("registrations").insert(insertPayload);
-  // Resilient fallback: If live Supabase does not yet have custom_answers column, retry without it
-  if (regError && insertPayload.custom_answers) {
-    console.warn("Retrying registration insert without custom_answers column:", regError.message);
-    delete insertPayload.custom_answers;
-    const retry = await supabase.from("registrations").insert(insertPayload);
-    regError = retry.error;
+  const { error: regError } = await supabase.from("registrations").insert(insertPayload);
+  if (regError) {
+    throw new Error(`Free registration rejected by database: ${regError.message}`);
   }
 
-  if (regError) throw regError;
-
-  // Best-effort sold-count increment (mirrors the original checkout behavior).
+  // Best-effort stock increment
   if (input.ticketTypeId) {
     try {
       const { data: tData } = await supabase
@@ -125,10 +210,10 @@ async function legacyDirectInsert(input: SubmitRegistrationInput): Promise<Submi
           .update({ sold: (tData.sold || 0) + input.quantity })
           .eq("id", input.ticketTypeId);
       }
-    } catch (tErr) {
-      console.warn("Notice: Ticket sold count update deferred:", tErr);
+    } catch (_tErr) {
+      // deferred
     }
   }
 
-  return { registrationId, amountPaid: input.amountPaid, viaSecureFunction: false };
+  return { registrationId, amountPaid: 0, viaSecureFunction: false };
 }

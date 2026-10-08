@@ -91,20 +91,45 @@ const AdminDisputes = () => {
       const cleanQ = lookupQuery.trim();
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanQ);
 
-      const query = supabase
-        .from("registrations")
-        .select("id, full_name, email, phone, amount_paid, payment_reference, status, created_at, events(title, date)")
-        .or(isUUID ? `id.eq.${cleanQ}` : `payment_reference.ilike.%${cleanQ}%,email.ilike.%${cleanQ}%`)
+      let foundRecord: any = null;
+      // 1. Query authoritative orders table
+      const { data: orderData } = await (supabase.from as any)("orders")
+        .select("*, events(title, date)")
+        .or(isUUID ? `id.eq.${cleanQ}` : `payment_reference.ilike.%${cleanQ}%,customer_email.ilike.%${cleanQ}%`)
         .limit(1)
         .maybeSingle();
 
-      const { data, error } = await query;
-      if (error) throw error;
+      if (orderData) {
+        foundRecord = {
+          id: orderData.id,
+          full_name: orderData.customer_name,
+          email: orderData.customer_email,
+          phone: orderData.customer_phone,
+          amount_paid: Number(orderData.subtotal) || Number(orderData.amount_paid) || 0,
+          platform_fee: Number(orderData.platform_fee) || 0,
+          organiser_net: Number(orderData.organiser_net) || 0,
+          payment_reference: orderData.payment_reference,
+          gateway_transaction_id: orderData.gateway_transaction_id,
+          status: orderData.payment_status,
+          created_at: orderData.created_at,
+          events: orderData.events,
+          quantity: orderData.quantity || 1,
+        };
+      } else {
+        // 2. Fallback to registrations table
+        const { data: regData } = await supabase
+          .from("registrations")
+          .select("id, full_name, email, phone, amount_paid, payment_reference, status, created_at, events(title, date)")
+          .or(isUUID ? `id.eq.${cleanQ}` : `payment_reference.ilike.%${cleanQ}%,email.ilike.%${cleanQ}%`)
+          .limit(1)
+          .maybeSingle();
+        foundRecord = regData;
+      }
 
-      if (!data) {
+      if (!foundRecord) {
         toast.info("No transaction or registration matched that reference or email.");
       } else {
-        setLookupResult(data);
+        setLookupResult(foundRecord);
         toast.success("Transaction located in ledger!");
       }
     } catch (err: any) {

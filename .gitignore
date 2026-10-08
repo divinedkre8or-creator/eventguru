@@ -30,3 +30,6 @@ dist-ssr
 
 # Video artifacts
 brag-output*
+
+# Supabase temp
+supabase/.temp/

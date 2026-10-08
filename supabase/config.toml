@@ -33,3 +33,14 @@ verify_jwt = true
 # verification is disabled; the per-recipient token authorises the suppression.
 [functions.unsubscribe]
 verify_jwt = false
+
+# Paystack payment webhook endpoint. Must be callable by Paystack's servers,
+# so JWT verification is disabled; requests are cryptographically authenticated
+# using HMAC SHA-512 over the raw request body with PAYSTACK_SECRET_KEY.
+[functions.paystack-webhook]
+verify_jwt = false
+
+# SMS messaging wallet funding endpoint.
+[functions.fund-wallet]
+verify_jwt = true
+

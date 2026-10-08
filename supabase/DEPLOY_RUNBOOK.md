@@ -53,17 +53,23 @@ real email. Without it, that function mocks success (existing behavior).
 > tickets) until `complete-registration` is live.
 
 ```bash
-# 2a. Edge functions (enables paid checkout + guest ticket links)
+# 2a. Edge functions (enables paid checkout, webhooks & secure ticket links)
 supabase functions deploy complete-registration
+supabase functions deploy paystack-webhook
 supabase functions deploy get-ticket
+supabase functions deploy fund-wallet
 
-# 2b. The RLS migration.
-#     Preferred (safe, idempotent, transactional): paste the contents of
-#     supabase/migrations/20260910120000_security_hardening.sql into the
-#     Supabase Dashboard → SQL Editor and run it.
+# 2b. The P0 Payment Remediation SQL migration.
+#     Paste the contents of supabase/migrations/20261008180000_payment_integrity_remediation.sql
+#     into the Supabase Dashboard → SQL Editor and execute.
 #
 #     OR, if you manage schema via the migrations folder:
 supabase db push
+
+# 2c. Paystack Dashboard Webhook Configuration
+#     In your Paystack Dashboard (Settings → API Keys & Webhooks):
+#     Set Webhook URL: https://edpnvsakkudorleqqhxv.supabase.co/functions/v1/paystack-webhook
+#     Events: charge.success
 ```
 
 *Why SQL Editor is suggested:* this repo's base schema lives in
