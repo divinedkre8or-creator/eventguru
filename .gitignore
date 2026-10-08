@@ -13,9 +13,9 @@ dist-ssr
 *.local
 
 # Environment
-.env
-.env.*
-!.env.example
+.env.local
+.env.*.local
+
 
 # Editor directories and files
 .vscode/*
@@ -33,3 +33,7 @@ brag-output*
 
 # Supabase temp
 supabase/.temp/
+
+# Superpowers brainstorming
+.superpowers/
+
