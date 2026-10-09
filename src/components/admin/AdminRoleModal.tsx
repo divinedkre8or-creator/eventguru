@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, ShieldAlert, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { Shield, ShieldAlert, CheckCircle2, Loader2, AlertCircle, Copy, Check, ExternalLink } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -32,17 +32,34 @@ export const AdminRoleModal = ({
   const [email, setEmail] = useState(defaultEmail);
   const [loading, setLoading] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [sqlErrorNotice, setSqlErrorNotice] = useState<string | null>(null);
+  const [copiedSql, setCopiedSql] = useState(false);
   const { toast } = useToast();
+
+  const targetEmail = (email || defaultEmail).trim().toLowerCase();
+
+  const generatedSql = `-- Execute in Supabase SQL Editor (https://supabase.com/dashboard/project/edpnvsakkudorleqqhxv/sql/new):
+INSERT INTO public.user_roles (user_id, role)
+SELECT id, 'admin'::public.app_role 
+FROM auth.users 
+WHERE lower(email) = '${targetEmail || "user@example.com"}'
+ON CONFLICT (user_id, role) DO NOTHING;`;
+
+  const copySqlToClipboard = () => {
+    navigator.clipboard.writeText(generatedSql);
+    setCopiedSql(true);
+    setTimeout(() => setCopiedSql(false), 2500);
+  };
 
   const handlePromote = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanEmail = (email || defaultEmail).trim().toLowerCase();
+    setSqlErrorNotice(null);
 
-    if (!cleanEmail) {
+    if (!targetEmail) {
       toast({
         variant: "destructive",
         title: "Email Required",
-        description: "Please specify the user's account email address.",
+        description: "Please specify the user's registered account email address.",
       });
       return;
     }
@@ -58,44 +75,71 @@ export const AdminRoleModal = ({
 
     setLoading(true);
     try {
-      // 1. Try server-enforced RPC
-      const { data: rpcData, error: rpcError } = await supabase.rpc(
-        "promote_to_admin" as any,
-        { target_email: cleanEmail }
-      );
+      let success = false;
 
-      if (rpcError) {
-        // Fallback if migration not yet applied to live DB:
-        // Attempt direct admin elevation if user ID is known
-        if (defaultUserId) {
-          const { error: insertError } = await supabase
-            .from("user_roles")
-            .insert({ user_id: defaultUserId, role: "admin" as any });
-
-          if (insertError) {
-            throw new Error(insertError.message || rpcError.message);
+      // 1. Try secure Edge Function with SERVICE_ROLE_KEY
+      try {
+        const { data: edgeData, error: edgeError } = await supabase.functions.invoke(
+          "admin-sms-ops",
+          {
+            body: { action: "promote_admin", targetEmail },
           }
+        );
+
+        if (!edgeError && edgeData?.ok) {
+          success = true;
+        } else if (edgeError && !edgeError.message?.includes("FunctionsFetchError")) {
+          console.warn("Edge function promote attempt:", edgeError);
+        }
+      } catch (edgeEx) {
+        console.warn("Edge function invocation bypassed:", edgeEx);
+      }
+
+      // 2. If edge function didn't complete, try database RPC
+      if (!success) {
+        const { error: rpcError } = await supabase.rpc(
+          "promote_to_admin" as any,
+          { target_email: targetEmail }
+        );
+
+        if (!rpcError) {
+          success = true;
         } else {
-          throw new Error(rpcError.message);
+          // If RPC is missing in schema cache, check if target user ID is known
+          if (defaultUserId) {
+            const { error: insertError } = await supabase
+              .from("user_roles")
+              .insert({ user_id: defaultUserId, role: "admin" as any });
+
+            if (!insertError) {
+              success = true;
+            }
+          }
+
+          if (!success) {
+            setSqlErrorNotice(
+              rpcError?.message?.includes("schema cache")
+                ? "The promote_to_admin RPC function is not yet registered in your Supabase schema cache. Run the SQL statement below to immediately grant this user Super Admin access."
+                : rpcError?.message || "Database elevation requires running the SQL statement in your Supabase SQL editor."
+            );
+            return;
+          }
         }
       }
 
       toast({
         title: "Super Admin Granted",
-        description: `Successfully granted Super Admin privileges to ${cleanEmail}.`,
+        description: `Successfully granted Super Admin privileges to ${targetEmail}.`,
       });
 
       onOpenChange(false);
       setEmail("");
       setConfirmed(false);
+      setSqlErrorNotice(null);
       if (onSuccess) onSuccess();
     } catch (err: any) {
       console.error("Failed to promote user to admin:", err);
-      toast({
-        variant: "destructive",
-        title: "Role Elevation Failed",
-        description: err.message || "An unexpected error occurred while granting admin access.",
-      });
+      setSqlErrorNotice(err.message || "An unexpected error occurred while granting admin access.");
     } finally {
       setLoading(false);
     }
@@ -113,7 +157,7 @@ export const AdminRoleModal = ({
               Grant Super Admin Privileges
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Elevate an existing platform user to Super Administrator status.
+              Elevate an existing registered user account to Super Administrator status.
             </DialogDescription>
           </DialogHeader>
 
@@ -136,7 +180,10 @@ export const AdminRoleModal = ({
                 type="email"
                 placeholder="user@example.com"
                 value={email || defaultEmail}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setSqlErrorNotice(null);
+                }}
                 disabled={Boolean(defaultEmail)}
                 className="bg-background border-border text-xs h-10 rounded-lg font-mono"
                 required
@@ -154,6 +201,54 @@ export const AdminRoleModal = ({
                 I verify that this account belongs to an authorized team member and should have full Super Admin capabilities.
               </span>
             </label>
+
+            {/* SQL Fallback / Schema Cache Resolver Card */}
+            {sqlErrorNotice && (
+              <div className="p-3.5 rounded-xl bg-destructive/5 border border-destructive/20 space-y-2.5">
+                <div className="flex items-center gap-2 text-destructive font-bold text-xs">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>Direct Database Command Required</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  {sqlErrorNotice}
+                </p>
+                <div className="relative">
+                  <pre className="p-2.5 rounded-lg bg-background border border-border text-[10px] font-mono text-foreground overflow-x-auto whitespace-pre-wrap">
+                    {generatedSql}
+                  </pre>
+                </div>
+                <div className="flex items-center gap-2 pt-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={copySqlToClipboard}
+                    className="h-8 text-xs font-bold gap-1.5 border-border"
+                  >
+                    {copiedSql ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-chart-green" />
+                        <span className="text-chart-green">SQL Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span>Copy SQL Command</span>
+                      </>
+                    )}
+                  </Button>
+                  <a
+                    href="https://supabase.com/dashboard/project/edpnvsakkudorleqqhxv/sql/new"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-primary font-bold hover:underline"
+                  >
+                    <span>Open Supabase SQL Editor</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0">

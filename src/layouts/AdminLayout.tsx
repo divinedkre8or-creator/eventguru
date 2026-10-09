@@ -16,7 +16,7 @@ const navItems = [
   { title: "Realtime Stats", path: "/admin/stats", icon: Activity },
   { title: "All Events", path: "/admin/events", icon: CalendarDays },
   { title: "Organisers", path: "/admin/organisers", icon: Users },
-  { title: "Platform Users", path: "/admin/users", icon: UserCheck },
+  { title: "Users", path: "/admin/users", icon: UserCheck },
   { title: "Transactions", path: "/admin/transactions", icon: CreditCard },
   { title: "SMS & Messaging", path: "/admin/sms", icon: MessageSquare },
   { title: "Disputes", path: "/admin/disputes", icon: AlertTriangle },

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,15 +11,25 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const Signup = () => {
+  const [searchParams] = useSearchParams();
+  const urlEmail = searchParams.get("email") || "";
+
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(urlEmail);
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"attendee" | "organiser">("attendee");
   const [submitting, setSubmitting] = useState(false);
   const { signUp, user } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const isTicketClaim = Boolean(urlEmail || searchParams.get("redirect") === "/dashboard");
+
+  useEffect(() => {
+    if (urlEmail) {
+      setEmail(urlEmail);
+      setRole("attendee");
+    }
+  }, [urlEmail]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,6 +87,16 @@ const Signup = () => {
               Join Africa's leading event platform
             </p>
           </div>
+          {isTicketClaim && (
+            <div className="mb-6 p-3 rounded-xl bg-secondary/10 border border-secondary/20 text-center space-y-1">
+              <div className="text-xs font-bold text-secondary">
+                Claiming Event Ticket
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-tight">
+                Create a password to store your tickets and activate your Attendee Wallet.
+              </p>
+            </div>
+          )}
 
           {/* Form */}
           <form className="space-y-4" onSubmit={handleSubmit}>

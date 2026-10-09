@@ -15,6 +15,7 @@ import { slugify, getEventUrl, getEventDpUrl } from "@/lib/slugUtils";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { parseEventMetadata } from "@/lib/eventMetadata";
+import { MarkdownDescription } from "@/components/events/MarkdownDescription";
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -301,8 +302,8 @@ const EventDetails = () => {
               </h1>
             </div>
 
-            <div className="prose prose-sm sm:prose-base max-w-none text-muted-foreground font-sans leading-[1.8] whitespace-pre-wrap dark:prose-invert">
-              {parsedDesc || "No description provided for this event."}
+            <div className="prose prose-sm sm:prose-base max-w-none text-muted-foreground font-sans leading-[1.8] dark:prose-invert">
+              <MarkdownDescription content={parsedDesc} />
             </div>
           </div>
 

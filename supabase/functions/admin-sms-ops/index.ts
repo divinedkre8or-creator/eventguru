@@ -326,6 +326,46 @@ serve(async (req) => {
       });
     }
 
+    // ACTION: promote_admin
+    if (action === "promote_admin") {
+      const { targetEmail } = body;
+      const cleanEmail = (targetEmail || "").trim().toLowerCase();
+      if (!cleanEmail) {
+        return jsonResponse({ error: "Target email address required" }, 400);
+      }
+
+      // Look up target user by email via admin auth API
+      const { data: usersData, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+      if (listError) {
+        return jsonResponse({ error: listError.message }, 500);
+      }
+
+      const targetUser = usersData.users.find(
+        (u) => u.email?.toLowerCase() === cleanEmail
+      );
+      if (!targetUser) {
+        return jsonResponse({ error: `No registered account found with email: ${cleanEmail}` }, 404);
+      }
+
+      // Assign admin role in user_roles table
+      const { error: insertError } = await supabaseAdmin
+        .from("user_roles")
+        .upsert(
+          { user_id: targetUser.id, role: "admin" },
+          { onConflict: "user_id,role" }
+        );
+
+      if (insertError) {
+        return jsonResponse({ error: insertError.message }, 500);
+      }
+
+      return jsonResponse({
+        ok: true,
+        message: `Super Admin role successfully granted to ${cleanEmail}`,
+        userId: targetUser.id,
+      });
+    }
+
     return jsonResponse({ error: `Unknown action '${action}'` }, 400);
   } catch (error) {
     return jsonResponse({ error: "Internal Server Error: " + (error as Error).message }, 500);

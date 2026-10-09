@@ -24,6 +24,7 @@ import {
   serializeEventDescription 
 } from "@/lib/eventMetadata";
 import { CustomQuestionsBuilder } from "@/components/events/CustomQuestionsBuilder";
+import { RichDescriptionEditor } from "@/components/events/RichDescriptionEditor";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -574,8 +575,15 @@ const CreateEvent = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="font-heading text-sm font-bold">About the Event</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Tell people what your event is about..." rows={4} className="bg-background border-border resize-none text-foreground" />
+            <div className="flex items-center justify-between">
+              <Label className="font-heading text-sm font-bold text-foreground">About the Event</Label>
+              <span className="text-[11px] text-muted-foreground font-mono">Headings, lists, and ChatGPT formatting supported</span>
+            </div>
+            <RichDescriptionEditor 
+              value={description} 
+              onChange={setDescription} 
+              placeholder="Tell people what your event is about. You can paste ChatGPT writeups and click 'Auto-Format Text' to structure them instantly." 
+            />
           </div>
 
           {/* Event Modality: Physical vs Online */}
