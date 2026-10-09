@@ -2,7 +2,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, CalendarDays, Users, CreditCard,
   AlertTriangle, Settings, Menu, X, Shield, MessageSquarePlus, LogOut, ArrowLeft,
-  MessageSquare
+  MessageSquare, Activity, UserCheck
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -13,13 +13,15 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const navItems = [
   { title: "Overview", path: "/admin", icon: LayoutDashboard },
+  { title: "Realtime Stats", path: "/admin/stats", icon: Activity },
   { title: "All Events", path: "/admin/events", icon: CalendarDays },
   { title: "Organisers", path: "/admin/organisers", icon: Users },
+  { title: "Platform Users", path: "/admin/users", icon: UserCheck },
   { title: "Transactions", path: "/admin/transactions", icon: CreditCard },
   { title: "SMS & Messaging", path: "/admin/sms", icon: MessageSquare },
   { title: "Disputes", path: "/admin/disputes", icon: AlertTriangle },
   { title: "Feedback & Support", path: "/admin/feedback", icon: MessageSquarePlus },
-  { title: "Settings", path: "/admin/settings", icon: Settings },
+  { title: "Settings & Admins", path: "/admin/settings", icon: Settings },
 ];
 
 const AdminLayout = () => {
@@ -57,14 +59,14 @@ const AdminLayout = () => {
           <p className="text-[11px] text-muted-foreground mt-0.5">Platform Management</p>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 isActive(item.path)
-                  ? "bg-primary text-primary-foreground shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm font-bold"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >

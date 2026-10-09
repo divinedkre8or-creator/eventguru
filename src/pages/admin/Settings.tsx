@@ -14,6 +14,10 @@ import {
   persistPlatformSettings, 
   PlatformSettings 
 } from "@/lib/platformSettings";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { AdminRoleModal } from "@/components/admin/AdminRoleModal";
+import { UserCheck, UserX, ShieldCheck } from "lucide-react";
 
 const SQL_MIGRATION_SCRIPT = `-- Supabase SQL Setup for EventRally Platform Settings
 -- Run this once in your Supabase SQL Editor: https://supabase.com/dashboard/project/edpnvsakkudorleqqhxv/sql/new
@@ -50,11 +54,79 @@ ON CONFLICT (id) DO NOTHING;
 `;
 
 const AdminSettings = () => {
+  const { user: currentAuthUser } = useAuth();
   const [settings, setSettings] = useState<PlatformSettings>(getPlatformSettings());
   const [loadingRemote, setLoadingRemote] = useState(true);
   const [isDbSynced, setIsDbSynced] = useState<boolean | null>(null);
   const [dbError, setDbError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  // Admin Delegation State
+  const [admins, setAdmins] = useState<{ user_id: string; full_name: string; created_at: string }[]>([]);
+  const [adminsLoading, setAdminsLoading] = useState(true);
+  const [roleModalOpen, setRoleModalOpen] = useState(false);
+
+  const fetchAdmins = async () => {
+    setAdminsLoading(true);
+    try {
+      const { data: adminRoles } = await supabase
+        .from("user_roles")
+        .select("user_id, created_at")
+        .eq("role", "admin");
+
+      if (adminRoles && adminRoles.length > 0) {
+        const uids = adminRoles.map((a) => a.user_id);
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("user_id, full_name")
+          .in("user_id", uids);
+
+        const list = adminRoles.map((a) => {
+          const prof = (profs || []).find((p) => p.user_id === a.user_id);
+          return {
+            user_id: a.user_id,
+            full_name: prof?.full_name || "Platform Administrator",
+            created_at: a.created_at,
+          };
+        });
+        setAdmins(list);
+      } else {
+        setAdmins([]);
+      }
+    } catch (err) {
+      console.error("Failed to load admin list:", err);
+    } finally {
+      setAdminsLoading(false);
+    }
+  };
+
+  const handleDemoteAdmin = async (targetUserId: string) => {
+    if (admins.length <= 1) {
+      toast.error("Cannot revoke role: The platform must retain at least one Super Administrator.");
+      return;
+    }
+
+    if (!confirm("Are you sure you want to revoke Super Administrator access for this account?")) {
+      return;
+    }
+
+    try {
+      const { error: rpcErr } = await supabase.rpc("demote_admin" as any, { target_user_id: targetUserId });
+      if (rpcErr) {
+        const { error: delErr } = await supabase
+          .from("user_roles")
+          .delete()
+          .eq("user_id", targetUserId)
+          .eq("role", "admin");
+        if (delErr) throw delErr;
+      }
+      toast.success("Administrator role revoked successfully.");
+      fetchAdmins();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to revoke admin role.");
+    }
+  };
+
   const checkDbStatus = async () => {
     setLoadingRemote(true);
     const result = await fetchRemotePlatformSettings();
@@ -66,6 +138,7 @@ const AdminSettings = () => {
 
   useEffect(() => {
     checkDbStatus();
+    fetchAdmins();
   }, []);
 
   const handleSaveSettings = async (e: React.FormEvent) => {
@@ -338,6 +411,75 @@ const AdminSettings = () => {
           </div>
         </div>
 
+        {/* Super Administrators & Access Control */}
+        <div className="bg-card border border-border rounded-xl p-5 sm:p-6 shadow-xs space-y-4 w-full min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
+            <div>
+              <h2 className="font-heading text-base font-bold text-foreground flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-primary" /> Super Administrators & Access Control
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Accounts granted full administrative control, financial ledger oversight, and platform authority.
+              </p>
+            </div>
+            <Button
+              type="button"
+              onClick={() => setRoleModalOpen(true)}
+              className="bg-primary hover:opacity-90 text-primary-foreground text-xs font-bold gap-1.5 h-9 px-3.5 rounded-lg shadow-xs"
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Add Platform Administrator</span>
+            </Button>
+          </div>
+
+          {adminsLoading ? (
+            <div className="py-8 flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <span className="text-xs text-muted-foreground">Loading active administrators…</span>
+            </div>
+          ) : admins.length === 0 ? (
+            <div className="p-4 rounded-lg bg-muted/40 text-center text-xs text-muted-foreground">
+              No Super Administrators currently registered.
+            </div>
+          ) : (
+            <div className="divide-y divide-border border border-border rounded-lg overflow-hidden">
+              {admins.map((admin) => (
+                <div
+                  key={admin.user_id}
+                  className="p-3 bg-card hover:bg-muted/30 transition-colors flex items-center justify-between gap-3"
+                >
+                  <div className="space-y-0.5 min-w-0">
+                    <div className="font-bold text-xs text-foreground flex items-center gap-2">
+                      <span className="truncate">{admin.full_name}</span>
+                      {admin.user_id === currentAuthUser?.id && (
+                        <span className="text-[10px] font-mono font-bold uppercase bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                          You
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[10px] font-mono text-muted-foreground truncate">
+                      ID: {admin.user_id} · Appointed: {new Date(admin.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    </div>
+                  </div>
+
+                  {admins.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDemoteAdmin(admin.user_id)}
+                      className="text-xs font-semibold text-destructive hover:bg-destructive/10 h-8 px-2.5"
+                    >
+                      <UserX className="w-3.5 h-3.5 mr-1" />
+                      <span>Revoke</span>
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Action Button */}
         <div className="flex justify-end w-full sm:w-auto">
           <Button
@@ -350,6 +492,15 @@ const AdminSettings = () => {
           </Button>
         </div>
       </form>
+
+      {/* Admin Role Elevation Modal */}
+      <AdminRoleModal
+        open={roleModalOpen}
+        onOpenChange={setRoleModalOpen}
+        onSuccess={() => {
+          fetchAdmins();
+        }}
+      />
     </div>
   );
 };
