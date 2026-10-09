@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageSquarePlus, CheckCircle2, Circle, Loader2, Mail, Trash2 } from "lucide-react";
+import { MessageSquarePlus, CheckCircle2, Circle, Loader2, Mail, Trash2, Bug, Lightbulb, AlertTriangle, LifeBuoy, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -54,11 +54,19 @@ const FeedbackList = () => {
     resolved: "text-chart-green bg-chart-green/10 border-chart-green/20",
   };
 
-  const typeIcons: Record<string, string> = {
-    bug: "🐛",
-    suggestion: "💡",
-    complaint: "⚠️",
-    support: "🛟",
+  const renderTypeIcon = (type: string) => {
+    switch (type) {
+      case "bug":
+        return <Bug className="w-4 h-4 text-destructive" />;
+      case "suggestion":
+        return <Lightbulb className="w-4 h-4 text-amber-500" />;
+      case "complaint":
+        return <AlertTriangle className="w-4 h-4 text-chart-orange" />;
+      case "support":
+        return <LifeBuoy className="w-4 h-4 text-chart-blue" />;
+      default:
+        return <FileText className="w-4 h-4 text-muted-foreground" />;
+    }
   };
 
   return (
@@ -105,7 +113,9 @@ const FeedbackList = () => {
               <div className="flex-1 space-y-3 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg">{typeIcons[item.type] || "📝"}</span>
+                    <div className="p-1 rounded bg-muted/60">
+                      {renderTypeIcon(item.type)}
+                    </div>
                     <span className="font-bold text-foreground text-sm capitalize">{item.type}</span>
                     <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-mono font-bold border ${statusColors[item.status] || "text-muted-foreground bg-muted border-border"}`}>
                       {item.status}
@@ -133,7 +143,7 @@ const FeedbackList = () => {
                 </div>
               </div>
 
-              <div className="flex flex-row sm:flex-col gap-2 shrink-0 border-t sm:border-t-0 sm:border-l border-border pt-4 sm:pt-0 sm:pl-4 justify-center">
+              <div className="flex flex-col gap-1.5 shrink-0 border-t sm:border-t-0 sm:border-l border-border pt-4 sm:pt-0 sm:pl-4 justify-center sm:min-w-[150px]">
                 {item.status !== "pending" && (
                    <Button variant="ghost" size="sm" onClick={() => updateStatus(item.id, "pending")} className="h-8 text-xs font-bold text-chart-orange hover:bg-chart-orange/10 justify-start w-full">
                      <Circle className="w-3.5 h-3.5 mr-2" /> Mark Pending
@@ -149,7 +159,7 @@ const FeedbackList = () => {
                      <CheckCircle2 className="w-3.5 h-3.5 mr-2" /> Mark Resolved
                    </Button>
                 )}
-                <Button variant="ghost" size="sm" onClick={() => deleteFeedback(item.id)} className="h-8 mt-auto text-xs font-bold text-destructive hover:bg-destructive/10 justify-start w-full">
+                <Button variant="ghost" size="sm" onClick={() => deleteFeedback(item.id)} className="h-8 text-xs font-bold text-destructive hover:bg-destructive/10 justify-start w-full">
                   <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
                 </Button>
               </div>

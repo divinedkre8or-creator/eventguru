@@ -131,7 +131,8 @@ const AdminEvents = () => {
         </div>
       ) : (
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
@@ -193,6 +194,57 @@ const AdminEvents = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card List View */}
+          <div className="block md:hidden divide-y divide-border">
+            {filtered.map((e) => (
+              <div key={e.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="font-bold text-xs text-foreground line-clamp-1">{e.title}</div>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border shrink-0 ${statusBadgeStyle[e.status] || statusBadgeStyle.draft}`}>
+                    {e.status}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                  <span className="uppercase font-mono text-[10px] bg-muted/50 px-2 py-0.5 rounded border border-border">
+                    {e.category}
+                  </span>
+                  <span>•</span>
+                  <span>{new Date(e.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
+                  <span>•</span>
+                  <span className="font-mono font-bold text-foreground">{e.is_free ? "Free" : "Paid"}</span>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/60">
+                  <Link to={`/events/${e.id}`} target="_blank" className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full h-8 text-xs font-bold gap-1.5 border-border text-foreground">
+                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" /> Preview Page
+                    </Button>
+                  </Link>
+
+                  {e.status !== "published" ? (
+                    <Button
+                      onClick={() => handleUpdateStatus(e.id, "published")}
+                      size="sm"
+                      className="bg-chart-green hover:bg-chart-green/90 text-white text-xs font-bold h-8 px-3 rounded flex-1"
+                    >
+                      Publish
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => handleUpdateStatus(e.id, "cancelled")}
+                      size="sm"
+                      variant="destructive"
+                      className="text-xs font-bold h-8 px-3 rounded flex-1"
+                    >
+                      Cancel Event
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

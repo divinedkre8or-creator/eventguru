@@ -275,53 +275,57 @@ export default function SMSControlPanel() {
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex rounded-xl p-1 bg-muted/50 border border-border overflow-x-auto">
+      <div className="flex rounded-xl p-1 bg-muted/50 border border-border overflow-x-auto no-scrollbar gap-1 scroll-smooth">
         <button
           onClick={() => setActiveTab("overview")}
-          className={`flex items-center gap-2 py-2 px-4 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+          className={`flex items-center gap-1.5 sm:gap-2 py-2 px-3 sm:px-4 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
             activeTab === "overview"
               ? "bg-background text-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Server className="w-3.5 h-3.5" />
-          <span>Overview &amp; Central Balance</span>
+          <Server className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden sm:inline">Overview &amp; Central Balance</span>
+          <span className="sm:hidden">Overview</span>
         </button>
 
         <button
           onClick={() => setActiveTab("organisers")}
-          className={`flex items-center gap-2 py-2 px-4 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+          className={`flex items-center gap-1.5 sm:gap-2 py-2 px-3 sm:px-4 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
             activeTab === "organisers"
               ? "bg-background text-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Users className="w-3.5 h-3.5" />
-          <span>Organiser Wallets ({organisers.length})</span>
+          <Users className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden sm:inline">Organiser Wallets ({organisers.length})</span>
+          <span className="sm:hidden">Wallets ({organisers.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab("campaigns")}
-          className={`flex items-center gap-2 py-2 px-4 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+          className={`flex items-center gap-1.5 sm:gap-2 py-2 px-3 sm:px-4 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
             activeTab === "campaigns"
               ? "bg-background text-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Send className="w-3.5 h-3.5" />
-          <span>Campaign Stream ({campaigns.length})</span>
+          <Send className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden sm:inline">Campaign Stream ({campaigns.length})</span>
+          <span className="sm:hidden">Campaigns ({campaigns.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab("tools")}
-          className={`flex items-center gap-2 py-2 px-4 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+          className={`flex items-center gap-1.5 sm:gap-2 py-2 px-3 sm:px-4 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
             activeTab === "tools"
               ? "bg-background text-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Wrench className="w-3.5 h-3.5" />
-          <span>Diagnostic &amp; Broadcast Tools</span>
+          <Wrench className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden sm:inline">Diagnostic &amp; Broadcast Tools</span>
+          <span className="sm:hidden">Tools</span>
         </button>
       </div>
 

@@ -80,7 +80,7 @@ export function CampaignRecipientsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[650px] max-h-[85vh] flex flex-col p-6">
+      <DialogContent className="w-[95vw] sm:max-w-[650px] max-h-[85vh] flex flex-col p-4 sm:p-6">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10 text-primary">
@@ -149,61 +149,101 @@ export function CampaignRecipientsModal({
               No recipients match the selected criteria.
             </div>
           ) : (
-            <table className="w-full text-xs text-left border-collapse">
-              <thead className="bg-muted/50 text-muted-foreground text-[11px] font-semibold sticky top-0 border-b">
-                <tr>
-                  <th className="p-2.5">Recipient</th>
-                  <th className="p-2.5">Phone Number</th>
-                  <th className="p-2.5">Status</th>
-                  <th className="p-2.5">Sent / Details</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
+            <>
+              {/* Desktop Table View */}
+              <table className="hidden sm:table w-full text-xs text-left border-collapse">
+                <thead className="bg-muted/50 text-muted-foreground text-[11px] font-semibold sticky top-0 border-b">
+                  <tr>
+                    <th className="p-2.5">Recipient</th>
+                    <th className="p-2.5">Phone Number</th>
+                    <th className="p-2.5">Status</th>
+                    <th className="p-2.5">Sent / Details</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filtered.map((r) => (
+                    <tr key={r.id} className="hover:bg-muted/30">
+                      <td className="p-2.5 font-medium text-foreground">
+                        {r.name || "Anonymous"}
+                      </td>
+                      <td className="p-2.5 font-mono text-muted-foreground">
+                        {r.contact}
+                      </td>
+                      <td className="p-2.5">
+                        {r.status === "sent" ? (
+                          <Badge variant="outline" className="text-emerald-600 border-emerald-500/30 bg-emerald-500/10 text-[10px] gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Delivered
+                          </Badge>
+                        ) : r.status === "failed" ? (
+                          <Badge variant="outline" className="text-red-500 border-red-500/30 bg-red-500/10 text-[10px] gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            Failed
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-amber-500 border-amber-500/30 bg-amber-500/10 text-[10px] gap-1">
+                            <Clock className="w-3 h-3" />
+                            Pending
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="p-2.5 text-muted-foreground text-[11px]">
+                        {r.status === "failed" && r.error ? (
+                          <span className="text-red-500 font-mono text-[10px] line-clamp-1" title={r.error}>
+                            {r.error}
+                          </span>
+                        ) : r.sent_at ? (
+                          new Date(r.sent_at).toLocaleTimeString("en-GB", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                          })
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Mobile Card List View */}
+              <div className="block sm:hidden divide-y divide-border">
                 {filtered.map((r) => (
-                  <tr key={r.id} className="hover:bg-muted/30">
-                    <td className="p-2.5 font-medium text-foreground">
-                      {r.name || "Anonymous"}
-                    </td>
-                    <td className="p-2.5 font-mono text-muted-foreground">
-                      {r.contact}
-                    </td>
-                    <td className="p-2.5">
+                  <div key={r.id} className="p-3 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-foreground truncate">{r.name || "Anonymous"}</span>
                       {r.status === "sent" ? (
                         <Badge variant="outline" className="text-emerald-600 border-emerald-500/30 bg-emerald-500/10 text-[10px] gap-1">
-                          <CheckCircle2 className="w-3 h-3" />
-                          Delivered
+                          <CheckCircle2 className="w-3 h-3" /> Delivered
                         </Badge>
                       ) : r.status === "failed" ? (
                         <Badge variant="outline" className="text-red-500 border-red-500/30 bg-red-500/10 text-[10px] gap-1">
-                          <AlertCircle className="w-3 h-3" />
-                          Failed
+                          <AlertCircle className="w-3 h-3" /> Failed
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="text-amber-500 border-amber-500/30 bg-amber-500/10 text-[10px] gap-1">
-                          <Clock className="w-3 h-3" />
-                          Pending
+                          <Clock className="w-3 h-3" /> Pending
                         </Badge>
                       )}
-                    </td>
-                    <td className="p-2.5 text-muted-foreground text-[11px]">
-                      {r.status === "failed" && r.error ? (
-                        <span className="text-red-500 font-mono text-[10px] line-clamp-1" title={r.error}>
-                          {r.error}
-                        </span>
-                      ) : r.sent_at ? (
-                        new Date(r.sent_at).toLocaleTimeString("en-GB", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                        })
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                  </tr>
+                    </div>
+                    <div className="flex items-center justify-between text-muted-foreground font-mono text-[11px]">
+                      <span>{r.contact}</span>
+                      <span>
+                        {r.sent_at
+                          ? new Date(r.sent_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+                          : "—"}
+                      </span>
+                    </div>
+                    {r.status === "failed" && r.error && (
+                      <p className="text-[10px] text-red-500 font-mono leading-tight bg-red-500/5 p-1.5 rounded border border-red-500/15">
+                        {r.error}
+                      </p>
+                    )}
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </>
           )}
         </div>
 

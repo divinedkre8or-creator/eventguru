@@ -291,10 +291,10 @@ const AdminTransactions = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-border gap-6">
+      <div className="flex border-b border-border gap-4 sm:gap-6 overflow-x-auto no-scrollbar">
         <button
           onClick={() => setActiveTab("orders")}
-          className={`pb-3 text-xs font-mono font-bold uppercase tracking-wider transition-all border-b-2 ${
+          className={`pb-3 text-xs font-mono font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap ${
             activeTab === "orders"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -304,7 +304,7 @@ const AdminTransactions = () => {
         </button>
         <button
           onClick={() => setActiveTab("payouts")}
-          className={`pb-3 text-xs font-mono font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-2 ${
+          className={`pb-3 text-xs font-mono font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-2 whitespace-nowrap ${
             activeTab === "payouts"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -317,7 +317,7 @@ const AdminTransactions = () => {
       {activeTab === "orders" ? (
         <>
           {/* Summary Metric Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <div className="bg-card border border-border rounded-xl p-4 shadow-xs">
               <span className="text-[11px] font-mono font-bold uppercase text-muted-foreground">Total Filtered Gross</span>
               <div className="text-2xl font-black font-heading text-foreground mt-1">₦{totalVolume.toLocaleString()}</div>
@@ -333,23 +333,23 @@ const AdminTransactions = () => {
           </div>
 
           {/* Search & Filters */}
-          <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
             <div className="relative w-full sm:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search by buyer, event, or ref..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 bg-card border-border text-xs h-9 rounded-lg"
+                className="pl-9 bg-card border-border text-xs h-9 rounded-lg w-full"
               />
             </div>
 
-            <div className="flex gap-1.5 self-start sm:self-auto">
+            <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
               {["all", "paid", "free"].map((tf) => (
                 <button
                   key={tf}
                   onClick={() => setStatusFilter(tf)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold capitalize border transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold capitalize border transition-all whitespace-nowrap ${
                     statusFilter === tf
                       ? "bg-primary text-primary-foreground border-primary"
                       : "bg-card text-muted-foreground border-border hover:bg-muted"
@@ -361,9 +361,10 @@ const AdminTransactions = () => {
             </div>
           </div>
 
-          {/* Orders Table */}
+          {/* Orders Table & Mobile Cards */}
           <div className="bg-card border border-border rounded-xl overflow-hidden shadow-xs">
-            <div className="overflow-x-auto w-full max-w-full">
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto w-full max-w-full">
               <table className="w-full min-w-[850px] text-left border-collapse">
                 <thead>
                   <tr className="border-b border-border bg-muted/40">
@@ -410,6 +411,61 @@ const AdminTransactions = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile Cards */}
+            <div className="block md:hidden divide-y divide-border">
+              {filteredOrders.length === 0 ? (
+                <div className="p-6 text-center text-xs text-muted-foreground">No orders matching your criteria.</div>
+              ) : (
+                filteredOrders.map((o) => (
+                  <div key={o.id} className="p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="font-bold text-xs text-foreground truncate">{o.customer_name}</div>
+                        <div className="text-[11px] text-muted-foreground truncate">{o.customer_email}</div>
+                      </div>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase shrink-0 ${
+                        o.payment_status === "paid"
+                          ? "bg-chart-green/10 text-chart-green"
+                          : o.payment_status === "free"
+                          ? "bg-chart-blue/10 text-chart-blue"
+                          : "bg-amber-500/10 text-amber-500"
+                      }`}>
+                        {o.payment_status}
+                      </span>
+                    </div>
+
+                    <div className="text-xs font-medium text-foreground bg-muted/30 p-2.5 rounded-lg border border-border">
+                      <div className="line-clamp-1">{o.event_title}</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5 font-mono">Qty: {o.quantity} • {o.created_at}</div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs font-mono bg-muted/20 p-2.5 rounded-lg border border-border">
+                      <div>
+                        <span className="text-[10px] text-muted-foreground uppercase block">Gross</span>
+                        <span className="font-bold text-foreground">₦{o.subtotal.toLocaleString()}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-muted-foreground uppercase block">Net Organiser</span>
+                        <span className="font-bold text-chart-green">₦{o.organiser_net.toLocaleString()}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-muted-foreground uppercase block">Platform Fee</span>
+                        <span className="text-primary font-medium">₦{o.platform_fee.toLocaleString()}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-muted-foreground uppercase block">Gateway Fee</span>
+                        <span className="text-destructive/80 font-medium">₦{(o.gateway_fee || 0).toLocaleString()}</span>
+                      </div>
+                    </div>
+
+                    <div className="text-[10px] font-mono text-muted-foreground break-all">
+                      Ref: <span className="text-foreground">{o.payment_reference}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </>
       ) : (
@@ -426,94 +482,185 @@ const AdminTransactions = () => {
             {payouts.length === 0 ? (
               <div className="p-8 text-center text-xs text-muted-foreground">No organizer payout requests found.</div>
             ) : (
-              <div className="overflow-x-auto w-full">
-                <table className="w-full min-w-[800px] text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/40">
-                      <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Date</th>
-                      <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Organizer</th>
-                      <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Amount</th>
-                      <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Bank Destination</th>
-                      <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Status</th>
-                      <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {payouts.map((pr) => (
-                      <tr key={pr.id} className="hover:bg-muted/30 transition-colors">
-                        <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{pr.created_at}</td>
-                        <td className="px-4 py-3 text-foreground text-xs font-bold">{pr.organiser_name}</td>
-                        <td className="px-4 py-3 text-foreground text-xs font-mono font-bold">₦{pr.amount.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-xs text-foreground">
-                          {pr.bank_name} • <span className="font-mono">{pr.account_number}</span>
-                          <span className="block text-[10px] text-muted-foreground">{pr.account_name}</span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
-                            pr.status === "paid"
-                              ? "bg-chart-green/10 text-chart-green"
-                              : pr.status === "pending"
-                              ? "bg-amber-500/10 text-amber-500"
-                              : "bg-destructive/10 text-destructive"
-                          }`}>
-                            {pr.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-xs">
-                          {pr.status === "pending" ? (
-                            processingPayoutId === pr.id ? (
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  placeholder="Bank transfer ref..."
-                                  value={settlementRef}
-                                  onChange={(e) => setSettlementRef(e.target.value)}
-                                  className="h-8 text-xs w-36 bg-background"
-                                />
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleSettlePayout(pr.id, "paid")}
-                                  className="h-8 text-xs font-bold bg-chart-green hover:bg-chart-green/90 text-white"
-                                >
-                                  Confirm
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => setProcessingPayoutId(null)}
-                                  className="h-8 text-xs"
-                                >
-                                  Cancel
-                                </Button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setProcessingPayoutId(pr.id)}
-                                  className="h-7 text-xs font-bold text-chart-green border-chart-green/40 hover:bg-chart-green/10"
-                                >
-                                  Mark Disbursed
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleSettlePayout(pr.id, "cancelled")}
-                                  className="h-7 text-xs text-destructive hover:bg-destructive/10"
-                                >
-                                  Decline
-                                </Button>
-                              </div>
-                            )
-                          ) : (
-                            <span className="text-[11px] text-muted-foreground font-mono">{pr.reference || "Completed"}</span>
-                          )}
-                        </td>
+              <>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto w-full">
+                  <table className="w-full min-w-[800px] text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/40">
+                        <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Date</th>
+                        <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Organizer</th>
+                        <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Amount</th>
+                        <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Bank Destination</th>
+                        <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Status</th>
+                        <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {payouts.map((pr) => (
+                        <tr key={pr.id} className="hover:bg-muted/30 transition-colors">
+                          <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{pr.created_at}</td>
+                          <td className="px-4 py-3 text-foreground text-xs font-bold">{pr.organiser_name}</td>
+                          <td className="px-4 py-3 text-foreground text-xs font-mono font-bold">₦{pr.amount.toLocaleString()}</td>
+                          <td className="px-4 py-3 text-xs text-foreground">
+                            {pr.bank_name} • <span className="font-mono">{pr.account_number}</span>
+                            <span className="block text-[10px] text-muted-foreground">{pr.account_name}</span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
+                              pr.status === "paid"
+                                ? "bg-chart-green/10 text-chart-green"
+                                : pr.status === "pending"
+                                ? "bg-amber-500/10 text-amber-500"
+                                : "bg-destructive/10 text-destructive"
+                            }`}>
+                              {pr.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs">
+                            {pr.status === "pending" ? (
+                              processingPayoutId === pr.id ? (
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    placeholder="Bank transfer ref..."
+                                    value={settlementRef}
+                                    onChange={(e) => setSettlementRef(e.target.value)}
+                                    className="h-8 text-xs w-36 bg-background"
+                                  />
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleSettlePayout(pr.id, "paid")}
+                                    className="h-8 text-xs font-bold bg-chart-green hover:bg-chart-green/90 text-white"
+                                  >
+                                    Confirm
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setProcessingPayoutId(null)}
+                                    className="h-8 text-xs"
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setProcessingPayoutId(pr.id)}
+                                    className="h-7 text-xs font-bold text-chart-green border-chart-green/40 hover:bg-chart-green/10"
+                                  >
+                                    Mark Disbursed
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleSettlePayout(pr.id, "cancelled")}
+                                    className="h-7 text-xs text-destructive hover:bg-destructive/10"
+                                  >
+                                    Decline
+                                  </Button>
+                                </div>
+                              )
+                            ) : (
+                              <span className="text-[11px] text-muted-foreground font-mono">{pr.reference || "Completed"}</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Cards */}
+                <div className="block md:hidden divide-y divide-border">
+                  {payouts.map((pr) => (
+                    <div key={pr.id} className="p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="font-bold text-xs text-foreground">{pr.organiser_name}</div>
+                          <div className="text-[10px] text-muted-foreground font-mono">{pr.created_at}</div>
+                        </div>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase shrink-0 ${
+                          pr.status === "paid"
+                            ? "bg-chart-green/10 text-chart-green"
+                            : pr.status === "pending"
+                            ? "bg-amber-500/10 text-amber-500"
+                            : "bg-destructive/10 text-destructive"
+                        }`}>
+                          {pr.status}
+                        </span>
+                      </div>
+
+                      <div className="bg-muted/30 p-2.5 rounded-lg border border-border">
+                        <span className="text-[10px] text-muted-foreground uppercase block font-mono">Disbursement Amount</span>
+                        <span className="text-lg font-black font-mono text-foreground">₦{pr.amount.toLocaleString()}</span>
+                      </div>
+
+                      <div className="text-xs bg-muted/20 p-2.5 rounded-lg border border-border">
+                        <span className="text-[10px] text-muted-foreground uppercase block font-mono">Bank Account</span>
+                        <div className="font-bold text-foreground mt-0.5">{pr.bank_name}</div>
+                        <div className="font-mono text-xs text-primary font-bold">{pr.account_number}</div>
+                        <div className="text-[11px] text-muted-foreground">{pr.account_name}</div>
+                      </div>
+
+                      {pr.status === "pending" ? (
+                        processingPayoutId === pr.id ? (
+                          <div className="space-y-2 pt-1">
+                            <Input
+                              placeholder="Bank transfer ref..."
+                              value={settlementRef}
+                              onChange={(e) => setSettlementRef(e.target.value)}
+                              className="h-8 text-xs w-full bg-background font-mono"
+                            />
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => handleSettlePayout(pr.id, "paid")}
+                                className="h-8 text-xs font-bold bg-chart-green hover:bg-chart-green/90 text-white flex-1"
+                              >
+                                Confirm Settlement
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setProcessingPayoutId(null)}
+                                className="h-8 text-xs"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 pt-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setProcessingPayoutId(pr.id)}
+                              className="h-8 text-xs font-bold text-chart-green border-chart-green/40 hover:bg-chart-green/10 flex-1"
+                            >
+                              Mark Disbursed
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleSettlePayout(pr.id, "cancelled")}
+                              className="h-8 text-xs text-destructive hover:bg-destructive/10"
+                            >
+                              Decline
+                            </Button>
+                          </div>
+                        )
+                      ) : (
+                        <div className="text-[10px] font-mono text-muted-foreground pt-1">
+                          Settlement Ref: <span className="text-foreground">{pr.reference || "Completed"}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>

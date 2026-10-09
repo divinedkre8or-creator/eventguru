@@ -147,7 +147,7 @@ ON CONFLICT (user_id, role) DO NOTHING;`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-card border-border font-sans">
+      <DialogContent className="w-[95vw] sm:max-w-lg max-h-[90vh] overflow-y-auto bg-card border-border font-sans">
         <form onSubmit={handlePromote} className="space-y-4">
           <DialogHeader>
             <div className="w-10 h-10 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center justify-center text-destructive mb-2">

@@ -1,31 +1,70 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, AlertCircle, RefreshCw, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
+  const [searchParams] = useSearchParams();
+  const urlEmail = searchParams.get("email") || "";
+
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(urlEmail);
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+
   const { signIn, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (urlEmail) {
+      setEmail(urlEmail);
+    }
+  }, [urlEmail]);
+
+  const handleResendVerification = async () => {
+    if (!email) return;
+    setResendingEmail(true);
+    setResendSuccess(false);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: email.trim(),
+      });
+      if (error) {
+        toast({ variant: "destructive", title: "Resend failed", description: error.message });
+      } else {
+        setResendSuccess(true);
+        toast({ title: "Email sent", description: "Verification email resent. Please check your inbox and spam folder." });
+      }
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Error", description: err.message || "Failed to resend email." });
+    } finally {
+      setResendingEmail(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!email.trim() || !password) return;
+    setLoginError(null);
+    setResendSuccess(false);
     setSubmitting(true);
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(email.trim(), password);
     setSubmitting(false);
     if (error) {
+      setLoginError(error);
       toast({ variant: "destructive", title: "Login failed", description: error });
     } else {
       navigate("/dashboard");
@@ -67,6 +106,52 @@ const Login = () => {
               Sign in to manage your events and attendees
             </p>
           </div>
+
+          {/* Inline Error Alert */}
+          {loginError && (
+            <div className="mb-5 p-3.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs space-y-2">
+              <div className="flex items-center gap-2 font-bold">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>Unable to Sign In</span>
+              </div>
+              <p className="leading-relaxed pl-6">{loginError}</p>
+
+              {loginError.toLowerCase().includes("email not confirmed") && (
+                <div className="pl-6 pt-1 space-y-2">
+                  <p className="text-[11px] text-foreground/80">
+                    Your email address needs to be confirmed before logging in. Check your inbox and spam folder, or click below:
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResendVerification}
+                    disabled={resendingEmail}
+                    className="w-full text-xs font-semibold h-9 gap-1.5 border-border bg-background text-foreground"
+                  >
+                    {resendingEmail ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Sending verification email...</span>
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Resend Verification Email</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {resendSuccess && (
+            <div className="mb-5 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2 font-medium">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>Verification email sent! Check your inbox to confirm your account.</span>
+            </div>
+          )}
 
           {/* Form */}
           <form className="space-y-4" onSubmit={handleSubmit}>

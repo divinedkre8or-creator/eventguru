@@ -259,77 +259,121 @@ const AdminDisputes = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table & Mobile Cards */}
       <div className="bg-card border border-border rounded-xl overflow-hidden shadow-xs">
-        <div className="overflow-x-auto w-full max-w-full">
-          <table className="w-full min-w-[620px] text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border bg-muted/30">
-                <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Ref</th>
-                <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Attendee Email</th>
-                <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Context</th>
-                <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Type</th>
-                <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Date</th>
-                <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Status</th>
-                <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {loading ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-xs text-muted-foreground">
-                    <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
-                    Loading dispute inquiries...
-                  </td>
-                </tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-xs text-muted-foreground space-y-1">
-                    <CheckCircle2 className="w-7 h-7 text-chart-green mx-auto mb-1 opacity-70" />
-                    <div className="font-bold text-foreground">No active dispute inquiries</div>
-                    <div>All attendee payments and accounts are in good standing.</div>
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((d) => (
-                  <tr key={d.id} className="hover:bg-muted/40 transition-colors">
-                    <td className="px-4 py-3 text-foreground text-xs font-mono font-bold">{d.reference}</td>
-                    <td className="px-4 py-3 text-foreground text-xs">{d.userEmail}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs font-medium">{d.eventTitle}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs font-mono capitalize">
-                      {d.type.replace("_", " ")}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{d.createdAt}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
-                        d.status === "open"
-                          ? "bg-destructive/10 text-destructive border border-destructive/30"
-                          : "bg-chart-green/10 text-chart-green border border-chart-green/30"
-                      }`}>
-                        {d.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        {d.status !== "resolved" ? (
-                          <Button
-                            onClick={() => handleUpdateStatus(d.id, "resolved")}
-                            size="sm"
-                            className="bg-chart-green/10 text-chart-green hover:bg-chart-green/20 text-[10px] font-bold h-7 px-2.5 rounded"
-                          >
-                            Mark Resolved
-                          </Button>
-                        ) : (
-                          <span className="text-[10px] font-mono text-muted-foreground">Closed</span>
-                        )}
-                      </div>
-                    </td>
+        {loading ? (
+          <div className="px-4 py-12 text-center text-xs text-muted-foreground">
+            <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
+            Loading dispute inquiries...
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="px-4 py-10 text-center text-xs text-muted-foreground space-y-1">
+            <CheckCircle2 className="w-7 h-7 text-chart-green mx-auto mb-1 opacity-70" />
+            <div className="font-bold text-foreground">No active dispute inquiries</div>
+            <div>All attendee payments and accounts are in good standing.</div>
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto w-full max-w-full">
+              <table className="w-full min-w-[620px] text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-border bg-muted/30">
+                    <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Ref</th>
+                    <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Attendee Email</th>
+                    <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Context</th>
+                    <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Type</th>
+                    <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Date</th>
+                    <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider text-right">Actions</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filtered.map((d) => (
+                    <tr key={d.id} className="hover:bg-muted/40 transition-colors">
+                      <td className="px-4 py-3 text-foreground text-xs font-mono font-bold">{d.reference}</td>
+                      <td className="px-4 py-3 text-foreground text-xs">{d.userEmail}</td>
+                      <td className="px-4 py-3 text-muted-foreground text-xs font-medium">{d.eventTitle}</td>
+                      <td className="px-4 py-3 text-muted-foreground text-xs font-mono capitalize">
+                        {d.type.replace("_", " ")}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{d.createdAt}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
+                          d.status === "open"
+                            ? "bg-destructive/10 text-destructive border border-destructive/30"
+                            : "bg-chart-green/10 text-chart-green border border-chart-green/30"
+                        }`}>
+                          {d.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          {d.status !== "resolved" ? (
+                            <Button
+                              onClick={() => handleUpdateStatus(d.id, "resolved")}
+                              size="sm"
+                              className="bg-chart-green/10 text-chart-green hover:bg-chart-green/20 text-[10px] font-bold h-7 px-2.5 rounded"
+                            >
+                              Mark Resolved
+                            </Button>
+                          ) : (
+                            <span className="text-[10px] font-mono text-muted-foreground">Closed</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card List View */}
+            <div className="block md:hidden divide-y divide-border">
+              {filtered.map((d) => (
+                <div key={d.id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="font-mono font-bold text-xs text-foreground">{d.reference}</div>
+                      <div className="text-[11px] text-muted-foreground">{d.userEmail}</div>
+                    </div>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase shrink-0 ${
+                      d.status === "open"
+                        ? "bg-destructive/10 text-destructive border border-destructive/30"
+                        : "bg-chart-green/10 text-chart-green border border-chart-green/30"
+                    }`}>
+                      {d.status}
+                    </span>
+                  </div>
+
+                  <div className="bg-muted/30 p-2.5 rounded-lg border border-border text-xs space-y-1">
+                    <div className="font-medium text-foreground line-clamp-1">{d.eventTitle}</div>
+                    <div className="flex items-center justify-between text-[10px] text-muted-foreground font-mono">
+                      <span className="capitalize">{d.type.replace("_", " ")}</span>
+                      <span>{d.createdAt}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end pt-1">
+                    {d.status !== "resolved" ? (
+                      <Button
+                        onClick={() => handleUpdateStatus(d.id, "resolved")}
+                        size="sm"
+                        className="w-full bg-chart-green hover:bg-chart-green/90 text-white text-xs font-bold h-8 rounded"
+                      >
+                        Mark Resolved
+                      </Button>
+                    ) : (
+                      <div className="text-[10px] font-mono text-muted-foreground text-center w-full">
+                        Resolved & Closed
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

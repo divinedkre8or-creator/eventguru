@@ -129,7 +129,8 @@ const AdminOrganisers = () => {
         </div>
       ) : (
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
@@ -163,6 +164,42 @@ const AdminOrganisers = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card List View */}
+          <div className="block md:hidden divide-y divide-border">
+            {filtered.map((org) => (
+              <div key={org.user_id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-bold text-xs text-foreground">{org.full_name}</div>
+                    <div className="text-[10px] text-muted-foreground font-mono">ID: {org.user_id.slice(0, 12)}…</div>
+                  </div>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase shrink-0 ${
+                    org.role === "admin"
+                      ? "bg-primary/10 text-primary border border-primary/30"
+                      : "bg-secondary/10 text-secondary border border-secondary/30"
+                  }`}>
+                    {org.role === "admin" ? "Super Admin" : "Organiser"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs bg-muted/20 p-2.5 rounded-lg border border-border">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground uppercase block font-mono">Events Created</span>
+                    <span className="font-bold font-mono text-foreground">{org.events_count}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground uppercase block font-mono">Gross Sales</span>
+                    <span className="font-bold font-mono text-foreground">₦{org.total_revenue.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <div className="text-[10px] text-muted-foreground font-mono">
+                  Joined: {org.created_at}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

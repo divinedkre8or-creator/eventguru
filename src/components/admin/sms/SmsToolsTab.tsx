@@ -168,23 +168,23 @@ export function SmsToolsTab({ organisersCount }: SmsToolsTabProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* Tool 1: Diagnostic 1-Click Test SMS */}
-      <div className="p-6 rounded-2xl border bg-card shadow-xs flex flex-col justify-between">
+      <div className="p-4 sm:p-6 rounded-xl sm:rounded-2xl border bg-card shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
               <Zap className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-foreground">Diagnostic Gateway Test</h3>
+              <h3 className="text-sm sm:text-base font-bold text-foreground">Diagnostic Gateway Test</h3>
               <p className="text-xs text-muted-foreground">
                 Verify Textflow API connectivity, sender ID routing, and latency in real time.
               </p>
             </div>
           </div>
 
-          <form onSubmit={handleSendTestSms} className="space-y-4 mt-6">
+          <form onSubmit={handleSendTestSms} className="space-y-4 mt-5 sm:mt-6">
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Test Destination Number</Label>
               <div className="relative">
@@ -193,7 +193,7 @@ export function SmsToolsTab({ organisersCount }: SmsToolsTabProps) {
                   value={testPhone}
                   onChange={(e) => setTestPhone(e.target.value)}
                   placeholder="e.g. 08012345678 or 2348012345678"
-                  className="pl-9 text-xs"
+                  className="pl-9 text-xs h-9 sm:h-9"
                   required
                 />
               </div>
@@ -207,7 +207,7 @@ export function SmsToolsTab({ organisersCount }: SmsToolsTabProps) {
               <Input
                 value={testMessage}
                 onChange={(e) => setTestMessage(e.target.value)}
-                className="text-xs"
+                className="text-xs h-9"
                 required
               />
             </div>
@@ -215,7 +215,7 @@ export function SmsToolsTab({ organisersCount }: SmsToolsTabProps) {
             <Button
               type="submit"
               disabled={testLoading}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs h-9 gap-1.5"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs h-9 sm:h-9 gap-1.5"
             >
               {testLoading ? (
                 <>
@@ -272,25 +272,25 @@ export function SmsToolsTab({ organisersCount }: SmsToolsTabProps) {
       </div>
 
       {/* Tool 2: Super Admin Platform Broadcast */}
-      <div className="p-6 rounded-2xl border bg-card shadow-xs flex flex-col justify-between">
+      <div className="p-4 sm:p-6 rounded-xl sm:rounded-2xl border bg-card shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10 text-primary">
               <Radio className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-foreground">Super Admin Broadcast</h3>
+              <h3 className="text-sm sm:text-base font-bold text-foreground">Super Admin Broadcast</h3>
               <p className="text-xs text-muted-foreground">
                 Dispatch platform announcements or urgent alerts to organizers or custom lists.
               </p>
             </div>
           </div>
 
-          <form onSubmit={handleSendBroadcast} className="space-y-4 mt-6">
+          <form onSubmit={handleSendBroadcast} className="space-y-4 mt-5 sm:mt-6">
             {/* Target Audience */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Audience</Label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setBroadcastTarget("organisers")}
