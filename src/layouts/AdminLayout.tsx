@@ -111,14 +111,16 @@ const AdminLayout = () => {
               </div>
             </div>
 
-            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+            <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${
-                    isActive(item.path) ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground"
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    isActive(item.path)
+                      ? "bg-primary text-primary-foreground font-bold shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
                   <item.icon className="w-4 h-4 shrink-0" />
@@ -127,11 +129,11 @@ const AdminLayout = () => {
               ))}
             </nav>
 
-            <div className="p-4 border-t border-border">
+            <div className="p-3 border-t border-border">
               <Link
                 to="/dashboard"
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center justify-center gap-2 w-full bg-muted text-foreground font-bold px-3 py-2.5 rounded-lg text-xs"
+                className="flex items-center justify-center gap-2 w-full bg-muted text-foreground font-bold px-3 py-2.5 rounded-xl text-xs border border-border"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Return to Organizer View</span>
@@ -142,15 +144,21 @@ const AdminLayout = () => {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 md:ml-[260px] flex flex-col min-h-screen bg-background">
-        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(true)} className="md:hidden text-muted-foreground hover:text-foreground">
+      <div className="flex-1 md:ml-[260px] flex flex-col min-h-screen bg-background w-full min-w-0 overflow-x-hidden">
+        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-3 sm:px-6 sticky top-0 z-30">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="md:hidden p-1.5 -ml-1 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted"
+              aria-label="Open navigation menu"
+            >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-primary" />
-              <span className="text-foreground text-sm font-heading font-black">Super Admin Portal</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <Shield className="w-4 h-4 text-primary shrink-0" />
+              <span className="text-foreground text-sm font-heading font-black truncate max-w-[130px] sm:max-w-none">
+                Super Admin Portal
+              </span>
             </div>
           </div>
 
@@ -191,7 +199,7 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+        <main className="flex-1 p-3.5 sm:p-6 md:p-8 overflow-y-auto w-full min-w-0 overflow-x-hidden">
           <Outlet />
         </main>
       </div>

@@ -303,60 +303,60 @@ export const StatsHub = () => {
       ) : (
         <>
           {/* Primary High-Density Number Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
             {/* Card 1: GMV */}
-            <div className="p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-green">
-              <div className="text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider mb-1 flex items-center justify-between">
-                <span>GROSS MERCHANDISE VOL</span>
-                <Wallet className="w-3.5 h-3.5 text-chart-green" />
+            <div className="p-3 sm:p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-green flex flex-col justify-between">
+              <div className="text-muted-foreground text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider mb-1 flex items-center justify-between">
+                <span className="truncate">GROSS MERCHANDISE VOL</span>
+                <Wallet className="w-3.5 h-3.5 text-chart-green shrink-0 ml-1" />
               </div>
-              <div className="font-heading text-2xl font-black text-chart-green truncate">
+              <div className="font-heading text-xl sm:text-2xl font-black text-chart-green truncate">
                 ₦{stats.total_gmv.toLocaleString()}
               </div>
-              <div className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1 font-mono">
+              <div className="text-[10px] sm:text-[11px] text-muted-foreground mt-1 flex items-center gap-1 font-mono truncate">
                 <span>Today: ₦{stats.today_gmv.toLocaleString()}</span>
               </div>
             </div>
 
             {/* Card 2: Tickets Sold */}
-            <div className="p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-blue">
-              <div className="text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider mb-1 flex items-center justify-between">
-                <span>TOTAL TICKETS SOLD</span>
-                <Ticket className="w-3.5 h-3.5 text-chart-blue" />
+            <div className="p-3 sm:p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-blue flex flex-col justify-between">
+              <div className="text-muted-foreground text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider mb-1 flex items-center justify-between">
+                <span className="truncate">TOTAL TICKETS SOLD</span>
+                <Ticket className="w-3.5 h-3.5 text-chart-blue shrink-0 ml-1" />
               </div>
-              <div className="font-heading text-2xl font-black text-chart-blue">
+              <div className="font-heading text-xl sm:text-2xl font-black text-chart-blue truncate">
                 {stats.total_tickets.toLocaleString()}
               </div>
-              <div className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1 font-mono">
+              <div className="text-[10px] sm:text-[11px] text-muted-foreground mt-1 flex items-center gap-1 font-mono truncate">
                 <span>Today: {stats.today_tickets.toLocaleString()} tickets</span>
               </div>
             </div>
 
             {/* Card 3: Platform Accounts */}
-            <div className="p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-orange">
-              <div className="text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider mb-1 flex items-center justify-between">
-                <span>TOTAL PLATFORM USERS</span>
-                <Users className="w-3.5 h-3.5 text-chart-orange" />
+            <div className="p-3 sm:p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-orange flex flex-col justify-between">
+              <div className="text-muted-foreground text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider mb-1 flex items-center justify-between">
+                <span className="truncate">TOTAL PLATFORM USERS</span>
+                <Users className="w-3.5 h-3.5 text-chart-orange shrink-0 ml-1" />
               </div>
-              <div className="font-heading text-2xl font-black text-chart-orange">
+              <div className="font-heading text-xl sm:text-2xl font-black text-chart-orange truncate">
                 {(stats.total_organisers + stats.total_attendees).toLocaleString()}
               </div>
-              <div className="text-[11px] text-muted-foreground mt-1 font-mono">
+              <div className="text-[10px] sm:text-[11px] text-muted-foreground mt-1 font-mono truncate">
                 {stats.total_organisers} Organisers · {stats.total_attendees} Attendees
               </div>
             </div>
 
             {/* Card 4: Check-in Attendance */}
-            <div className="p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-purple">
-              <div className="text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider mb-1 flex items-center justify-between">
-                <span>DOOR CHECK-IN RATE</span>
-                <CheckCircle2 className="w-3.5 h-3.5 text-chart-purple" />
+            <div className="p-3 sm:p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-purple flex flex-col justify-between">
+              <div className="text-muted-foreground text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider mb-1 flex items-center justify-between">
+                <span className="truncate">DOOR CHECK-IN RATE</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-chart-purple shrink-0 ml-1" />
               </div>
-              <div className="font-heading text-2xl font-black text-chart-purple">
+              <div className="font-heading text-xl sm:text-2xl font-black text-chart-purple truncate">
                 {stats.checkin_rate_pct}%
               </div>
-              <div className="text-[11px] text-muted-foreground mt-1 font-mono">
-                {stats.total_checkins.toLocaleString()} attendees verified at door
+              <div className="text-[10px] sm:text-[11px] text-muted-foreground mt-1 font-mono truncate">
+                {stats.total_checkins.toLocaleString()} verified at door
               </div>
             </div>
           </div>

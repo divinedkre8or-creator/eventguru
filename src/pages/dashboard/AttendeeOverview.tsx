@@ -307,42 +307,42 @@ const AttendeeOverview = () => {
       ) : (
         <>
           {/* ===== STATS BAR ===== */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-card border border-border rounded-xl p-4 space-y-1">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Ticket className="w-4 h-4" />
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Events</span>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+            <div className="bg-card border border-border rounded-xl p-3.5 sm:p-4 space-y-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+                <Ticket className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0" />
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider truncate">Events</span>
               </div>
-              <div className="font-heading text-2xl font-black text-foreground">{registrations.length}</div>
+              <div className="font-heading text-xl sm:text-2xl font-black text-foreground truncate">{registrations.length}</div>
               <div className="text-[10px] text-muted-foreground">{upcomingEvents.length} upcoming</div>
             </div>
-            <div className="bg-card border border-border rounded-xl p-4 space-y-1">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <CheckCircle2 className="w-4 h-4" />
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Checked In</span>
+            <div className="bg-card border border-border rounded-xl p-3.5 sm:p-4 space-y-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-chart-green shrink-0" />
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider truncate">Checked In</span>
               </div>
-              <div className="font-heading text-2xl font-black text-foreground">{totalCheckedIn}</div>
-              <div className="text-[10px] text-muted-foreground">{registrations.length > 0 ? Math.round((totalCheckedIn / registrations.length) * 100) : 0}% attendance rate</div>
+              <div className="font-heading text-xl sm:text-2xl font-black text-foreground truncate">{totalCheckedIn}</div>
+              <div className="text-[10px] text-muted-foreground truncate">{registrations.length > 0 ? Math.round((totalCheckedIn / registrations.length) * 100) : 0}% attendance rate</div>
             </div>
-            <div className="bg-card border border-border rounded-xl p-4 space-y-1">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Wallet className="w-4 h-4" />
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Total Spent</span>
+            <div className="bg-card border border-border rounded-xl p-3.5 sm:p-4 space-y-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+                <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-chart-blue shrink-0" />
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider truncate">Total Spent</span>
               </div>
-              <div className="font-heading text-2xl font-black text-foreground">
+              <div className="font-heading text-xl sm:text-2xl font-black text-foreground truncate">
                 {totalSpend > 0 ? `NGN ${totalSpend.toLocaleString()}` : "Free"}
               </div>
-              <div className="text-[10px] text-muted-foreground">
+              <div className="text-[10px] text-muted-foreground truncate">
                 {registrations.filter(e => e.amount_paid > 0).length} paid tickets
               </div>
             </div>
-            <div className="bg-card border border-border rounded-xl p-4 space-y-1">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Zap className="w-4 h-4" />
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Rally Score</span>
+            <div className="bg-card border border-border rounded-xl p-3.5 sm:p-4 space-y-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-secondary shrink-0" />
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider truncate">Rally Score</span>
               </div>
-              <div className="font-heading text-2xl font-black text-foreground">{rallyXP.toLocaleString()} XP</div>
-              <div className="text-[10px] text-muted-foreground">Level {rallyLevel.level} — {rallyLevel.title}</div>
+              <div className="font-heading text-xl sm:text-2xl font-black text-foreground truncate">{rallyXP.toLocaleString()} XP</div>
+              <div className="text-[10px] text-muted-foreground truncate">Level {rallyLevel.level} — {rallyLevel.title}</div>
             </div>
           </div>
 
@@ -441,15 +441,15 @@ const AttendeeOverview = () => {
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-start shrink-0">
                 {getCountdown(nextEvent.date) && (
                   <div className="bg-muted border border-border rounded-lg px-3 py-2 text-center">
                     <div className="font-heading text-lg font-black text-foreground">{getCountdown(nextEvent.date)}</div>
                     <div className="text-[9px] text-muted-foreground font-mono uppercase">Until event</div>
                   </div>
                 )}
-                <Link to={getEventUrl(nextEvent)}>
-                  <Button variant="secondary" size="sm" className="font-bold text-xs h-9 px-4 rounded-lg shadow-sm">
+                <Link to={getEventUrl(nextEvent)} className="w-full sm:w-auto">
+                  <Button variant="secondary" size="sm" className="w-full sm:w-auto font-bold text-xs h-9 px-4 rounded-lg shadow-sm">
                     View Details <ChevronRight className="w-3.5 h-3.5 ml-1" />
                   </Button>
                 </Link>
@@ -459,16 +459,16 @@ const AttendeeOverview = () => {
 
           {/* ===== EVENTS LIST ===== */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-border pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
               <h2 className="font-heading text-lg font-bold text-foreground flex items-center gap-2">
-                <Ticket className="w-5 h-5 text-secondary" /> My Events
+                <Ticket className="w-5 h-5 text-secondary shrink-0" /> My Events
               </h2>
-              <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+              <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5 overflow-x-auto max-w-full scrollbar-none no-scrollbar">
                 {(["upcoming", "past", "all"] as const).map(tab => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition-all capitalize ${
+                    className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition-all capitalize shrink-0 ${
                       activeTab === tab
                         ? "bg-card text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"

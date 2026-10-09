@@ -116,9 +116,6 @@ export const UsersPage = () => {
       const profiles = profilesData || [];
 
       // Find all user IDs that are attendees (NOT organizers and NOT admins)
-      // A user is a non-organizer platform user if:
-      // - They have role 'attendee' in user_roles OR
-      // - They exist in profiles and are NOT in organizerIds and NOT in adminIds
       const attendeeRoleIds = roles
         .filter((r) => r.role === "attendee")
         .map((r) => r.user_id);
@@ -279,120 +276,120 @@ export const UsersPage = () => {
     : "0.0";
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12 w-full min-w-0">
+    <div className="space-y-5 sm:space-y-6 max-w-7xl mx-auto font-sans pb-12 w-full min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="border-b border-border pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="border-b border-border pb-5 sm:pb-6 flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 w-full min-w-0">
         <div>
-          <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-secondary/10 text-secondary px-2.5 py-1 rounded inline-flex items-center gap-1.5 mb-2">
-            <Users className="w-3.5 h-3.5" />
+          <div className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider bg-secondary/10 text-secondary px-2.5 py-1 rounded inline-flex items-center gap-1.5 mb-1.5 sm:mb-2">
+            <Users className="w-3.5 h-3.5 shrink-0" />
             <span>NON-ORGANIZER PLATFORM USERS</span>
           </div>
-          <h1 className="font-heading text-3xl font-black text-foreground tracking-tight">
+          <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">
             Users
           </h1>
-          <p className="text-muted-foreground text-xs font-medium mt-1">
+          <p className="text-muted-foreground text-xs font-medium mt-1 leading-relaxed">
             Tracking regular attendees and customer accounts who interact with the Digital Wallet, Rally XP, and event tracking experience.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="font-mono text-xs px-3 py-1 bg-card">
+        <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
+          <Badge variant="outline" className="font-mono text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 bg-card">
             Separate Attendee Experience
           </Badge>
         </div>
       </div>
 
       {/* Primary KPI Grid: Answers User Questions Directly */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 w-full min-w-0">
         {/* Metric 1: How many persons are using platform that are NOT event organizers */}
-        <div className="p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-primary">
-          <div className="flex items-center justify-between text-muted-foreground text-[11px] font-mono font-bold uppercase mb-1">
-            <span>REGISTERED USERS</span>
-            <Users className="w-3.5 h-3.5 text-primary" />
+        <div className="p-3 sm:p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-primary flex flex-col justify-between">
+          <div className="flex items-center justify-between text-muted-foreground text-[10px] sm:text-[11px] font-mono font-bold uppercase mb-1">
+            <span className="truncate">REGISTERED USERS</span>
+            <Users className="w-3.5 h-3.5 text-primary shrink-0 ml-1" />
           </div>
-          <div className="font-heading text-2xl sm:text-3xl font-black text-foreground">
+          <div className="font-heading text-xl sm:text-2xl lg:text-3xl font-black text-foreground truncate">
             {totalRegisteredUsers.toLocaleString()}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
+          <div className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">
             Excludes organizers & admins
           </div>
         </div>
 
         {/* Metric 2: Ticket-to-User Conversion Strategy */}
-        <div className="p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-secondary">
-          <div className="flex items-center justify-between text-muted-foreground text-[11px] font-mono font-bold uppercase mb-1">
-            <span>SIGNUP CONVERSION</span>
-            <TrendingUp className="w-3.5 h-3.5 text-secondary" />
+        <div className="p-3 sm:p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-secondary flex flex-col justify-between">
+          <div className="flex items-center justify-between text-muted-foreground text-[10px] sm:text-[11px] font-mono font-bold uppercase mb-1">
+            <span className="truncate">SIGNUP CONVERSION</span>
+            <TrendingUp className="w-3.5 h-3.5 text-secondary shrink-0 ml-1" />
           </div>
-          <div className="font-heading text-2xl sm:text-3xl font-black text-secondary">
+          <div className="font-heading text-xl sm:text-2xl lg:text-3xl font-black text-secondary truncate">
             {conversionRate}%
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5 font-mono">
+          <div className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 font-mono truncate">
             {totalRegisteredUsers} users / {uniqueTicketBuyersCount} buyers
           </div>
         </div>
 
         {/* Metric 3: Active Digital Wallets */}
-        <div className="p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-blue">
-          <div className="flex items-center justify-between text-muted-foreground text-[11px] font-mono font-bold uppercase mb-1">
-            <span>ACTIVE WALLETS</span>
-            <Wallet className="w-3.5 h-3.5 text-chart-blue" />
+        <div className="p-3 sm:p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-blue flex flex-col justify-between">
+          <div className="flex items-center justify-between text-muted-foreground text-[10px] sm:text-[11px] font-mono font-bold uppercase mb-1">
+            <span className="truncate">ACTIVE WALLETS</span>
+            <Wallet className="w-3.5 h-3.5 text-chart-blue shrink-0 ml-1" />
           </div>
-          <div className="font-heading text-2xl sm:text-3xl font-black text-chart-blue">
+          <div className="font-heading text-xl sm:text-2xl lg:text-3xl font-black text-chart-blue truncate">
             {activeWalletsCount.toLocaleString()}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
+          <div className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">
             {walletActivationRate}% wallet claim rate
           </div>
         </div>
 
         {/* Metric 4: Tickets Managed in Wallets */}
-        <div className="p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-green">
-          <div className="flex items-center justify-between text-muted-foreground text-[11px] font-mono font-bold uppercase mb-1">
-            <span>TICKETS IN WALLETS</span>
-            <Ticket className="w-3.5 h-3.5 text-chart-green" />
+        <div className="p-3 sm:p-4 rounded-xl bg-card border border-border shadow-xs border-l-4 border-l-chart-green flex flex-col justify-between">
+          <div className="flex items-center justify-between text-muted-foreground text-[10px] sm:text-[11px] font-mono font-bold uppercase mb-1">
+            <span className="truncate">TICKETS IN WALLETS</span>
+            <Ticket className="w-3.5 h-3.5 text-chart-green shrink-0 ml-1" />
           </div>
-          <div className="font-heading text-2xl sm:text-3xl font-black text-chart-green">
+          <div className="font-heading text-xl sm:text-2xl lg:text-3xl font-black text-chart-green truncate">
             {totalTicketsInWallets.toLocaleString()}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
+          <div className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">
             {totalCheckedIn} checked in at gates
           </div>
         </div>
       </div>
 
       {/* Experience Tracking & Conversion Strategy Analysis */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 w-full min-w-0">
         {/* Strategy Health & Conversion Funnel */}
-        <div className="p-5 rounded-xl bg-card border border-border shadow-xs space-y-3 lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-border pb-3">
+        <div className="p-4 sm:p-5 rounded-xl bg-card border border-border shadow-xs space-y-3 lg:col-span-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
             <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-primary" />
+              <Target className="w-4 h-4 text-primary shrink-0" />
               <h3 className="font-heading font-bold text-sm text-foreground">
                 Ticket-to-Wallet Conversion Strategy
               </h3>
             </div>
-            <span className="text-[10px] font-mono font-bold uppercase bg-primary/10 text-primary px-2 py-0.5 rounded">
+            <span className="text-[10px] font-mono font-bold uppercase bg-primary/10 text-primary px-2 py-0.5 rounded self-start sm:self-auto">
               Funnel Health: {Number(conversionRate) > 20 ? "Strong" : Number(conversionRate) > 5 ? "Active" : "Early Stage"}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-1">
             <div className="p-3 rounded-lg bg-muted/40 border border-border space-y-1">
               <div className="text-[10px] font-mono text-muted-foreground uppercase font-bold">Step 1: Buyers</div>
-              <div className="font-heading text-lg font-black text-foreground">{uniqueTicketBuyersCount}</div>
+              <div className="font-heading text-base sm:text-lg font-black text-foreground">{uniqueTicketBuyersCount}</div>
               <p className="text-[11px] text-muted-foreground leading-tight">Purchased tickets at checkout</p>
             </div>
 
             <div className="p-3 rounded-lg bg-muted/40 border border-border space-y-1">
               <div className="text-[10px] font-mono text-muted-foreground uppercase font-bold">Step 2: Signups</div>
-              <div className="font-heading text-lg font-black text-foreground">{totalRegisteredUsers}</div>
+              <div className="font-heading text-base sm:text-lg font-black text-foreground">{totalRegisteredUsers}</div>
               <p className="text-[11px] text-muted-foreground leading-tight">Clicked "Claim Ticket & Create Wallet"</p>
             </div>
 
             <div className="p-3 rounded-lg bg-muted/40 border border-border space-y-1">
               <div className="text-[10px] font-mono text-muted-foreground uppercase font-bold">Step 3: In Wallet</div>
-              <div className="font-heading text-lg font-black text-foreground">{activeWalletsCount}</div>
+              <div className="font-heading text-base sm:text-lg font-black text-foreground">{activeWalletsCount}</div>
               <p className="text-[11px] text-muted-foreground leading-tight">Actively viewing passes in portal</p>
             </div>
           </div>
@@ -403,9 +400,9 @@ export const UsersPage = () => {
         </div>
 
         {/* Feature Engagement: What We Built for Users */}
-        <div className="p-5 rounded-xl bg-card border border-border shadow-xs space-y-3">
+        <div className="p-4 sm:p-5 rounded-xl bg-card border border-border shadow-xs space-y-3">
           <div className="flex items-center gap-2 border-b border-border pb-3">
-            <Zap className="w-4 h-4 text-secondary" />
+            <Zap className="w-4 h-4 text-secondary shrink-0" />
             <h3 className="font-heading font-bold text-sm text-foreground">
               Attendee Experience Metrics
             </h3>
@@ -443,24 +440,24 @@ export const UsersPage = () => {
       </div>
 
       {/* Search & Filter Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 w-full min-w-0">
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search users by name, email, or ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-card border-border text-xs h-10 rounded-lg"
+            className="pl-9 bg-card border-border text-xs h-10 rounded-lg w-full"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none no-scrollbar w-full sm:w-auto -mx-1 px-1">
           <Button
             type="button"
             size="sm"
             variant={filterType === "all" ? "default" : "outline"}
             onClick={() => setFilterType("all")}
-            className="h-8 text-xs font-semibold rounded-lg"
+            className="h-8 text-xs font-semibold rounded-lg shrink-0"
           >
             All Users ({users.length})
           </Button>
@@ -469,7 +466,7 @@ export const UsersPage = () => {
             size="sm"
             variant={filterType === "active_wallet" ? "default" : "outline"}
             onClick={() => setFilterType("active_wallet")}
-            className="h-8 text-xs font-semibold rounded-lg"
+            className="h-8 text-xs font-semibold rounded-lg shrink-0"
           >
             Active Wallets ({activeWalletsCount})
           </Button>
@@ -478,7 +475,7 @@ export const UsersPage = () => {
             size="sm"
             variant={filterType === "empty_wallet" ? "default" : "outline"}
             onClick={() => setFilterType("empty_wallet")}
-            className="h-8 text-xs font-semibold rounded-lg"
+            className="h-8 text-xs font-semibold rounded-lg shrink-0"
           >
             Empty Wallets ({emptyWalletsCount})
           </Button>
@@ -487,14 +484,14 @@ export const UsersPage = () => {
             size="sm"
             variant={filterType === "checked_in" ? "default" : "outline"}
             onClick={() => setFilterType("checked_in")}
-            className="h-8 text-xs font-semibold rounded-lg"
+            className="h-8 text-xs font-semibold rounded-lg shrink-0"
           >
             Checked In ({users.filter((u) => u.checked_in_count > 0).length})
           </Button>
         </div>
       </div>
 
-      {/* Users Directory Table */}
+      {/* Users Directory */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -509,154 +506,255 @@ export const UsersPage = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-border bg-muted/40">
-                  <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
-                    User Details
-                  </th>
-                  <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
-                    Wallet Passes
-                  </th>
-                  <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
-                    Gate Check-ins
-                  </th>
-                  <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
-                    Total Spend
-                  </th>
-                  <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
-                    Rally Tier
-                  </th>
-                  <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
-                    Joined Date
-                  </th>
-                  <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider text-right">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {filtered.map((user) => (
-                  <tr key={user.user_id} className="hover:bg-muted/30 transition-colors">
-                    {/* User Identity */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary font-bold text-xs shrink-0">
-                          {user.full_name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="font-bold text-xs text-foreground">
-                            {user.full_name}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground font-mono">
-                            ID: {user.user_id.slice(0, 10)}…
-                          </div>
-                        </div>
+        <>
+          {/* MOBILE VIEW (< 768px): Responsive card rows optimized for phones */}
+          <div className="block md:hidden space-y-3 w-full min-w-0">
+            {filtered.map((user) => (
+              <div
+                key={user.user_id}
+                className="p-4 rounded-xl bg-card border border-border space-y-3 shadow-xs hover:border-primary/30 transition-all"
+              >
+                {/* Header: User avatar + name + Rally Level */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary font-bold text-xs shrink-0">
+                      {user.full_name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-sm text-foreground truncate">
+                        {user.full_name}
                       </div>
-                    </td>
-
-                    {/* Contact */}
-                    <td className="px-4 py-3">
-                      <div className="space-y-0.5">
-                        <div className="text-xs text-foreground font-medium flex items-center gap-1.5">
-                          <Mail className="w-3 h-3 text-muted-foreground shrink-0" />
-                          <span className="truncate max-w-[180px]">{user.email}</span>
-                        </div>
-                        {user.phone && (
-                          <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-                            <Phone className="w-3 h-3 text-muted-foreground shrink-0" />
-                            <span>{user.phone}</span>
-                          </div>
-                        )}
+                      <div className="text-[10px] text-muted-foreground font-mono truncate">
+                        ID: {user.user_id.slice(0, 10)}…
                       </div>
-                    </td>
+                    </div>
+                  </div>
 
-                    {/* Passes in Wallet */}
-                    <td className="px-4 py-3">
-                      {user.tickets_count > 0 ? (
-                        <Badge variant="secondary" className="font-mono text-xs font-bold gap-1">
-                          <Wallet className="w-3 h-3" />
-                          <span>{user.tickets_count} {user.tickets_count === 1 ? "pass" : "passes"}</span>
-                        </Badge>
-                      ) : (
-                        <span className="text-[11px] text-muted-foreground font-mono italic">
-                          Empty wallet
-                        </span>
-                      )}
-                    </td>
+                  <Badge variant="outline" className="text-[10px] font-mono uppercase bg-muted shrink-0">
+                    {user.rally_level}
+                  </Badge>
+                </div>
 
-                    {/* Gate Check-ins */}
-                    <td className="px-4 py-3">
-                      {user.checked_in_count > 0 ? (
-                        <Badge className="bg-chart-green/10 text-chart-green border-chart-green/20 font-mono text-xs font-bold gap-1">
-                          <CheckCircle2 className="w-3 h-3" />
-                          <span>{user.checked_in_count} attended</span>
-                        </Badge>
-                      ) : (
-                        <span className="text-[11px] text-muted-foreground font-mono">
-                          0 checked-in
-                        </span>
-                      )}
-                    </td>
+                {/* Contact row */}
+                <div className="space-y-1 bg-muted/30 p-2.5 rounded-lg border border-border text-xs">
+                  <div className="flex items-center gap-1.5 text-foreground truncate">
+                    <Mail className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                    <a href={`mailto:${user.email}`} className="truncate hover:underline">
+                      {user.email}
+                    </a>
+                  </div>
+                  {user.phone && (
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <Phone className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                      <a href={`tel:${user.phone}`} className="hover:underline">
+                        {user.phone}
+                      </a>
+                    </div>
+                  )}
+                </div>
 
-                    {/* Total Spend */}
-                    <td className="px-4 py-3 font-mono font-bold text-xs text-foreground">
+                {/* 4-Stat Grid for Phone Screen */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 rounded-lg bg-background border border-border space-y-0.5">
+                    <div className="text-[10px] text-muted-foreground font-mono uppercase">Wallet Passes</div>
+                    <div className="font-bold text-foreground flex items-center gap-1">
+                      <Wallet className="w-3 h-3 text-secondary shrink-0" />
+                      <span className="truncate">{user.tickets_count} {user.tickets_count === 1 ? "pass" : "passes"}</span>
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg bg-background border border-border space-y-0.5">
+                    <div className="text-[10px] text-muted-foreground font-mono uppercase">Gate Attendance</div>
+                    <div className="font-bold text-foreground flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-chart-green shrink-0" />
+                      <span className="truncate">{user.checked_in_count} attended</span>
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-lg bg-background border border-border space-y-0.5">
+                    <div className="text-[10px] text-muted-foreground font-mono uppercase">Total Spend</div>
+                    <div className="font-mono font-bold text-foreground truncate">
                       ₦{user.total_spent.toLocaleString()}
-                    </td>
+                    </div>
+                  </div>
 
-                    {/* Rally Tier */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-mono font-bold uppercase bg-muted px-2 py-0.5 rounded text-foreground">
-                          {user.rally_level}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground font-mono">
-                          {user.rally_xp} XP
-                        </span>
-                      </div>
-                    </td>
+                  <div className="p-2.5 rounded-lg bg-background border border-border space-y-0.5">
+                    <div className="text-[10px] text-muted-foreground font-mono uppercase">Rally Points</div>
+                    <div className="font-mono font-bold text-secondary truncate">
+                      {user.rally_xp} XP
+                    </div>
+                  </div>
+                </div>
 
-                    {/* Member Since */}
-                    <td className="px-4 py-3 text-xs text-muted-foreground">
-                      {new Date(user.joined_at).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-
-                    {/* Inspect Wallet Button (NO Elevation Function) */}
-                    <td className="px-4 py-3 text-right">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => openUserHistory(user)}
-                        className="h-8 px-3 text-xs font-semibold border-border hover:bg-muted"
-                      >
-                        <span>Inspect Wallet</span>
-                        <ChevronRight className="w-3.5 h-3.5 ml-1" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                {/* Action button */}
+                <div className="flex items-center justify-between pt-1 border-t border-border gap-2">
+                  <span className="text-[10px] text-muted-foreground font-mono">
+                    Joined: {new Date(user.joined_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => openUserHistory(user)}
+                    className="h-8 px-3 text-xs font-bold border-border"
+                  >
+                    <span>Inspect Wallet</span>
+                    <ChevronRight className="w-3.5 h-3.5 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+
+          {/* DESKTOP VIEW (>= 768px): Full multi-column table */}
+          <div className="hidden md:block bg-card border border-border rounded-xl overflow-hidden shadow-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40">
+                    <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
+                      User Details
+                    </th>
+                    <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
+                      Contact
+                    </th>
+                    <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
+                      Wallet Passes
+                    </th>
+                    <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
+                      Gate Check-ins
+                    </th>
+                    <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
+                      Total Spend
+                    </th>
+                    <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
+                      Rally Tier
+                    </th>
+                    <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider">
+                      Joined Date
+                    </th>
+                    <th className="px-4 py-3 text-muted-foreground text-[11px] font-mono font-bold uppercase tracking-wider text-right">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filtered.map((user) => (
+                    <tr key={user.user_id} className="hover:bg-muted/30 transition-colors">
+                      {/* User Identity */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary font-bold text-xs shrink-0">
+                            {user.full_name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="font-bold text-xs text-foreground">
+                              {user.full_name}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground font-mono">
+                              ID: {user.user_id.slice(0, 10)}…
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Contact */}
+                      <td className="px-4 py-3">
+                        <div className="space-y-0.5">
+                          <div className="text-xs text-foreground font-medium flex items-center gap-1.5">
+                            <Mail className="w-3 h-3 text-muted-foreground shrink-0" />
+                            <span className="truncate max-w-[180px]">{user.email}</span>
+                          </div>
+                          {user.phone && (
+                            <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                              <Phone className="w-3 h-3 text-muted-foreground shrink-0" />
+                              <span>{user.phone}</span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Passes in Wallet */}
+                      <td className="px-4 py-3">
+                        {user.tickets_count > 0 ? (
+                          <Badge variant="secondary" className="font-mono text-xs font-bold gap-1">
+                            <Wallet className="w-3 h-3" />
+                            <span>{user.tickets_count} {user.tickets_count === 1 ? "pass" : "passes"}</span>
+                          </Badge>
+                        ) : (
+                          <span className="text-[11px] text-muted-foreground font-mono italic">
+                            Empty wallet
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Gate Check-ins */}
+                      <td className="px-4 py-3">
+                        {user.checked_in_count > 0 ? (
+                          <Badge className="bg-chart-green/10 text-chart-green border-chart-green/20 font-mono text-xs font-bold gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>{user.checked_in_count} attended</span>
+                          </Badge>
+                        ) : (
+                          <span className="text-[11px] text-muted-foreground font-mono">
+                            0 checked-in
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Total Spend */}
+                      <td className="px-4 py-3 font-mono font-bold text-xs text-foreground">
+                        ₦{user.total_spent.toLocaleString()}
+                      </td>
+
+                      {/* Rally Tier */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-mono font-bold uppercase bg-muted px-2 py-0.5 rounded text-foreground">
+                            {user.rally_level}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground font-mono">
+                            {user.rally_xp} XP
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Member Since */}
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
+                        {new Date(user.joined_at).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </td>
+
+                      {/* Inspect Wallet Button (NO Elevation Function) */}
+                      <td className="px-4 py-3 text-right">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openUserHistory(user)}
+                          className="h-8 px-3 text-xs font-semibold border-border hover:bg-muted"
+                        >
+                          <span>Inspect Wallet</span>
+                          <ChevronRight className="w-3.5 h-3.5 ml-1" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
 
       {/* User Attendee Wallet & Ticket History Modal */}
       <Dialog open={historyModalOpen} onOpenChange={setHistoryModalOpen}>
-        <DialogContent className="max-w-2xl bg-card border-border font-sans">
+        <DialogContent className="max-w-2xl w-[95vw] sm:w-full max-h-[85vh] max-h-[85dvh] overflow-y-auto p-4 sm:p-6 bg-card border-border font-sans">
           <DialogHeader>
             <div className="flex items-center gap-2 mb-1">
-              <Wallet className="w-4 h-4 text-primary" />
-              <DialogTitle className="font-heading text-lg font-bold text-foreground">
+              <Wallet className="w-4 h-4 text-primary shrink-0" />
+              <DialogTitle className="font-heading text-base sm:text-lg font-bold text-foreground">
                 Digital Wallet Pass Ledger
               </DialogTitle>
             </div>
@@ -673,7 +771,7 @@ export const UsersPage = () => {
               <p className="text-xs text-muted-foreground">Accessing attendee wallet passes...</p>
             </div>
           ) : userHistory.length === 0 ? (
-            <div className="p-8 text-center bg-muted/30 border border-dashed border-border rounded-xl space-y-2">
+            <div className="p-6 sm:p-8 text-center bg-muted/30 border border-dashed border-border rounded-xl space-y-2">
               <Ticket className="w-8 h-8 mx-auto text-muted-foreground/30" />
               <p className="text-xs font-medium text-foreground">No passes stored in this wallet yet.</p>
               <p className="text-[11px] text-muted-foreground">
@@ -685,10 +783,10 @@ export const UsersPage = () => {
               {userHistory.map((reg) => (
                 <div
                   key={reg.id}
-                  className="p-4 rounded-xl bg-background border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-primary/30 transition-colors"
+                  className="p-3.5 sm:p-4 rounded-xl bg-background border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-primary/30 transition-colors"
                 >
-                  <div className="space-y-1">
-                    <div className="font-heading font-bold text-sm text-foreground">
+                  <div className="space-y-1 min-w-0">
+                    <div className="font-heading font-bold text-sm text-foreground truncate">
                       {reg.event_title}
                     </div>
                     <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-2 font-mono">
@@ -703,7 +801,7 @@ export const UsersPage = () => {
                       )}
                     </div>
                     {reg.payment_reference && (
-                      <div className="text-[10px] text-muted-foreground font-mono">
+                      <div className="text-[10px] text-muted-foreground font-mono truncate">
                         Ref: {reg.payment_reference}
                       </div>
                     )}
