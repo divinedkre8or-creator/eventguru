@@ -1,6 +1,6 @@
 # Super Admin Users Directory, Real-Time Statistics Hub, Admin Delegation, and Support Integration Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Implement a dedicated Super Admin Platform Users Directory (`/admin/users`), Real-Time Statistics Hub (`/admin/stats`), secure server-enforced Super Admin role delegation, smart organizer support line integration (`09167739775`), and Super Admin sidebar typography polish.
 
@@ -19,7 +19,7 @@
 **Files:**
 - Create: `supabase/migrations/20261008200000_admin_stats_and_user_directory.sql`
 
-- [ ] **Step 1: Write the migration file with additive PostgreSQL functions**
+- [x] **Step 1: Write the migration file with additive PostgreSQL functions**
 
 ```sql
 -- supabase/migrations/20261008200000_admin_stats_and_user_directory.sql
@@ -285,7 +285,7 @@ $$;
 COMMIT;
 ```
 
-- [ ] **Step 2: Commit the migration script to git**
+- [x] **Step 2: Commit the migration script to git**
 
 Run:
 ```bash
@@ -300,7 +300,7 @@ git commit -m "feat(db): add admin realtime stats, platform users directory, and
 **Files:**
 - Modify: `src/layouts/AdminLayout.tsx`
 
-- [ ] **Step 1: Update navigation items and enlarge typography**
+- [x] **Step 1: Update navigation items and enlarge typography**
 In `src/layouts/AdminLayout.tsx`:
 - Add `navItems`:
   - `{ title: "Overview", path: "/admin", icon: LayoutDashboard }`
@@ -319,10 +319,10 @@ In `src/layouts/AdminLayout.tsx`:
   - Icon size: `w-4.5 h-4.5 shrink-0`
   - Active state: `bg-primary text-primary-foreground shadow-sm font-bold`
 
-- [ ] **Step 2: Test that AdminLayout compiles and verify visually**
+- [x] **Step 2: Test that AdminLayout compiles and verify visually**
 Run `npm run build` or `npx tsc --noEmit`.
 
-- [ ] **Step 3: Commit changes**
+- [x] **Step 3: Commit changes**
 ```bash
 git add src/layouts/AdminLayout.tsx
 git commit -m "fix(admin): polish sidebar typography to text-sm and register stats and users routes"
@@ -335,7 +335,7 @@ git commit -m "fix(admin): polish sidebar typography to text-sm and register sta
 **Files:**
 - Modify: `src/layouts/DashboardLayout.tsx`
 
-- [ ] **Step 1: Add organizer support card to sidebar**
+- [x] **Step 1: Add organizer support card to sidebar**
 In `src/layouts/DashboardLayout.tsx`:
 Add a support block above the bottom profile/logout section:
 ```tsx
@@ -377,7 +377,7 @@ Add a support block above the bottom profile/logout section:
 ```
 Ensure icons `Phone` and `MessageCircle` are imported from `lucide-react`.
 
-- [ ] **Step 2: Verify in browser and commit**
+- [x] **Step 2: Verify in browser and commit**
 ```bash
 git add src/layouts/DashboardLayout.tsx
 git commit -m "feat(dashboard): integrate organizer support direct hotline 09167739775"
@@ -391,7 +391,7 @@ git commit -m "feat(dashboard): integrate organizer support direct hotline 09167
 - Create: `src/pages/admin/Users.tsx`
 - Modify: `src/App.tsx` (Route registration)
 
-- [ ] **Step 1: Create `src/pages/admin/Users.tsx`**
+- [x] **Step 1: Create `src/pages/admin/Users.tsx`**
 Features:
 - Query platform users via `supabase.rpc('get_admin_platform_users')` with direct fallback to `user_roles.select() + profiles + registrations` if RPC not yet deployed.
 - Clean header: Super Admin Control badge, title "Platform Users & Attendees", subtitle.
@@ -402,11 +402,11 @@ Features:
 - Promote to Super Admin action trigger.
 - Zero emojis, clean badges (`bg-muted text-foreground font-mono text-[11px]`).
 
-- [ ] **Step 2: Register route in `src/App.tsx`**
+- [x] **Step 2: Register route in `src/App.tsx`**
 In `src/App.tsx`, import `AdminUsers` from `@/pages/admin/Users` and add route:
 `<Route path="users" element={<AdminUsers />} />` inside `<Route path="/admin" element={<AdminLayout />}>`.
 
-- [ ] **Step 3: Test compilation and commit**
+- [x] **Step 3: Test compilation and commit**
 ```bash
 git add src/pages/admin/Users.tsx src/App.tsx
 git commit -m "feat(admin): add platform users directory with ticket history and search"
@@ -420,7 +420,7 @@ git commit -m "feat(admin): add platform users directory with ticket history and
 - Create: `src/pages/admin/StatsHub.tsx`
 - Modify: `src/App.tsx` (Route registration)
 
-- [ ] **Step 1: Create `src/pages/admin/StatsHub.tsx`**
+- [x] **Step 1: Create `src/pages/admin/StatsHub.tsx`**
 Features:
 - Real-time connection status badge: `● LIVE PULSE ACTIVE` (pulsing green dot).
 - Parallel stats fetch via `supabase.rpc('get_admin_realtime_stats')` with fallback to client-side aggregations for backwards compatibility.
@@ -442,11 +442,11 @@ Features:
   - Top Organisers by Attendee Volume
   - Free vs Paid Ticket Ratio
 
-- [ ] **Step 2: Register route in `src/App.tsx`**
+- [x] **Step 2: Register route in `src/App.tsx`**
 In `src/App.tsx`, import `AdminStats` from `@/pages/admin/StatsHub` and add route:
 `<Route path="stats" element={<AdminStats />} />` inside `<Route path="/admin">`.
 
-- [ ] **Step 3: Test compilation and commit**
+- [x] **Step 3: Test compilation and commit**
 ```bash
 git add src/pages/admin/StatsHub.tsx src/App.tsx
 git commit -m "feat(admin): add realtime statistics hub with live websocket activity pulse"
@@ -460,20 +460,20 @@ git commit -m "feat(admin): add realtime statistics hub with live websocket acti
 - Create: `src/components/admin/AdminRoleModal.tsx`
 - Modify: `src/pages/admin/Settings.tsx`
 
-- [ ] **Step 1: Create `src/components/admin/AdminRoleModal.tsx`**
+- [x] **Step 1: Create `src/components/admin/AdminRoleModal.tsx`**
 - Input for target user's email address.
 - Clear institutional security warning: "Granting Super Admin privileges gives full read/write access to financial transactions, platform disputes, user databases, and system configuration."
 - Explicit confirmation button: "Confirm Admin Elevation".
 - Invokes `supabase.rpc('promote_to_admin', { target_email })` with fallback to direct `user_roles.insert`.
 - Displays feedback with toast notifications.
 
-- [ ] **Step 2: Integrate into `src/pages/admin/Settings.tsx`**
+- [x] **Step 2: Integrate into `src/pages/admin/Settings.tsx`**
 - Add section: "Super Administrators & System Access".
 - Lists current Super Admins from `user_roles` where `role = 'admin'`.
 - "Add Platform Administrator" button opening `AdminRoleModal`.
 - Remove admin action with lockout protection (cannot remove the last remaining admin).
 
-- [ ] **Step 3: Test compilation and commit**
+- [x] **Step 3: Test compilation and commit**
 ```bash
 git add src/components/admin/AdminRoleModal.tsx src/pages/admin/Settings.tsx
 git commit -m "feat(admin): implement secure super admin delegation modal and management panel"
@@ -486,18 +486,18 @@ git commit -m "feat(admin): implement secure super admin delegation modal and ma
 **Files:**
 - Test across all touched files.
 
-- [ ] **Step 1: Run TypeScript type check**
+- [x] **Step 1: Run TypeScript type check**
 Run: `npx tsc --noEmit`
 Expected: Zero TypeScript errors.
 
-- [ ] **Step 2: Run linter**
+- [x] **Step 2: Run linter**
 Run: `npm run lint` or `npx eslint src`
 Expected: No breaking errors.
 
-- [ ] **Step 3: Run Vitest unit tests**
+- [x] **Step 3: Run Vitest unit tests**
 Run: `npm run test` or `npx vitest run`
 Expected: All existing test suites pass.
 
-- [ ] **Step 4: Push all verified commits to remote repository**
+- [x] **Step 4: Push all verified commits to remote repository**
 Run: `git push origin main`
 Expected: Successfully synced with GitHub.
