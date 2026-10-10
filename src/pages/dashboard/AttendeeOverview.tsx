@@ -203,7 +203,7 @@ const AttendeeOverview = () => {
           </p>
         </div>
 
-        <Link to="/events" className="w-full sm:w-auto">
+        <Link to="/dashboard/explore" className="w-full sm:w-auto">
           <Button variant="secondary" size="sm" className="w-full sm:w-auto font-bold text-xs h-10 px-4 rounded-lg flex items-center justify-center gap-2 shadow-sm">
             <Compass className="w-4 h-4" /> Explore Events
           </Button>
@@ -230,7 +230,7 @@ const AttendeeOverview = () => {
                 When you secure passes or register for events on EventRally, your digital tickets, 1-second gate QR entry passes, and custom event fliers will automatically be stored right here.
               </p>
             </div>
-            <Link to="/events" className="shrink-0">
+            <Link to="/dashboard/explore" className="shrink-0">
               <Button variant="secondary" size="lg" className="font-bold text-xs sm:text-sm h-11 px-6 rounded-lg shadow-sm flex items-center gap-2">
                 <Compass className="w-4 h-4" />
                 <span>Explore Live Events</span>
@@ -244,7 +244,7 @@ const AttendeeOverview = () => {
                 <h3 className="font-heading text-lg font-bold text-foreground">Trending Events to Attend</h3>
                 <p className="text-xs text-muted-foreground">Discover what is happening next and get your tickets in one click.</p>
               </div>
-              <Link to="/events" className="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
+              <Link to="/dashboard/explore" className="text-xs font-bold text-secondary hover:underline flex items-center gap-1">
                 View all <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>

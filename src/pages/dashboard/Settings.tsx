@@ -9,7 +9,8 @@ import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Settings = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, roles } = useAuth();
+  const isOrganiserOrAdmin = roles.includes("organiser") || roles.includes("admin");
 
   // Profile Form state
   const [fullName, setFullName] = useState("");
@@ -100,9 +101,13 @@ const Settings = () => {
         <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
           ACCOUNT PREFERENCES
         </div>
-        <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Organiser Settings</h1>
+        <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+          {isOrganiserOrAdmin ? "Organiser Settings" : "Account Settings"}
+        </h1>
         <p className="text-muted-foreground text-xs font-medium mt-1">
-          Manage your personal profile, security credentials, and system preferences.
+          {isOrganiserOrAdmin
+            ? "Manage your organizer profile, security credentials, and notification preferences."
+            : "Manage your personal profile, email address, and security password."}
         </p>
       </div>
 
@@ -189,48 +194,50 @@ const Settings = () => {
         </div>
       </form>
 
-      {/* System Preferences */}
-      <div className="bg-card border border-border rounded-xl p-6 shadow-xs space-y-5">
-        <h2 className="font-heading text-base font-bold text-foreground flex items-center gap-2 border-b border-border pb-3">
-          <Bell className="w-4 h-4 text-chart-purple" /> Notification Preferences & Theme
-        </h2>
+      {/* System Preferences (Organisers Only) */}
+      {isOrganiserOrAdmin && (
+        <div className="bg-card border border-border rounded-xl p-6 shadow-xs space-y-5">
+          <h2 className="font-heading text-base font-bold text-foreground flex items-center gap-2 border-b border-border pb-3">
+            <Bell className="w-4 h-4 text-chart-purple" /> Notification Preferences & Theme
+          </h2>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs font-bold text-foreground">Instant Ticket Sales Notifications</div>
-              <div className="text-[11px] text-muted-foreground">Receive an email whenever an attendee completes registration</div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs font-bold text-foreground">Instant Ticket Sales Notifications</div>
+                <div className="text-[11px] text-muted-foreground">Receive an email whenever an attendee completes registration</div>
+              </div>
+              <input
+                type="checkbox"
+                checked={notifyOnRegistration}
+                onChange={(e) => setNotifyOnRegistration(e.target.checked)}
+                className="w-4 h-4 accent-secondary rounded cursor-pointer"
+              />
             </div>
-            <input
-              type="checkbox"
-              checked={notifyOnRegistration}
-              onChange={(e) => setNotifyOnRegistration(e.target.checked)}
-              className="w-4 h-4 accent-secondary rounded cursor-pointer"
-            />
-          </div>
 
-          <div className="flex items-center justify-between border-t border-border pt-3">
-            <div>
-              <div className="text-xs font-bold text-foreground">Daily Event Digest</div>
-              <div className="text-[11px] text-muted-foreground">Receive daily attendance and check-in summaries</div>
+            <div className="flex items-center justify-between border-t border-border pt-3">
+              <div>
+                <div className="text-xs font-bold text-foreground">Daily Event Digest</div>
+                <div className="text-[11px] text-muted-foreground">Receive daily attendance and check-in summaries</div>
+              </div>
+              <input
+                type="checkbox"
+                checked={notifyDailyDigest}
+                onChange={(e) => setNotifyDailyDigest(e.target.checked)}
+                className="w-4 h-4 accent-secondary rounded cursor-pointer"
+              />
             </div>
-            <input
-              type="checkbox"
-              checked={notifyDailyDigest}
-              onChange={(e) => setNotifyDailyDigest(e.target.checked)}
-              className="w-4 h-4 accent-secondary rounded cursor-pointer"
-            />
-          </div>
 
-          <div className="flex items-center justify-between border-t border-border pt-3">
-            <div>
-              <div className="text-xs font-bold text-foreground">Interface Appearance</div>
-              <div className="text-[11px] text-muted-foreground">Switch between Dark Mode, Light Mode, or System Default</div>
+            <div className="flex items-center justify-between border-t border-border pt-3">
+              <div>
+                <div className="text-xs font-bold text-foreground">Interface Appearance</div>
+                <div className="text-[11px] text-muted-foreground">Switch between Dark Mode, Light Mode, or System Default</div>
+              </div>
+              <ThemeToggle />
             </div>
-            <ThemeToggle />
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

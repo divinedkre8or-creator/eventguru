@@ -51,6 +51,7 @@ const Analytics = lazy(() => import("./pages/dashboard/Analytics"));
 const Payments = lazy(() => import("./pages/dashboard/Payments"));
 const Settings = lazy(() => import("./pages/dashboard/Settings"));
 const DPAttendeeView = lazy(() => import("./pages/DPAttendeeView"));
+const AttendeeExplore = lazy(() => import("./pages/dashboard/AttendeeExplore"));
 
 const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 const AdminOverview = lazy(() => import("./pages/admin/Overview"));
@@ -141,6 +142,7 @@ const App = () => (
                   <Route path="analytics" element={<Analytics />} />
                   <Route path="payments" element={<Payments />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="explore" element={<AttendeeExplore />} />
                 </Route>
 
                 {/* Super Admin */}

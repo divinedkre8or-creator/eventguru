@@ -72,13 +72,13 @@ const navGroups: NavGroup[] = [
 
 const attendeeNavItems = [
   { title: "My Wallet & Tickets", path: "/dashboard", icon: Wallet },
-  { title: "Explore Events", path: "/events", icon: Compass },
+  { title: "Explore Events", path: "/dashboard/explore", icon: Compass },
   { title: "Account Settings", path: "/dashboard/settings", icon: Settings },
 ];
 
 const attendeeMobileNavItems = [
   { title: "My Wallet", path: "/dashboard", icon: Wallet },
-  { title: "Explore", path: "/events", icon: Compass },
+  { title: "Explore", path: "/dashboard/explore", icon: Compass },
   { title: "Settings", path: "/dashboard/settings", icon: Settings },
 ];
 
@@ -107,7 +107,13 @@ const DashboardLayout = () => {
 
   // Route Guard: Prevent attendees from accessing organizer management pages (only after auth finishes loading)
   useEffect(() => {
-    if (!loading && !isOrganiserOrAdmin && location.pathname !== "/dashboard" && location.pathname !== "/dashboard/settings") {
+    if (
+      !loading &&
+      !isOrganiserOrAdmin &&
+      location.pathname !== "/dashboard" &&
+      location.pathname !== "/dashboard/explore" &&
+      location.pathname !== "/dashboard/settings"
+    ) {
       navigate("/dashboard", { replace: true });
     }
   }, [loading, isOrganiserOrAdmin, location.pathname, navigate]);
@@ -213,41 +219,43 @@ const DashboardLayout = () => {
           )}
         </div>
 
-        {/* Organizer Direct Support Hotline */}
-        <div className="p-3 border-t border-border bg-card/60">
-          <div className="p-3 rounded-xl bg-muted/60 border border-border/80 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                ORGANIZER SUPPORT
-              </span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            </div>
-            <p className="text-[11px] text-foreground/80 leading-snug">
-              Need assistance or quick support? Contact our team directly:
-            </p>
-            <div className="font-mono text-xs font-bold text-foreground tracking-wide">
-              09167739775
-            </div>
-            <div className="grid grid-cols-2 gap-1.5 pt-0.5">
-              <a
-                href="tel:09167739775"
-                className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
-              >
-                <Phone className="w-3.5 h-3.5 text-primary" />
-                <span>Call</span>
-              </a>
-              <a
-                href="https://wa.me/2349167739775"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
-              >
-                <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                <span>WhatsApp</span>
-              </a>
+        {/* Organizer Direct Support Hotline (Organizers Only) */}
+        {isOrganiserOrAdmin && (
+          <div className="p-3 border-t border-border bg-card/60">
+            <div className="p-3 rounded-xl bg-muted/60 border border-border/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                  ORGANIZER SUPPORT
+                </span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+              <p className="text-[11px] text-foreground/80 leading-snug">
+                Need assistance or quick support? Contact our team directly:
+              </p>
+              <div className="font-mono text-xs font-bold text-foreground tracking-wide">
+                09167739775
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                <a
+                  href="tel:09167739775"
+                  className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5 text-primary" />
+                  <span>Call</span>
+                </a>
+                <a
+                  href="https://wa.me/2349167739775"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>WhatsApp</span>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Bottom Plan Widget */}
         <div className="p-3 border-t border-border">
@@ -330,38 +338,40 @@ const DashboardLayout = () => {
                 ))
               )}
 
-              {/* Mobile Drawer Organizer Support Hotline */}
-              <div className="pt-2">
-                <div className="p-3 rounded-xl bg-muted/60 border border-border/80 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                      ORGANIZER SUPPORT
-                    </span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  </div>
-                  <div className="font-mono text-xs font-bold text-foreground">
-                    09167739775
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5 pt-0.5">
-                    <a
-                      href="tel:09167739775"
-                      className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
-                    >
-                      <Phone className="w-3.5 h-3.5 text-primary" />
-                      <span>Call</span>
-                    </a>
-                    <a
-                      href="https://wa.me/2349167739775"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
-                    >
-                      <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>WhatsApp</span>
-                    </a>
+              {/* Mobile Drawer Organizer Support Hotline (Organizers Only) */}
+              {isOrganiserOrAdmin && (
+                <div className="pt-2">
+                  <div className="p-3 rounded-xl bg-muted/60 border border-border/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                        ORGANIZER SUPPORT
+                      </span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    </div>
+                    <div className="font-mono text-xs font-bold text-foreground">
+                      09167739775
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                      <a
+                        href="tel:09167739775"
+                        className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
+                      >
+                        <Phone className="w-3.5 h-3.5 text-primary" />
+                        <span>Call</span>
+                      </a>
+                      <a
+                        href="https://wa.me/2349167739775"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>WhatsApp</span>
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </aside>
         </div>
