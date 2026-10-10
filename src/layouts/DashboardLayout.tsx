@@ -12,6 +12,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { WorkspaceModeSwitcher } from "@/components/navigation/WorkspaceModeSwitcher";
 
 interface NavGroup {
   groupName: string;
@@ -94,13 +95,14 @@ const DashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { profile, user, roles, loading, signOut } = useAuth();
+  const { profile, user, roles, activeMode, loading, signOut } = useAuth();
   const isAdmin = roles.includes("admin");
 
   const fullName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
   const firstName = fullName.split(" ")[0];
 
   const isOrganiserOrAdmin = roles.includes("organiser") || roles.includes("admin");
+  const isOrganiserMode = activeMode === "organiser" && isOrganiserOrAdmin;
 
   const isActive = (path: string) =>
     path === "/dashboard" ? location.pathname === path : location.pathname.startsWith(path);
@@ -109,14 +111,14 @@ const DashboardLayout = () => {
   useEffect(() => {
     if (
       !loading &&
-      !isOrganiserOrAdmin &&
+      !isOrganiserMode &&
       location.pathname !== "/dashboard" &&
       location.pathname !== "/dashboard/explore" &&
       location.pathname !== "/dashboard/settings"
     ) {
       navigate("/dashboard", { replace: true });
     }
-  }, [loading, isOrganiserOrAdmin, location.pathname, navigate]);
+  }, [loading, isOrganiserMode, location.pathname, navigate]);
 
   return (
     <div className="min-h-screen bg-background font-sans flex text-foreground antialiased selection:bg-primary selection:text-primary-foreground overflow-x-clip w-full max-w-full">
@@ -151,7 +153,7 @@ const DashboardLayout = () => {
             </div>
           )}
 
-          {!isOrganiserOrAdmin ? (
+          {!isOrganiserMode ? (
             /* Attendee Navigation */
             <nav className="flex flex-col gap-1.5">
               <div className="px-3 py-1 text-xs font-mono font-bold text-muted-foreground uppercase tracking-wider">
@@ -220,7 +222,7 @@ const DashboardLayout = () => {
         </div>
 
         {/* Organizer Direct Support Hotline (Organizers Only) */}
-        {isOrganiserOrAdmin && (
+        {isOrganiserMode && (
           <div className="p-3 border-t border-border bg-card/60">
             <div className="p-3 rounded-xl bg-muted/60 border border-border/80 space-y-2">
               <div className="flex items-center justify-between">
@@ -265,8 +267,8 @@ const DashboardLayout = () => {
                 <Zap className="w-4 h-4" />
               </div>
               <div>
-                <div className="font-bold text-sm text-foreground">{isAdmin ? "Super Admin" : isOrganiserOrAdmin ? "Pro Organizer" : "Attendee"}</div>
-                <div className="text-xs text-muted-foreground">{isAdmin ? "Full Access" : isOrganiserOrAdmin ? "Active Plan" : "Rally Member"}</div>
+                <div className="font-bold text-sm text-foreground">{isAdmin ? "Super Admin" : isOrganiserMode ? "Pro Organizer" : "Attendee"}</div>
+                <div className="text-xs text-muted-foreground">{isAdmin ? "Full Access" : isOrganiserMode ? "Active Plan" : "Rally Member"}</div>
               </div>
             </div>
           </div>
@@ -300,7 +302,7 @@ const DashboardLayout = () => {
                   </Link>
                 </div>
               )}
-              {!isOrganiserOrAdmin ? (
+              {!isOrganiserMode ? (
                 <div className="space-y-1">
                   <div className="px-3 text-[10px] font-bold text-muted-foreground uppercase">Attendee Portal</div>
                   {attendeeNavItems.map((item) => (
@@ -339,7 +341,7 @@ const DashboardLayout = () => {
               )}
 
               {/* Mobile Drawer Organizer Support Hotline (Organizers Only) */}
-              {isOrganiserOrAdmin && (
+              {isOrganiserMode && (
                 <div className="pt-2">
                   <div className="p-3 rounded-xl bg-muted/60 border border-border/80 space-y-2">
                     <div className="flex items-center justify-between">
@@ -372,6 +374,14 @@ const DashboardLayout = () => {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Mobile Drawer Footer: Blue Workspace Mode Switcher Button */}
+            <div className="p-3 bg-card border-t border-border mt-auto shrink-0">
+              <WorkspaceModeSwitcher
+                variant="drawer"
+                onSwitchComplete={() => setSidebarOpen(false)}
+              />
             </div>
           </aside>
         </div>
@@ -407,7 +417,10 @@ const DashboardLayout = () => {
               </Link>
             )}
 
-            {isOrganiserOrAdmin && (
+            {/* Persona / Workspace Mode Switcher (Header Pill) */}
+            <WorkspaceModeSwitcher variant="header" />
+
+            {isOrganiserMode && (
               <Link to="/dashboard/events/create">
                 <Button size="sm" className="bg-primary text-primary-foreground font-bold text-xs h-9 px-2.5 sm:px-4 rounded-lg hover:opacity-90 transition-all flex items-center gap-1.5">
                   <PlusCircle className="w-4 h-4 shrink-0" />
@@ -427,7 +440,7 @@ const DashboardLayout = () => {
               </div>
               <div className="hidden lg:block text-left">
                 <div className="text-xs font-bold text-foreground leading-tight">{fullName}</div>
-                <div className="text-[10px] text-muted-foreground">{isAdmin ? "Super Admin" : isOrganiserOrAdmin ? "Organizer" : "Attendee"}</div>
+                <div className="text-[10px] text-muted-foreground">{isAdmin ? "Super Admin" : isOrganiserMode ? "Organizer" : "Attendee"}</div>
               </div>
               <Button
                 variant="ghost"
@@ -454,7 +467,7 @@ const DashboardLayout = () => {
       {/* Mobile Bottom Navigation Bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-40">
         <div className="flex items-center justify-around h-16 px-1">
-          {(!isOrganiserOrAdmin ? attendeeMobileNavItems : organiserMobileNavItems).map((item) => (
+          {(!isOrganiserMode ? attendeeMobileNavItems : organiserMobileNavItems).map((item) => (
             <Link
               key={item.path}
               to={item.path}

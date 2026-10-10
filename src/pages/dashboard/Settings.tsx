@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { WorkspaceModeSwitcher } from "@/components/navigation/WorkspaceModeSwitcher";
 
 const Settings = () => {
   const { user, profile, roles } = useAuth();
@@ -110,6 +111,9 @@ const Settings = () => {
             : "Manage your personal profile, email address, and security password."}
         </p>
       </div>
+
+      {/* Workspace Persona & Switcher */}
+      <WorkspaceModeSwitcher variant="card" />
 
       {/* Profile Section */}
       <form onSubmit={handleUpdateProfile} className="bg-card border border-border rounded-xl p-6 shadow-xs space-y-5">

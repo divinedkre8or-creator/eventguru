@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import AttendeeOverview from "./AttendeeOverview";
 
 const Overview = () => {
-  const { user, profile, roles, loading } = useAuth();
+  const { user, profile, roles, activeMode, loading } = useAuth();
 
   if (loading && roles.length === 0) {
     return (
@@ -24,9 +24,10 @@ const Overview = () => {
     );
   }
 
-  // If user is strictly an attendee, render the Attendee Portal
+  // If user is in attendee mode (or doesn't have organizer privileges), render the Attendee Portal
   const isOrganiserOrAdmin = roles.includes("organiser") || roles.includes("admin");
-  if (!isOrganiserOrAdmin) {
+  const isOrganiserMode = activeMode === "organiser" && isOrganiserOrAdmin;
+  if (!isOrganiserMode) {
     return <AttendeeOverview />;
   }
 
