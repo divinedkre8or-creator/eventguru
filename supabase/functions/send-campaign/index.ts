@@ -91,6 +91,14 @@ serve(async (req) => {
       return 10;
     };
 
+    // GSM-7 SMS segment calculation: 160 characters for 1st segment, 153 chars/segment thereafter
+    const calculateSmsSegments = (text: string): number => {
+      const len = (text || "").length;
+      if (len <= 0) return 1;
+      if (len <= 160) return 1;
+      return Math.ceil(len / 153);
+    };
+
     await admin.from("campaigns").update({ status: "sending", error: null }).eq("id", campaignId);
 
     const targetType = body?.targetType || (body?.customRecipients?.length > 0 ? "custom_list" : "event");
@@ -224,18 +232,29 @@ serve(async (req) => {
     const plan = wallet?.plan || "free";
     const currentSmsBalance = Number(wallet?.sms_balance) || 0;
 
-    if (isSms) {
-      const smsUnitRate = getSmsRate(recipients.length);
-      const requiredCost = recipients.length * smsUnitRate;
-      if (currentSmsBalance < requiredCost) {
-        const msg = `Insufficient SMS balance. This send requires ₦${requiredCost.toLocaleString()} (${recipients.length} SMS units at ₦${smsUnitRate}/SMS), but your wallet balance is ₦${currentSmsBalance.toLocaleString()}. Please top up your wallet.`;
-        await admin.from("campaigns").update({ status: "failed", error: msg, recipient_count: recipients.length }).eq("id", campaignId);
-        return reject("insufficient_funds", msg, { required: requiredCost, balance: currentSmsBalance, rate: smsUnitRate });
-      }
+    const segmentsPerRecipient = isSms ? Math.max(1, calculateSmsSegments(campaign.body || "")) : 1;
+    const totalSmsUnitsNeeded = isSms ? recipients.length * segmentsPerRecipient : 0;
+    const smsUnitRate = isSms ? getSmsRate(totalSmsUnitsNeeded) : 0;
+    const requiredSmsCost = isSms ? totalSmsUnitsNeeded * smsUnitRate : 0;
 
+    if (isSms) {
       if (!TEXTFLOW_API_TOKEN && !TERMII_API_KEY) {
         await admin.from("campaigns").update({ status: "failed", error: "SMS service is not configured (missing TEXTFLOW_API_TOKEN or TERMII_API_KEY)", recipient_count: recipients.length }).eq("id", campaignId);
         return reject("sms_not_configured", "SMS delivery service is being connected. Please set the TEXTFLOW_API_TOKEN secret.");
+      }
+
+      // Upfront row-locked atomic reservation: guarantees zero overspend & eliminates concurrent race conditions
+      const { data: reserveResult, error: reserveErr } = await admin.rpc("reserve_sms_wallet_funds", {
+        p_organiser_id: organiserId,
+        p_amount: requiredSmsCost,
+      });
+
+      if (reserveErr || !reserveResult?.ok) {
+        const curBal = Number(reserveResult?.balance ?? currentSmsBalance);
+        const segmentNote = segmentsPerRecipient > 1 ? ` (${segmentsPerRecipient} SMS pages/segments per recipient)` : "";
+        const msg = `Insufficient SMS balance. This send requires ${totalSmsUnitsNeeded} SMS units${segmentNote} for ${recipients.length} recipients at ₦${smsUnitRate}/SMS (₦${requiredSmsCost.toLocaleString()}), but your wallet balance is ₦${curBal.toLocaleString()}. Please top up your wallet.`;
+        await admin.from("campaigns").update({ status: "failed", error: msg, recipient_count: recipients.length }).eq("id", campaignId);
+        return reject("insufficient_funds", msg, { required: requiredSmsCost, balance: curBal, rate: smsUnitRate, unitsNeeded: totalSmsUnitsNeeded, segments: segmentsPerRecipient });
       }
     } else {
       const { data: usageRow } = await admin
@@ -357,18 +376,32 @@ serve(async (req) => {
         }
       }
 
-      // Deduct spent funds from wallet
+      // Atomic reconciliation: Refund any failed recipients so the user is only billed for successful sends
+      const actualUnitsUsed = sent * segmentsPerRecipient;
+      const actualCost = actualUnitsUsed * smsUnitRate;
+      const unspentUnits = (recipients.length - sent) * segmentsPerRecipient;
+      const unspentRefund = unspentUnits * smsUnitRate;
+
+      let finalBalance = 0;
+      if (unspentRefund > 0) {
+        const { data: refundResult } = await admin.rpc("refund_sms_wallet_funds", {
+          p_organiser_id: organiserId,
+          p_refund_amount: unspentRefund,
+        });
+        finalBalance = Number(refundResult?.new_balance) || 0;
+      } else {
+        const { data: wal } = await admin.from("organiser_wallets").select("sms_balance").eq("organiser_id", organiserId).maybeSingle();
+        finalBalance = Number(wal?.sms_balance) || 0;
+      }
+
       if (sent > 0) {
-        const smsUnitRate = getSmsRate(sent);
-        const amountDebited = sent * smsUnitRate;
-        const newBalance = Math.max(0, currentSmsBalance - amountDebited);
-        await admin.from("organiser_wallets").update({ sms_balance: newBalance, updated_at: new Date().toISOString() }).eq("organiser_id", organiserId);
+        const segmentSuffix = segmentsPerRecipient > 1 ? ` (${segmentsPerRecipient} seg/msg)` : "";
         await admin.from("wallet_transactions").insert({
           organiser_id: organiserId,
           type: "debit",
-          amount: amountDebited,
-          balance_after: newBalance,
-          description: `SMS Broadcast: ${sent} messages sent at ₦${smsUnitRate}/SMS (₦${amountDebited.toFixed(2)})`,
+          amount: actualCost,
+          balance_after: finalBalance,
+          description: `SMS Broadcast: ${sent} delivered (${actualUnitsUsed} units${segmentSuffix}) at ₦${smsUnitRate}/SMS`,
         });
       }
     } else {

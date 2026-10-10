@@ -154,16 +154,6 @@ serve(async (req) => {
       });
     }
 
-    // 5. Fetch existing wallet
-    const { data: existingWallet } = await supabaseAdmin
-      .from("organiser_wallets")
-      .select("sms_balance, plan")
-      .eq("organiser_id", organiserId)
-      .maybeSingle();
-
-    const currentBalance = Number(existingWallet?.sms_balance) || 0;
-    const newBalance = currentBalance + amountPaidNaira;
-
     // Resolve units added from Paystack metadata or volume-tiered pricing
     let unitsAdded = 0;
     const metaUnits = txData?.metadata?.custom_fields?.find(
@@ -176,44 +166,30 @@ serve(async (req) => {
       unitsAdded = Math.floor(amountPaidNaira / fallbackRate);
     }
 
-    // 6. Upsert wallet balance
-    const { error: walletError } = await supabaseAdmin
-      .from("organiser_wallets")
-      .upsert(
-        {
-          organiser_id: organiserId,
-          sms_balance: newBalance,
-          plan: existingWallet?.plan || "free",
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "organiser_id" }
-      );
+    // 5. Call atomic database RPC: idempotent and concurrency-safe
+    const { data: rpcResult, error: rpcError } = await supabaseAdmin.rpc("credit_sms_wallet", {
+      p_organiser_id: organiserId,
+      p_amount: amountPaidNaira,
+      p_reference: trimmedRef,
+      p_units: unitsAdded,
+      p_source: "paystack_client",
+    });
 
-    if (walletError) {
+    if (rpcError) {
       return jsonResponse(
-        { error: "Failed to update wallet: " + walletError.message },
+        { error: "Failed to update wallet: " + rpcError.message },
         500
       );
     }
-
-    // 7. Insert into wallet_transactions ledger
-    const description = `Top-up: ${unitsAdded.toLocaleString()} SMS Credits (₦${amountPaidNaira.toLocaleString()} via Paystack)`;
-    await supabaseAdmin.from("wallet_transactions").insert({
-      organiser_id: organiserId,
-      type: "fund",
-      amount: amountPaidNaira,
-      balance_after: newBalance,
-      reference: paymentReference.trim(),
-      description,
-    });
 
     return jsonResponse({
       ok: true,
       message: `Successfully credited ₦${amountPaidNaira.toLocaleString()} to SMS wallet`,
       amountPaidNaira,
       unitsAdded,
-      newBalance,
-      reference: paymentReference.trim(),
+      newBalance: rpcResult?.new_balance,
+      alreadyCredited: rpcResult?.already_credited,
+      reference: trimmedRef,
     });
   } catch (err) {
     return jsonResponse(

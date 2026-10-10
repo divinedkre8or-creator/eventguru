@@ -183,8 +183,107 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+    } else if (
+      reference.startsWith("SMS-WALLET-") ||
+      purpose === "SMS Messaging Wallet Top-up" ||
+      metadata?.custom_fields?.some((f: any) => f.variable_name === "sms_units")
+    ) {
+      console.log(`paystack-webhook: Processing SMS wallet top-up for ref: ${reference}`);
+
+      try {
+        // Resolve Organiser ID from metadata custom_fields or customer email lookup
+        let organiserId = metadata?.custom_fields?.find(
+          (f: any) => f.variable_name === "organiser_id"
+        )?.value;
+
+        if (!organiserId && eventData.customer?.email) {
+          const { data: profile } = await admin
+            .from("profiles")
+            .select("id")
+            .ilike("email", eventData.customer.email.trim())
+            .maybeSingle();
+          if (profile?.id) {
+            organiserId = profile.id;
+          }
+        }
+
+        if (!organiserId) {
+          console.error(`paystack-webhook: Unable to resolve organiser ID for SMS wallet ref: ${reference}`);
+          await admin.from("financial_audit_logs").insert({
+            entity_type: "wallet",
+            entity_id: reference,
+            action: "WEBHOOK_WALLET_UNRESOLVED_ORGANISER",
+            actor_type: "webhook",
+            reference,
+            metadata: { error: "Missing organiser_id", payload: eventData },
+          });
+          return new Response(JSON.stringify({ ok: false, error: "Unresolved organiser" }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Amount in Naira (Paystack returns amount in kobo)
+        const amountPaidNaira = Math.floor(amountKobo / 100);
+        if (amountPaidNaira <= 0) {
+          return new Response(JSON.stringify({ ok: false, error: "Invalid amount" }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Units added from metadata or tiered pricing
+        let unitsAdded = 0;
+        const metaUnits = metadata?.custom_fields?.find(
+          (f: any) => f.variable_name === "sms_units"
+        )?.value;
+        if (metaUnits && !isNaN(Number(metaUnits)) && Number(metaUnits) > 0) {
+          unitsAdded = Math.floor(Number(metaUnits));
+        } else {
+          const fallbackRate = amountPaidNaira > 4000 ? 8 : amountPaidNaira > 900 ? 9 : 10;
+          unitsAdded = Math.floor(amountPaidNaira / fallbackRate);
+        }
+
+        // Call atomic database RPC: idempotent and concurrency-safe
+        const { data: rpcResult, error: rpcError } = await admin.rpc("credit_sms_wallet", {
+          p_organiser_id: organiserId,
+          p_amount: amountPaidNaira,
+          p_reference: reference.trim(),
+          p_units: unitsAdded,
+          p_source: "paystack_webhook",
+        });
+
+        if (rpcError) {
+          console.error("paystack-webhook: credit_sms_wallet RPC error:", rpcError);
+          await admin.from("financial_audit_logs").insert({
+            entity_type: "wallet",
+            entity_id: organiserId,
+            action: "WEBHOOK_WALLET_CREDIT_ERROR",
+            actor_type: "webhook",
+            reference,
+            metadata: { error: rpcError.message, payload: eventData },
+          });
+          return new Response(JSON.stringify({ ok: false, error: rpcError.message }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        console.log(`paystack-webhook: SMS wallet credit result for ref ${reference}:`, rpcResult);
+
+        return new Response(JSON.stringify({ ok: true, processed: true, result: rpcResult }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (err: any) {
+        console.error("paystack-webhook: SMS wallet processing error:", err);
+        return new Response(JSON.stringify({ ok: false, error: err.message }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     } else {
-      console.log(`paystack-webhook: Ignored non-ticket purpose: ${purpose}`);
+      console.log(`paystack-webhook: Ignored non-ticket/non-wallet purpose: ${purpose}, ref=${reference}`);
     }
   }
 
