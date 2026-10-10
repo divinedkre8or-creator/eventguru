@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import AttendeeOverview from "./AttendeeOverview";
+import WeeklyDigestWidget from "@/components/dashboard/WeeklyDigestWidget";
 
 const Overview = () => {
   const { user, profile, roles, activeMode, loading } = useAuth();
@@ -104,6 +105,11 @@ const Overview = () => {
   const eventsList = data?.events || [];
   const featuredEvent = eventsList[0] || null;
   const recentRegistrations = (data?.registrations || []).slice(0, 5);
+
+  const upcomingEvents = eventsList
+    .filter((e: any) => new Date(e.date).getTime() >= Date.now() - 24 * 3600 * 1000)
+    .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const nearestEvent = upcomingEvents[0] || featuredEvent || null;
 
   const kpiCards = [
     {
@@ -209,6 +215,13 @@ const Overview = () => {
         {/* Left Column (Span 8) */}
         <div className="lg:col-span-8 space-y-6 w-full min-w-0">
           
+          {/* Weekly Growth Digest Widget */}
+          <WeeklyDigestWidget
+            nearestEvent={nearestEvent}
+            hasEvents={eventsList.length > 0}
+            totalTicketsSold={stats.totalTicketsSold}
+          />
+
           {/* Featured Event Banner */}
           {featuredEvent ? (
             <div className="bg-card border border-border rounded-lg overflow-hidden flex flex-col sm:flex-row shadow-sm min-h-[300px]">

@@ -1,7 +1,11 @@
-import { Users, CalendarDays, Wallet, Zap, Clock, Shield, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Users, CalendarDays, Wallet, Zap, Clock, Shield, Loader2, Mail, Send, CheckCircle2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 interface OrganiserRow {
   user_id: string;
@@ -101,6 +105,52 @@ const Overview = () => {
     { label: "Total Registrations", value: totalRegistrations.toLocaleString(), icon: Clock, color: "text-chart-orange" },
   ];
 
+  const [testEmail, setTestEmail] = useState("");
+  const [sendingTest, setSendingTest] = useState(false);
+  const [broadcastingAll, setBroadcastingAll] = useState(false);
+
+  const handleSendTestDigest = async () => {
+    const target = testEmail.trim() || user?.email;
+    if (!target) {
+      toast.error("Please enter a destination email address.");
+      return;
+    }
+    setSendingTest(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-organizer-digest", {
+        body: { testEmail: target },
+      });
+      if (error) throw error;
+      toast.success(`Weekly Digest preview dispatched to ${target}!`);
+    } catch (err: any) {
+      console.error("Test digest dispatch error:", err);
+      toast.error(err?.message || "Failed to dispatch preview email.");
+    } finally {
+      setSendingTest(false);
+    }
+  };
+
+  const handleBroadcastAll = async () => {
+    const confirmed = window.confirm(
+      `Are you sure you want to broadcast the Weekly Performance Digest to all registered event organizers?`
+    );
+    if (!confirmed) return;
+
+    setBroadcastingAll(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-organizer-digest", {
+        body: { limit: 100 },
+      });
+      if (error) throw error;
+      toast.success(`Dispatched digest to ${data?.sentCount || 0} organizers successfully!`);
+    } catch (err: any) {
+      console.error("Broadcast digest error:", err);
+      toast.error(err?.message || "Broadcast failed. Check edge function logs.");
+    } finally {
+      setBroadcastingAll(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
       <div className="border-b border-border pb-4">
@@ -132,6 +182,78 @@ const Overview = () => {
                 <div className="text-muted-foreground text-xs font-medium mt-1">{s.label}</div>
               </div>
             ))}
+          </div>
+
+          {/* Organizer Performance Digest & Playbook Control Center */}
+          <div className="rounded-lg bg-card border border-border p-5 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-chart-blue/10 text-chart-blue px-2 py-0.5 rounded">
+                    NEWSLETTER AUTOMATION
+                  </span>
+                  <h3 className="font-heading text-sm font-bold text-foreground">
+                    Weekly Organizer Performance Digest &amp; Growth Playbook
+                  </h3>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Automated weekly email with deterministic event metrics (tickets sold, revenue, countdown) and battle-tested promotion playbooks (NO AI).
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBroadcastAll}
+                  disabled={broadcastingAll}
+                  className="h-8 text-xs font-bold border-primary/30 text-primary hover:bg-primary/10"
+                >
+                  {broadcastingAll ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                      Broadcasting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5 mr-1.5" />
+                      Broadcast to All Organizers
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1">
+              <div className="flex-1 max-w-md">
+                <Input
+                  type="email"
+                  placeholder={user?.email ? `Test email (default: ${user.email})` : "Enter test recipient email"}
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  className="h-9 text-xs"
+                />
+              </div>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleSendTestDigest}
+                disabled={sendingTest}
+                className="h-9 text-xs font-bold whitespace-nowrap"
+              >
+                {sendingTest ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                    Sending Preview...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+                    Send Preview Email
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Organisers Table */}
