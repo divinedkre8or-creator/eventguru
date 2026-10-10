@@ -15,6 +15,8 @@ import { FREE_EMAIL_MONTHLY_LIMIT, getCurrentUsagePeriod } from "@/lib/campaignC
 import { MessagingWalletModal } from "@/components/campaigns/MessagingWalletModal";
 import { formatBrandedSms, calculateSmsSegments } from "@/lib/phoneUtils";
 import { getSmsUnitRate, BASE_SMS_PRICE_NGN } from "@/lib/smsPricing";
+import { ContactImporter } from "@/components/campaigns/ContactImporter";
+import { SanitizedRecipient } from "@/lib/contactSanitizer";
 
 // The campaigns/wallet/usage tables are newer than the generated Supabase types,
 // so we access them through an untyped handle.
@@ -74,6 +76,8 @@ const Campaigns = () => {
   const paramTemplate = searchParams.get("template");
 
   const [selectedEventId, setSelectedEventId] = useState<string>(paramEventId || "all");
+  const [audienceSource, setAudienceSource] = useState<"event" | "custom">("event");
+  const [customRecipients, setCustomRecipients] = useState<SanitizedRecipient[]>([]);
   const [channel, setChannel] = useState<"email" | "sms">(paramChannel === "sms" ? "sms" : "email");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState(() => {
@@ -198,7 +202,9 @@ const Campaigns = () => {
   const emailAtLimit = !isPro && emailRemaining <= 0;
   const usagePct = Math.min(100, Math.round((emailUsed / FREE_EMAIL_MONTHLY_LIMIT) * 100));
 
-  const targetCount = channel === "email" ? audience.emailCount : audience.phoneCount;
+  const targetCount = audienceSource === "custom"
+    ? customRecipients.length
+    : channel === "email" ? audience.emailCount : audience.phoneCount;
   const currentSmsBalance = Number(wallet?.sms_balance) || 0;
 
   // SMS character length and segments calculation using branded prefix
@@ -215,7 +221,7 @@ const Campaigns = () => {
   const hasEnoughSmsBalance = currentSmsBalance >= estimatedSmsCost;
 
   const eventTitleFor = (id: string | null) =>
-    !id ? "All Attendees" : events.find((e) => e.id === id)?.title || "Event";
+    !id ? "Direct / Imported Contacts" : events.find((e) => e.id === id)?.title || "Event";
 
   const handleSelectEvent = (eventId: string) => {
     setSelectedEventId(eventId);
@@ -245,7 +251,7 @@ const Campaigns = () => {
         .from("campaigns")
         .insert({
           organiser_id: user.id,
-          event_id: selectedEventId === "all" ? null : selectedEventId,
+          event_id: audienceSource === "custom" || selectedEventId === "all" ? null : selectedEventId,
           channel,
           subject: channel === "email" ? subject.trim() : null,
           body: finalBody,
@@ -256,7 +262,11 @@ const Campaigns = () => {
       if (insErr || !created) throw new Error(insErr?.message || "Could not create the campaign.");
 
       const { data, error } = await supabase.functions.invoke("send-campaign", {
-        body: { campaignId: created.id },
+        body: {
+          campaignId: created.id,
+          targetType: audienceSource === "custom" ? "custom_list" : "event",
+          customRecipients: audienceSource === "custom" ? customRecipients.map((r) => ({ contact: r.phone, name: r.name })) : undefined,
+        },
       });
 
       if (error) throw new Error("Could not reach the campaign sender. Please try again shortly.");
@@ -282,6 +292,10 @@ const Campaigns = () => {
   const handleSendCampaign = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (audienceSource === "custom" && customRecipients.length === 0) {
+      toast.error("Please import or paste at least one valid phone number.");
+      return;
+    }
     if (channel === "email" && !subject.trim()) {
       toast.error("Please enter an email subject.");
       return;
@@ -292,9 +306,11 @@ const Campaigns = () => {
     }
     if (targetCount === 0) {
       toast.error(
-        channel === "email"
-          ? "No attendees with email addresses found in the selected target."
-          : "No attendees with phone numbers found in the selected target."
+        audienceSource === "custom"
+          ? "No valid phone numbers found in your imported list."
+          : channel === "email"
+            ? "No attendees with email addresses found in the selected target."
+            : "No attendees with phone numbers found in the selected target."
       );
       return;
     }
@@ -319,9 +335,9 @@ const Campaigns = () => {
         <div className="text-[11px] font-mono font-bold uppercase tracking-wider bg-muted px-2.5 py-1 rounded inline-block mb-2 text-foreground">
           CAMPAIGN STUDIO
         </div>
-        <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Attendee Communications</h1>
+        <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Attendee & Bulk SMS Communications</h1>
         <p className="text-muted-foreground text-xs font-medium mt-1">
-          Reach your attendees via verified Email and SMS notifications. Every email includes one-click unsubscribe, and SMS broadcasts deliver instantly.
+          Broadcast to event attendees or import your external contact lists for direct Bulk SMS. Every email includes one-click unsubscribe, and SMS broadcasts deliver instantly.
         </p>
       </div>
 
@@ -333,81 +349,119 @@ const Campaigns = () => {
               <Send className="w-4 h-4 text-secondary" /> Compose New Broadcast
             </h2>
 
-            {/* Target Event Selector */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-foreground font-mono uppercase tracking-wider">
-                Target Audience
-              </label>
-              <select
-                value={selectedEventId}
-                onChange={(e) => handleSelectEvent(e.target.value)}
-                className="w-full h-10 rounded-lg border border-border bg-background px-3 text-xs text-foreground font-medium focus:ring-2 focus:ring-primary outline-none"
-              >
-                <option value="all">All Attendees (Across All Events)</option>
-                {events.map((evt) => (
-                  <option key={evt.id} value={evt.id}>
-                    {evt.title}
-                  </option>
-                ))}
-              </select>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Users className="w-3.5 h-3.5 text-secondary" />
-                {loadingCount ? (
-                  <span className="flex items-center gap-1">
-                    <Loader2 className="w-3 h-3 animate-spin" /> Counting recipients...
-                  </span>
-                ) : (
-                  <span>
-                    Audience: <strong className="text-foreground font-mono">{audience.emailCount}</strong> with email ·{" "}
-                    <strong className="text-foreground font-mono">{audience.phoneCount}</strong> with phone
-                  </span>
-                )}
+            {/* Target Audience Source & Selector */}
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                <label className="text-xs font-bold text-foreground font-mono uppercase tracking-wider">
+                  Target Audience
+                </label>
+                <div className="flex items-center gap-1 bg-muted p-0.5 rounded-lg text-xs self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => setAudienceSource("event")}
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all cursor-pointer ${
+                      audienceSource === "event"
+                        ? "bg-card text-foreground shadow-2xs font-extrabold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Event Attendees
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAudienceSource("custom");
+                      setChannel("sms");
+                    }}
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all cursor-pointer ${
+                      audienceSource === "custom"
+                        ? "bg-secondary text-secondary-foreground shadow-2xs font-extrabold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Import Contacts (Bulk SMS)
+                  </button>
+                </div>
               </div>
+
+              {audienceSource === "event" ? (
+                <div className="space-y-2">
+                  <select
+                    value={selectedEventId}
+                    onChange={(e) => handleSelectEvent(e.target.value)}
+                    className="w-full h-10 rounded-lg border border-border bg-background px-3 text-xs text-foreground font-medium focus:ring-2 focus:ring-primary outline-none"
+                  >
+                    <option value="all">All Attendees (Across All Events)</option>
+                    {events.map((evt) => (
+                      <option key={evt.id} value={evt.id}>
+                        {evt.title}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Users className="w-3.5 h-3.5 text-secondary" />
+                    {loadingCount ? (
+                      <span className="flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin" /> Counting recipients...
+                      </span>
+                    ) : (
+                      <span>
+                        Audience: <strong className="text-foreground font-mono">{audience.emailCount}</strong> with email ·{" "}
+                        <strong className="text-foreground font-mono">{audience.phoneCount}</strong> with phone
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <ContactImporter onContactsChange={(recs) => setCustomRecipients(recs)} />
+              )}
             </div>
 
-            {/* Channel Selection */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-foreground font-mono uppercase tracking-wider">
-                Communication Channel
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-                <button
-                  type="button"
-                  onClick={() => setChannel("email")}
-                  className={`flex items-center justify-between sm:justify-center gap-2.5 px-3.5 py-3 sm:py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    channel === "email"
-                      ? "bg-primary text-primary-foreground border-primary shadow-xs ring-1 ring-primary"
-                      : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-muted/70"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <Mail className="w-4 h-4 shrink-0" />
-                    <span className="truncate">Email Broadcast</span>
-                  </div>
-                  <span className="text-[10px] font-mono font-medium opacity-80 sm:hidden">
-                    Included
-                  </span>
-                </button>
+            {/* Channel Selection (Only when targeting event attendees) */}
+            {audienceSource === "event" && (
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground font-mono uppercase tracking-wider">
+                  Communication Channel
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setChannel("email")}
+                    className={`flex items-center justify-between sm:justify-center gap-2.5 px-3.5 py-3 sm:py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      channel === "email"
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs ring-1 ring-primary"
+                        : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Mail className="w-4 h-4 shrink-0" />
+                      <span className="truncate">Email Broadcast</span>
+                    </div>
+                    <span className="text-[10px] font-mono font-medium opacity-80 sm:hidden">
+                      Included
+                    </span>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setChannel("sms")}
-                  className={`relative flex items-center justify-between sm:justify-center gap-2.5 px-3.5 py-3 sm:py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    channel === "sms"
-                      ? "bg-primary text-primary-foreground border-primary shadow-xs ring-1 ring-primary"
-                      : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-muted/70"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <MessageSquare className="w-4 h-4 shrink-0 text-secondary" />
-                    <span className="truncate">SMS Notification</span>
-                  </div>
-                  <span className="text-[9px] font-mono font-bold uppercase bg-chart-green/20 text-chart-green px-2 py-0.5 rounded-full shrink-0">
-                    Direct SMS
-                  </span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setChannel("sms")}
+                    className={`relative flex items-center justify-between sm:justify-center gap-2.5 px-3.5 py-3 sm:py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      channel === "sms"
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs ring-1 ring-primary"
+                        : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <MessageSquare className="w-4 h-4 shrink-0 text-secondary" />
+                      <span className="truncate">SMS Notification</span>
+                    </div>
+                    <span className="text-[9px] font-mono font-bold uppercase bg-chart-green/20 text-chart-green px-2 py-0.5 rounded-full shrink-0">
+                      Direct SMS
+                    </span>
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Subject / Title (Only for Email) */}
             {channel === "email" && (

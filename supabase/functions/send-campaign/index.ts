@@ -93,81 +93,122 @@ serve(async (req) => {
 
     await admin.from("campaigns").update({ status: "sending", error: null }).eq("id", campaignId);
 
-    // 4. Resolve target events
-    let eventIds: string[] = [];
-    if (campaign.event_id) {
-      const { data: ev } = await admin
-        .from("events")
-        .select("id")
-        .eq("id", campaign.event_id)
-        .eq("organiser_id", organiserId)
-        .maybeSingle();
-      if (!ev) {
-        await admin.from("campaigns").update({ status: "failed", error: "Target event not owned by organiser" }).eq("id", campaignId);
-        return reject("forbidden", "The target event does not belong to you.");
-      }
-      eventIds = [ev.id];
-    } else {
-      const { data: evs } = await admin.from("events").select("id").eq("organiser_id", organiserId);
-      eventIds = (evs || []).map((e: any) => e.id);
-    }
+    const targetType = body?.targetType || (body?.customRecipients?.length > 0 ? "custom_list" : "event");
+    const customRecipients = Array.isArray(body?.customRecipients) ? body.customRecipients : [];
 
-    if (eventIds.length === 0) {
-      await admin.from("campaigns").update({ status: "failed", error: "No events to target", recipient_count: 0 }).eq("id", campaignId);
-      return reject("no_recipients", "You have no events with registrations yet.");
-    }
-
-    // 5. Load registrations & deduplicate based on channel
+    let recipients: { registration_id: string | null; contact: string; name: string }[] = [];
     const isSms = campaign.channel === "sms";
 
-    const { data: regs, error: regErr } = await admin
-      .from("registrations")
-      .select("id, full_name, email, phone_number, phone")
-      .in("event_id", eventIds);
-    if (regErr) {
-      await admin.from("campaigns").update({ status: "failed", error: regErr.message }).eq("id", campaignId);
-      return json({ ok: false, reason: "server_error", message: regErr.message }, 500);
-    }
-
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const seen = new Set<string>();
-    const recipients: { registration_id: string; contact: string; name: string }[] = [];
-
-    if (isSms) {
-      // Clean and normalize phone numbers (e.g. 08012345678 -> 2348012345678)
-      for (const r of regs || []) {
-        const rawPhone = (r.phone_number || r.phone || "").trim().replace(/[\s\-\(\)]/g, "");
-        if (!rawPhone || rawPhone.length < 10) continue;
-        let normalized = rawPhone;
-        if (normalized.startsWith("0")) {
-          normalized = "234" + normalized.slice(1);
-        } else if (normalized.startsWith("+")) {
-          normalized = normalized.slice(1);
+    if (targetType === "custom_list" || customRecipients.length > 0) {
+      // Standalone Custom Recipient Import (No event creation required)
+      const seen = new Set<string>();
+      for (const r of customRecipients) {
+        const raw = String(r.contact || r.phone || "").trim().replace(/[\s\-\(\)]/g, "");
+        if (!raw) continue;
+        if (isSms) {
+          if (raw.length < 10) continue;
+          let normalized = raw;
+          if (normalized.startsWith("0") && normalized.length === 11) {
+            normalized = "234" + normalized.slice(1);
+          } else if (normalized.startsWith("+")) {
+            normalized = normalized.slice(1);
+          } else if (/^[789][01]\d{8}$/.test(normalized)) {
+            normalized = "234" + normalized;
+          }
+          if (seen.has(normalized)) continue;
+          seen.add(normalized);
+          recipients.push({
+            registration_id: null,
+            contact: normalized,
+            name: r.name || "",
+          });
+        } else {
+          const email = raw.toLowerCase();
+          const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRe.test(email)) continue;
+          if (seen.has(email)) continue;
+          seen.add(email);
+          recipients.push({
+            registration_id: null,
+            contact: email,
+            name: r.name || "",
+          });
         }
-        if (seen.has(normalized)) continue;
-        seen.add(normalized);
-        recipients.push({ registration_id: r.id, contact: normalized, name: r.full_name || "" });
       }
     } else {
-      const { data: unsubs } = await admin
-        .from("email_unsubscribes")
-        .select("email")
-        .eq("organiser_id", organiserId);
-      const suppressed = new Set((unsubs || []).map((u: any) => (u.email || "").toLowerCase().trim()));
+      // 4. Resolve target events
+      let eventIds: string[] = [];
+      if (campaign.event_id) {
+        const { data: ev } = await admin
+          .from("events")
+          .select("id")
+          .eq("id", campaign.event_id)
+          .eq("organiser_id", organiserId)
+          .maybeSingle();
+        if (!ev) {
+          await admin.from("campaigns").update({ status: "failed", error: "Target event not owned by organiser" }).eq("id", campaignId);
+          return reject("forbidden", "The target event does not belong to you.");
+        }
+        eventIds = [ev.id];
+      } else {
+        const { data: evs } = await admin.from("events").select("id").eq("organiser_id", organiserId);
+        eventIds = (evs || []).map((e: any) => e.id);
+      }
 
-      for (const r of regs || []) {
-        const email = (r.email || "").toLowerCase().trim();
-        if (!email || !emailRe.test(email)) continue;
-        if (suppressed.has(email)) continue;
-        if (seen.has(email)) continue;
-        seen.add(email);
-        recipients.push({ registration_id: r.id, contact: email, name: r.full_name || "" });
+      if (eventIds.length === 0) {
+        await admin.from("campaigns").update({ status: "failed", error: "No events to target", recipient_count: 0 }).eq("id", campaignId);
+        return reject("no_recipients", "You have no events with registrations yet.");
+      }
+
+      // 5. Load registrations & deduplicate based on channel
+      const { data: regs, error: regErr } = await admin
+        .from("registrations")
+        .select("id, full_name, email, phone_number, phone")
+        .in("event_id", eventIds);
+      if (regErr) {
+        await admin.from("campaigns").update({ status: "failed", error: regErr.message }).eq("id", campaignId);
+        return json({ ok: false, reason: "server_error", message: regErr.message }, 500);
+      }
+
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const seen = new Set<string>();
+
+      if (isSms) {
+        // Clean and normalize phone numbers (e.g. 08012345678 -> 2348012345678)
+        for (const r of regs || []) {
+          const rawPhone = (r.phone_number || r.phone || "").trim().replace(/[\s\-\(\)]/g, "");
+          if (!rawPhone || rawPhone.length < 10) continue;
+          let normalized = rawPhone;
+          if (normalized.startsWith("0")) {
+            normalized = "234" + normalized.slice(1);
+          } else if (normalized.startsWith("+")) {
+            normalized = normalized.slice(1);
+          }
+          if (seen.has(normalized)) continue;
+          seen.add(normalized);
+          recipients.push({ registration_id: r.id, contact: normalized, name: r.full_name || "" });
+        }
+      } else {
+        const { data: unsubs } = await admin
+          .from("email_unsubscribes")
+          .select("email")
+          .eq("organiser_id", organiserId);
+        const suppressed = new Set((unsubs || []).map((u: any) => (u.email || "").toLowerCase().trim()));
+
+        for (const r of regs || []) {
+          const email = (r.email || "").toLowerCase().trim();
+          if (!email || !emailRe.test(email)) continue;
+          if (suppressed.has(email)) continue;
+          if (seen.has(email)) continue;
+          seen.add(email);
+          recipients.push({ registration_id: r.id, contact: email, name: r.full_name || "" });
+        }
       }
     }
 
     if (recipients.length === 0) {
       const msg = isSms 
-        ? "No eligible recipients with registered phone numbers found."
+        ? "No eligible recipients with valid phone numbers found."
         : "No eligible recipients (all unsubscribed or missing email).";
       await admin.from("campaigns").update({ status: "failed", error: msg, recipient_count: 0 }).eq("id", campaignId);
       return reject("no_recipients", msg);
