@@ -60,10 +60,11 @@ const AdminOrganisers = lazy(() => import("./pages/admin/Organisers"));
 const AdminTransactions = lazy(() => import("./pages/admin/Transactions"));
 const AdminDisputes = lazy(() => import("./pages/admin/Disputes"));
 const AdminFeedback = lazy(() => import("./pages/admin/FeedbackList"));
-const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 const AdminSMS = lazy(() => import("./pages/admin/SMSControlPanel"));
 const AdminUsers = lazy(() => import("./pages/admin/Users"));
 const AdminStats = lazy(() => import("./pages/admin/StatsHub"));
+const AdminAccounting = lazy(() => import("./pages/admin/Accounting"));
+const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 
 // Minimal full-screen loading spinner shown while lazy chunks load
 const PageLoader = () => (
@@ -163,6 +164,7 @@ const App = () => (
                   <Route path="sms" element={<AdminSMS />} />
                   <Route path="disputes" element={<AdminDisputes />} />
                   <Route path="feedback" element={<AdminFeedback />} />
+                  <Route path="accounting" element={<AdminAccounting />} />
                   <Route path="settings" element={<AdminSettings />} />
                 </Route>
 

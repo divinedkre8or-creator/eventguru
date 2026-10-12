@@ -2,7 +2,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, CalendarDays, Users, CreditCard,
   AlertTriangle, Settings, Menu, X, Shield, MessageSquarePlus, LogOut, ArrowLeft,
-  MessageSquare, Activity, UserCheck
+  MessageSquare, Activity, UserCheck, Landmark
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ const navItems = [
   { title: "SMS & Messaging", path: "/admin/sms", icon: MessageSquare },
   { title: "Disputes", path: "/admin/disputes", icon: AlertTriangle },
   { title: "Feedback & Support", path: "/admin/feedback", icon: MessageSquarePlus },
+  { title: "Accounting & Treasury", path: "/admin/accounting", icon: Landmark },
   { title: "Settings & Admins", path: "/admin/settings", icon: Settings },
 ];
 
