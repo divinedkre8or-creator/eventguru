@@ -255,10 +255,10 @@ export const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({
         </div>
       </div>
 
-      {/* Micro Footer Brand Note */}
+      {/* Micro Footer Note */}
       <div className="px-5 py-2.5 bg-card border-t border-border/50 flex items-center justify-between text-[10px] text-muted-foreground font-mono">
-        <span>POWERED BY EVENTRALLY</span>
-        <span>WHERE EVERYONE'S GOING</span>
+        <span>OFFICIAL ADMISSION PASS</span>
+        <span>VALID FOR SINGLE ENTRY</span>
       </div>
     </div>
   );
