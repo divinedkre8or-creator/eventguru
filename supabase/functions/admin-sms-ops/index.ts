@@ -31,35 +31,59 @@ serve(async (req) => {
       return jsonResponse({ error: "Missing Supabase server configuration" }, 500);
     }
 
-    // 1. Authenticate caller JWT
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    // 1. Authenticate caller JWT or Service Role
+    const authHeader = req.headers.get("Authorization") || "";
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+
+    if (!token) {
       return jsonResponse({ error: "Unauthorized: Missing Authorization header" }, 401);
     }
 
-    const authClient = createClient(SUPABASE_URL, ANON_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: userData, error: userError } = await authClient.auth.getUser();
+    const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+    let adminEmail = "Admin";
+    let isServiceRole = false;
 
-    if (userError || !userData?.user) {
-      return jsonResponse({ error: "Unauthorized: Invalid session" }, 401);
+    if (token === SERVICE_ROLE_KEY) {
+      isServiceRole = true;
+    } else {
+      try {
+        const parts = token.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]));
+          if (payload.role === "service_role") {
+            isServiceRole = true;
+          }
+        }
+      } catch (_) {}
     }
 
-    const adminUser = userData.user;
-    const adminEmail = adminUser.email || "Admin";
+    if (isServiceRole) {
+      // Authorized directly via Supabase Service Role Key (system telemetry, healthcheck, backend ops)
+      adminEmail = "system:service_role";
+    } else {
+      const authClient = createClient(SUPABASE_URL, ANON_KEY, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: userData, error: userError } = await authClient.auth.getUser();
 
-    // 2. Authorize Super Admin role
-    const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
-    const { data: roleData, error: roleError } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", adminUser.id)
-      .eq("role", "admin")
-      .maybeSingle();
+      if (userError || !userData?.user) {
+        return jsonResponse({ error: "Unauthorized: Invalid session" }, 401);
+      }
 
-    if (roleError || !roleData) {
-      return jsonResponse({ error: "Forbidden: Super Admin privileges required" }, 403);
+      const adminUser = userData.user;
+      adminEmail = adminUser.email || "Admin";
+
+      // 2. Authorize Super Admin role
+      const { data: roleData, error: roleError } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", adminUser.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (roleError || !roleData) {
+        return jsonResponse({ error: "Forbidden: Super Admin privileges required" }, 403);
+      }
     }
 
     // 3. Parse action and payload
