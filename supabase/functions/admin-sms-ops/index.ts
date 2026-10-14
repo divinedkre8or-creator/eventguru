@@ -1,7 +1,7 @@
 // supabase/functions/admin-sms-ops/index.ts
 //
 // Super Admin Operations & Telemetry Gateway for Textflow & In-App SMS Wallets.
-// Requires authenticated caller with role 'admin' in user_roles.
+// Requires authenticated caller with role 'admin' in user_roles or valid service_role authorization.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
