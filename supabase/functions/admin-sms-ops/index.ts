@@ -62,13 +62,10 @@ serve(async (req) => {
       // Authorized directly via Supabase Service Role Key (system telemetry, healthcheck, backend ops)
       adminEmail = "system:service_role";
     } else {
-      const authClient = createClient(SUPABASE_URL, ANON_KEY, {
-        global: { headers: { Authorization: authHeader } },
-      });
-      const { data: userData, error: userError } = await authClient.auth.getUser();
+      const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
 
       if (userError || !userData?.user) {
-        return jsonResponse({ error: "Unauthorized: Invalid session" }, 401);
+        return jsonResponse({ error: "Unauthorized: Invalid session", details: userError?.message }, 401);
       }
 
       const adminUser = userData.user;
