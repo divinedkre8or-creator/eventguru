@@ -201,8 +201,13 @@ const CreateEvent = () => {
       setIsUploadingImage(true);
       const url = await uploadImage(file, "event-images", "flyers");
       setBannerDataUrl(url);
-    } catch (err) {
-      toast({ title: "Upload failed", description: "Failed to process image", variant: "destructive" });
+      toast({ title: "Image uploaded", description: "Event flyer optimized and saved successfully." });
+    } catch (err: any) {
+      toast({ 
+        title: "Upload failed", 
+        description: err?.message || "Failed to process and upload image.", 
+        variant: "destructive" 
+      });
     } finally {
       setIsUploadingImage(false);
     }

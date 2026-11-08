@@ -8,7 +8,7 @@
 # `supabase link` and `supabase functions deploy` target the correct project.
 # Verify with `supabase projects list` before your first deploy.
 # ─────────────────────────────────────────────────────────────────────────────
-project_id = "edpnvsakkudorleqqhxv"
+project_id = "xrkkhuqsacvkkruybujp"
 
 # Secure registration entrypoint. Must be callable by not-logged-in guests
 # (checkout supports guest purchases), so JWT verification is disabled at the

@@ -272,8 +272,8 @@ const DPGenerator = () => {
             ratio > 1.5 ? "9:16 Story" : ratio > 1.15 ? "4:5 Portrait" : ratio < 0.8 ? "Landscape" : "1:1 Square";
 
           toast.success(`Flyer loaded! Aspect ratio detected: ${formatName} (${naturalWidth}×${naturalHeight}px)`);
-        } catch (uploadErr) {
-          toast.error("Failed to upload image.");
+        } catch (uploadErr: any) {
+          toast.error(uploadErr?.message || "Failed to upload image.");
         } finally {
           setUploadingImage(false);
         }

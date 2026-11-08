@@ -20,7 +20,7 @@ import { AdminRoleModal } from "@/components/admin/AdminRoleModal";
 import { UserCheck, UserX, ShieldCheck } from "lucide-react";
 
 const SQL_MIGRATION_SCRIPT = `-- Supabase SQL Setup for EventRally Platform Settings
--- Run this once in your Supabase SQL Editor: https://supabase.com/dashboard/project/edpnvsakkudorleqqhxv/sql/new
+-- Run this once in your Supabase SQL Editor: https://supabase.com/dashboard/project/xrkkhuqsacvkkruybujp/sql/new
 
 CREATE TABLE IF NOT EXISTS public.platform_settings (
   id TEXT PRIMARY KEY DEFAULT 'global_settings',

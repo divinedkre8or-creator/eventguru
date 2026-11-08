@@ -38,7 +38,7 @@ export const AdminRoleModal = ({
 
   const targetEmail = (email || defaultEmail).trim().toLowerCase();
 
-  const generatedSql = `-- Execute in Supabase SQL Editor (https://supabase.com/dashboard/project/edpnvsakkudorleqqhxv/sql/new):
+  const generatedSql = `-- Execute in Supabase SQL Editor (https://supabase.com/dashboard/project/xrkkhuqsacvkkruybujp/sql/new):
 INSERT INTO public.user_roles (user_id, role)
 SELECT id, 'admin'::public.app_role 
 FROM auth.users 
@@ -238,7 +238,7 @@ ON CONFLICT (user_id, role) DO NOTHING;`;
                     )}
                   </Button>
                   <a
-                    href="https://supabase.com/dashboard/project/edpnvsakkudorleqqhxv/sql/new"
+                    href="https://supabase.com/dashboard/project/xrkkhuqsacvkkruybujp/sql/new"
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 text-xs text-primary font-bold hover:underline"

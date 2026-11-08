@@ -5,7 +5,7 @@ security holes. The frontend changes are already live-safe (they gracefully fall
 back to the old behavior until the backend is deployed). **The backend pieces in
 this runbook must be deployed to actually enforce the new security.**
 
-Live project ref: **`edpnvsakkudorleqqhxv`** (https://edpnvsakkudorleqqhxv.supabase.co)
+Live project ref: **`xrkkhuqsacvkkruybujp`** (https://xrkkhuqsacvkkruybujp.supabase.co)
 
 ---
 
@@ -26,7 +26,7 @@ Live project ref: **`edpnvsakkudorleqqhxv`** (https://edpnvsakkudorleqqhxv.supab
 
 ```bash
 supabase login
-supabase link --project-ref edpnvsakkudorleqqhxv
+supabase link --project-ref xrkkhuqsacvkkruybujp
 ```
 
 ### Required secret — paid checkout will not work without it
@@ -68,7 +68,7 @@ supabase db push
 
 # 2c. Paystack Dashboard Webhook Configuration
 #     In your Paystack Dashboard (Settings → API Keys & Webhooks):
-#     Set Webhook URL: https://edpnvsakkudorleqqhxv.supabase.co/functions/v1/paystack-webhook
+#     Set Webhook URL: https://xrkkhuqsacvkkruybujp.supabase.co/functions/v1/paystack-webhook
 #     Events: charge.success
 ```
 
