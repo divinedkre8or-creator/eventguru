@@ -1,9 +1,9 @@
 import { useState, useRef, ChangeEvent, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { 
-  ArrowLeft, ArrowRight, Calendar, MapPin, Tag, Ticket, Plus, Trash2, 
+  ArrowLeft, ArrowRight, Calendar, CalendarRange, MapPin, Tag, Ticket, Plus, Trash2, 
   Loader2, ImagePlus, Palette, Globe, Building2, Link2, MessageCircle, HelpCircle,
-  Ban, CheckCircle2, Sparkles 
+  Ban, CheckCircle2, Info, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,8 +21,10 @@ import {
   CustomQuestion, 
   DEFAULT_ONLINE_SETTINGS, 
   parseEventMetadata, 
-  serializeEventDescription 
+  serializeEventDescription,
+  formatScheduleSummary,
 } from "@/lib/eventMetadata";
+import { trackEvent } from "@/lib/analytics";
 import { CustomQuestionsBuilder } from "@/components/events/CustomQuestionsBuilder";
 import { RichDescriptionEditor } from "@/components/events/RichDescriptionEditor";
 import {
@@ -98,9 +100,15 @@ const CreateEvent = () => {
   const [brandColor, setBrandColor] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Schedule
+  // Schedule Mode & State
+  const [scheduleMode, setScheduleMode] = useState<"single" | "range" | "custom">("single");
+  const [rangeStartDate, setRangeStartDate] = useState("");
+  const [rangeEndDate, setRangeEndDate] = useState("");
+  const [rangeStartTime, setRangeStartTime] = useState("17:00");
+  const [rangeEndTime, setRangeEndTime] = useState("21:00");
+
   const [schedule, setSchedule] = useState<ScheduleDay[]>([
-    { date: "", startTime: "", endTime: "" }
+    { date: "", startTime: "17:00", endTime: "21:00" }
   ]);
 
   // Step 2: Tickets
@@ -150,7 +158,35 @@ const CreateEvent = () => {
         setOnlineSettings(meta.onlineSettings);
         setCustomQuestions(meta.customQuestions);
 
-        if (meta.schedule.length > 0) {
+        if (meta.schedule.length > 1) {
+          const sorted = [...meta.schedule].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          const isConsecutive = sorted.every((day, idx) => {
+            if (idx === 0) return true;
+            const prev = new Date(sorted[idx - 1].date);
+            prev.setDate(prev.getDate() + 1);
+            return prev.toISOString().split("T")[0] === day.date;
+          });
+          const sameTimes = sorted.every(
+            (s) => s.startTime === sorted[0].startTime && s.endTime === sorted[0].endTime
+          );
+
+          if (isConsecutive && sameTimes) {
+            setScheduleMode("range");
+            setRangeStartDate(sorted[0].date);
+            setRangeEndDate(sorted[sorted.length - 1].date);
+            setRangeStartTime(sorted[0].startTime);
+            setRangeEndTime(sorted[0].endTime || "");
+          } else {
+            setScheduleMode("custom");
+          }
+
+          setSchedule(sorted.map(s => ({
+            date: s.date,
+            startTime: s.startTime,
+            endTime: s.endTime || "",
+          })));
+        } else if (meta.schedule.length === 1) {
+          setScheduleMode("single");
           setSchedule(meta.schedule.map(s => ({
             date: s.date,
             startTime: s.startTime,
@@ -158,6 +194,7 @@ const CreateEvent = () => {
           })));
         } else if (event.date) {
            const d = new Date(event.date);
+           setScheduleMode("single");
            setSchedule([{ 
              date: d.toISOString().split('T')[0], 
              startTime: d.toISOString().split('T')[1].substring(0,5), 
@@ -213,7 +250,63 @@ const CreateEvent = () => {
     }
   };
 
-  const addScheduleDay = () => setSchedule([...schedule, { date: "", startTime: "", endTime: "" }]);
+  const handleRangeChange = (start: string, end: string, sTime: string, eTime: string) => {
+    setRangeStartDate(start);
+    setRangeEndDate(end);
+    setRangeStartTime(sTime);
+    setRangeEndTime(eTime);
+
+    if (!start) return;
+    if (!end || end < start) {
+      setSchedule([{ date: start, startTime: sTime || "17:00", endTime: eTime || "" }]);
+      return;
+    }
+
+    const s = new Date(start);
+    const e = new Date(end);
+    if (isNaN(s.getTime()) || isNaN(e.getTime())) return;
+
+    const days: ScheduleDay[] = [];
+    const cur = new Date(s);
+    let count = 0;
+    while (cur <= e && count < 31) {
+      days.push({
+        date: cur.toISOString().split("T")[0],
+        startTime: sTime || "17:00",
+        endTime: eTime || "",
+      });
+      cur.setDate(cur.getDate() + 1);
+      count++;
+    }
+    if (days.length > 0) {
+      setSchedule(days);
+    }
+  };
+
+  const switchToSingleDay = () => {
+    setScheduleMode("single");
+    const d = schedule[0]?.date || rangeStartDate || "";
+    const st = schedule[0]?.startTime || rangeStartTime || "17:00";
+    const et = schedule[0]?.endTime || rangeEndTime || "";
+    setSchedule([{ date: d, startTime: st, endTime: et }]);
+  };
+
+  const switchToRangeMode = () => {
+    setScheduleMode("range");
+    const sDate = schedule[0]?.date || rangeStartDate || "";
+    const eDate = schedule.length > 1 ? schedule[schedule.length - 1]?.date : rangeEndDate || sDate;
+    const sTime = schedule[0]?.startTime || rangeStartTime || "17:00";
+    const eTime = schedule[0]?.endTime || rangeEndTime || "21:00";
+    setRangeStartDate(sDate);
+    setRangeEndDate(eDate);
+    setRangeStartTime(sTime);
+    setRangeEndTime(eTime);
+    if (sDate) {
+      handleRangeChange(sDate, eDate, sTime, eTime);
+    }
+  };
+
+  const addScheduleDay = () => setSchedule([...schedule, { date: "", startTime: "17:00", endTime: "" }]);
   const removeScheduleDay = (i: number) => setSchedule(schedule.filter((_, idx) => idx !== i));
   const updateScheduleDay = (i: number, field: keyof ScheduleDay, value: string) => {
     const updated = [...schedule];
@@ -229,7 +322,13 @@ const CreateEvent = () => {
     setTickets(updated);
   };
 
-  const canProceedStep1 = title.trim() && category && schedule[0].date && schedule[0].startTime;
+  const canProceedStep1 = Boolean(
+    title.trim() && 
+    category && 
+    schedule[0]?.date && 
+    schedule[0]?.startTime &&
+    (scheduleMode !== "range" || (rangeStartDate && rangeEndDate && rangeEndDate >= rangeStartDate))
+  );
   const canProceedStep2 = isFree || tickets.some((t) => t.name.trim());
 
   const handleToggleCancelInEdit = async () => {
@@ -300,10 +399,12 @@ const CreateEvent = () => {
 
       let endDate: string | null = null;
       const endItem = sortedSchedule[sortedSchedule.length - 1];
-      if (endItem?.endTime) {
-        const endDateTime = new Date(`${endItem.date}T${endItem.endTime}`);
-        if (!isNaN(endDateTime.getTime())) {
-          endDate = endDateTime.toISOString();
+      if (endItem) {
+        if (sortedSchedule.length > 1 || endItem.endTime) {
+          const endDateTime = new Date(`${endItem.date}T${endItem.endTime || "23:59"}`);
+          if (!isNaN(endDateTime.getTime())) {
+            endDate = endDateTime.toISOString();
+          }
         }
       }
 
@@ -451,6 +552,17 @@ const CreateEvent = () => {
         }
       }
 
+      trackEvent("event_saved", {
+        eventId: eventIdResult,
+        title,
+        status,
+        isEditMode,
+        isMultiDay: sortedSchedule.length > 1,
+        totalDays: sortedSchedule.length,
+        category,
+        isFree,
+      });
+
       toast({
         title: isEditMode ? "Event updated" : (status === "published" ? "Event published" : "Event saved as draft"),
         description: `"${title}" has been successfully ${isEditMode ? "updated" : (status === "published" ? "published" : "saved")}.`,
@@ -471,6 +583,7 @@ const CreateEvent = () => {
   };
 
   const domain = window.location.origin;
+  const scheduleSummary = formatScheduleSummary(schedule);
 
   if (isLoadingEvent) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -512,13 +625,17 @@ const CreateEvent = () => {
                   <p className="text-xs font-body text-muted-foreground">Uploading banner image...</p>
                 </div>
               ) : bannerDataUrl ? (
-                <>
-                  <img src={bannerDataUrl} alt="Banner" className="absolute inset-0 w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-background/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <div className="relative w-full max-h-[300px] min-h-[160px] flex items-center justify-center overflow-hidden rounded-lg bg-card/60">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center filter blur-xl opacity-20 scale-110 pointer-events-none"
+                    style={{ backgroundImage: `url(${bannerDataUrl})` }}
+                  />
+                  <img src={bannerDataUrl} alt="Banner" className="relative z-10 max-h-[280px] w-auto max-w-full object-contain rounded" />
+                  <div className="absolute inset-0 z-20 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>Change</Button>
                     <Button variant="destructive" size="sm" onClick={() => setBannerDataUrl(null)}>Remove</Button>
                   </div>
-                </>
+                </div>
               ) : (
                 <>
                   <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
@@ -548,35 +665,193 @@ const CreateEvent = () => {
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Lagos Tech Summit 2026" className="bg-background border-border text-foreground w-full" />
           </div>
 
-          {/* Dynamic Schedule */}
+          {/* Schedule Configuration */}
           <div className="space-y-3 w-full min-w-0">
-            <div className="flex items-center justify-between">
-              <Label className="font-heading text-sm font-bold">Event Schedule *</Label>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <Label className="font-heading text-sm font-bold text-foreground">Event Schedule *</Label>
+              {/* Mode Selector */}
+              <div className="flex items-center gap-1 p-1 bg-muted/60 rounded-lg border border-border/70 text-xs">
+                <button
+                  type="button"
+                  onClick={switchToSingleDay}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
+                    scheduleMode === "single"
+                      ? "bg-card text-foreground shadow-xs border border-border"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Single Day</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={switchToRangeMode}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
+                    scheduleMode === "range"
+                      ? "bg-card text-foreground shadow-xs border border-border"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <CalendarRange className="w-3.5 h-3.5 text-primary" />
+                  <span>Date Range (Multi-Day)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setScheduleMode("custom")}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
+                    scheduleMode === "custom"
+                      ? "bg-card text-foreground shadow-xs border border-border"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Clock className="w-3.5 h-3.5 text-secondary" />
+                  <span>Custom Days</span>
+                </button>
+              </div>
             </div>
-            {schedule.map((day, i) => (
-              <div key={i} className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end bg-background p-3 rounded-lg border border-border w-full min-w-0">
+
+            {/* Range Mode */}
+            {scheduleMode === "range" && (
+              <div className="space-y-3 bg-background p-4 rounded-xl border border-border">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Start Date *</Label>
+                    <Input
+                      type="date"
+                      value={rangeStartDate}
+                      onChange={(e) => handleRangeChange(e.target.value, rangeEndDate, rangeStartTime, rangeEndTime)}
+                      className="bg-card border-border text-foreground"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">End Date *</Label>
+                    <Input
+                      type="date"
+                      value={rangeEndDate}
+                      min={rangeStartDate}
+                      onChange={(e) => handleRangeChange(rangeStartDate, e.target.value, rangeStartTime, rangeEndTime)}
+                      className="bg-card border-border text-foreground"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Daily Start Time *</Label>
+                    <Input
+                      type="time"
+                      value={rangeStartTime}
+                      onChange={(e) => handleRangeChange(rangeStartDate, rangeEndDate, e.target.value, rangeEndTime)}
+                      className="bg-card border-border text-foreground"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Daily End Time</Label>
+                    <Input
+                      type="time"
+                      value={rangeEndTime}
+                      onChange={(e) => handleRangeChange(rangeStartDate, rangeEndDate, rangeStartTime, e.target.value)}
+                      className="bg-card border-border text-foreground"
+                    />
+                  </div>
+                </div>
+
+                {/* Range summary preview card */}
+                {rangeStartDate && (
+                  <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 flex items-start gap-2.5 text-xs">
+                    <CalendarRange className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-bold text-foreground">{scheduleSummary.summary}</div>
+                      <div className="text-muted-foreground mt-0.5">
+                        {schedule.length > 1
+                          ? `${schedule.length} consecutive days generated automatically • Daily: ${rangeStartTime}${rangeEndTime ? ` - ${rangeEndTime}` : ""}`
+                          : `Single kickoff session • Starts at ${rangeStartTime}`}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Single Day Mode */}
+            {scheduleMode === "single" && (
+              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end bg-background p-4 rounded-xl border border-border w-full min-w-0">
                 <div className="space-y-1 flex-1 w-full min-w-0">
                   <Label className="text-xs text-muted-foreground">Date *</Label>
-                  <Input type="date" value={day.date} onChange={(e) => updateScheduleDay(i, "date", e.target.value)} className="bg-background border-border text-foreground w-full" />
+                  <Input
+                    type="date"
+                    value={schedule[0]?.date || ""}
+                    onChange={(e) => updateScheduleDay(0, "date", e.target.value)}
+                    className="bg-card border-border text-foreground w-full"
+                  />
                 </div>
                 <div className="space-y-1 flex-1 w-full min-w-0">
                   <Label className="text-xs text-muted-foreground">Start Time *</Label>
-                  <Input type="time" value={day.startTime} onChange={(e) => updateScheduleDay(i, "startTime", e.target.value)} className="bg-background border-border text-foreground w-full" />
+                  <Input
+                    type="time"
+                    value={schedule[0]?.startTime || ""}
+                    onChange={(e) => updateScheduleDay(0, "startTime", e.target.value)}
+                    className="bg-card border-border text-foreground w-full"
+                  />
                 </div>
                 <div className="space-y-1 flex-1 w-full min-w-0">
                   <Label className="text-xs text-muted-foreground">End Time</Label>
-                  <Input type="time" value={day.endTime} onChange={(e) => updateScheduleDay(i, "endTime", e.target.value)} className="bg-background border-border text-foreground w-full" />
+                  <Input
+                    type="time"
+                    value={schedule[0]?.endTime || ""}
+                    onChange={(e) => updateScheduleDay(0, "endTime", e.target.value)}
+                    className="bg-card border-border text-foreground w-full"
+                  />
                 </div>
-                {schedule.length > 1 && (
-                  <Button variant="ghost" size="icon" onClick={() => removeScheduleDay(i)} className="self-end sm:self-auto shrink-0 text-muted-foreground hover:text-destructive mb-[2px]">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                )}
               </div>
-            ))}
-            <Button variant="outline" size="sm" onClick={addScheduleDay} className="w-full border-dashed text-foreground">
-              <Plus className="w-4 h-4 mr-2" /> Add Another Day
-            </Button>
+            )}
+
+            {/* Custom Multi-Day Mode */}
+            {scheduleMode === "custom" && (
+              <div className="space-y-3">
+                {schedule.map((day, i) => (
+                  <div key={i} className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end bg-background p-3 rounded-lg border border-border w-full min-w-0">
+                    <div className="space-y-1 flex-1 w-full min-w-0">
+                      <Label className="text-xs text-muted-foreground">Day {i + 1} Date *</Label>
+                      <Input
+                        type="date"
+                        value={day.date}
+                        onChange={(e) => updateScheduleDay(i, "date", e.target.value)}
+                        className="bg-card border-border text-foreground w-full"
+                      />
+                    </div>
+                    <div className="space-y-1 flex-1 w-full min-w-0">
+                      <Label className="text-xs text-muted-foreground">Start Time *</Label>
+                      <Input
+                        type="time"
+                        value={day.startTime}
+                        onChange={(e) => updateScheduleDay(i, "startTime", e.target.value)}
+                        className="bg-card border-border text-foreground w-full"
+                      />
+                    </div>
+                    <div className="space-y-1 flex-1 w-full min-w-0">
+                      <Label className="text-xs text-muted-foreground">End Time</Label>
+                      <Input
+                        type="time"
+                        value={day.endTime}
+                        onChange={(e) => updateScheduleDay(i, "endTime", e.target.value)}
+                        className="bg-card border-border text-foreground w-full"
+                      />
+                    </div>
+                    {schedule.length > 1 && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeScheduleDay(i)}
+                        className="self-end sm:self-auto shrink-0 text-muted-foreground hover:text-destructive mb-[2px]"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button variant="outline" size="sm" onClick={addScheduleDay} className="w-full border-dashed text-foreground">
+                  <Plus className="w-4 h-4 mr-2" /> Add Another Day
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -782,7 +1057,7 @@ const CreateEvent = () => {
 
           {isFree && (
             <div className="p-3.5 rounded-lg bg-muted/40 border border-border/80 flex items-start gap-2.5 text-xs text-muted-foreground transition-all">
-              <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-foreground">Turnout Tip:</span> Free events often experience higher drop-off rates. You can broadcast on-demand SMS reminders directly to confirmed attendee phones from your dashboard to keep attendance high.
               </div>
@@ -876,17 +1151,37 @@ const CreateEvent = () => {
         <div className="space-y-4">
           <div className="bg-card rounded-xl border border-border p-5 space-y-4">
             {bannerDataUrl && (
-              <div className="w-full aspect-[21/9] rounded-lg overflow-hidden border border-border mb-4">
-                <img src={bannerDataUrl} alt="Banner Preview" className="w-full h-full object-cover" />
+              <div className="w-full max-h-[460px] rounded-xl overflow-hidden border border-border mb-4 relative bg-card/60 flex items-center justify-center p-2 group shadow-xs">
+                {/* Ambient Blurred Aura */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center filter blur-2xl opacity-25 scale-110 pointer-events-none"
+                  style={{ backgroundImage: `url(${bannerDataUrl})` }}
+                  aria-hidden="true"
+                />
+                {/* 100% Full Uncropped Flyer */}
+                <img 
+                  src={bannerDataUrl} 
+                  alt="Banner Preview" 
+                  className="relative z-10 w-auto h-auto max-h-[440px] max-w-full object-contain rounded-lg shadow-xs" 
+                />
               </div>
             )}
             <h3 className="font-heading text-lg font-bold text-foreground">{title}</h3>
             {description && <p className="text-muted-foreground text-sm font-medium line-clamp-2">{description}</p>}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm w-full min-w-0">
-              <div className="flex items-center gap-2 text-muted-foreground font-medium min-w-0">
-                <Calendar className="w-4 h-4 shrink-0" />
-                <span className="truncate">{schedule[0].date ? `${new Date(schedule[0].date).toLocaleDateString()} ${schedule[0].startTime}` : "Not set"}</span>
+              <div className="flex items-start gap-2.5 text-muted-foreground font-medium min-w-0">
+                {scheduleSummary.isRange ? (
+                  <CalendarRange className="w-4 h-4 shrink-0 text-primary mt-0.5" />
+                ) : (
+                  <Calendar className="w-4 h-4 shrink-0 mt-0.5" />
+                )}
+                <div className="min-w-0">
+                  <div className="truncate font-semibold text-foreground">{scheduleSummary.summary}</div>
+                  {scheduleSummary.subtext && (
+                    <div className="text-xs text-muted-foreground truncate">{scheduleSummary.subtext}</div>
+                  )}
+                </div>
               </div>
               {eventType === "online" ? (
                 <div className="flex items-center gap-2 text-primary font-medium min-w-0">

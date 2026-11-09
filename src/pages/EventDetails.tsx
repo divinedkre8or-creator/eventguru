@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { 
-  Calendar, MapPin, Tag, Users, ArrowLeft, Loader2, 
+  Calendar, CalendarRange, MapPin, Tag, Users, ArrowLeft, Loader2, 
   Image as ImageIcon, Edit2, Trash2, Share2, AlertCircle, Globe, MessageSquare 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { slugify, getEventUrl, getEventDpUrl } from "@/lib/slugUtils";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
-import { parseEventMetadata } from "@/lib/eventMetadata";
+import { parseEventMetadata, formatScheduleSummary } from "@/lib/eventMetadata";
 import { MarkdownDescription } from "@/components/events/MarkdownDescription";
 
 const EventDetails = () => {
@@ -133,6 +133,7 @@ const EventDetails = () => {
   const parsedAdditional = meta.additionalInfo;
   const parsedBrandColor = meta.brandColor;
   const onlineSettings = meta.onlineSettings;
+  const scheduleSummary = formatScheduleSummary(parsedSchedule, event.date);
 
   // If no schedule JSON exists but date/end_date exist, format a fallback display
   let fallbackSchedule = "";
@@ -263,14 +264,23 @@ const EventDetails = () => {
            </div>
         )}
 
-        {/* Banner Section - Natural Aspect Ratio Display without forced cropping */}
-        <div className="w-full max-h-[550px] bg-card/50 rounded-2xl border border-border overflow-hidden relative shadow-md flex items-center justify-center p-1 sm:p-2">
+        {/* Banner Section - Smart Poster Frame with Ambient Aura (Never Crops) */}
+        <div className="w-full max-h-[560px] bg-card/60 rounded-2xl border border-border overflow-hidden relative shadow-md flex items-center justify-center p-2 sm:p-3 group">
           {image_url ? (
-            <img 
-              src={image_url} 
-              alt={title} 
-              className="w-full h-auto max-h-[520px] object-contain rounded-xl" 
-            />
+            <>
+              {/* Ambient Blurred Aura */}
+              <div 
+                className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-25 scale-110 pointer-events-none"
+                style={{ backgroundImage: `url(${image_url})` }}
+                aria-hidden="true"
+              />
+              {/* 100% Uncropped Sharp Image */}
+              <img 
+                src={image_url} 
+                alt={title} 
+                className="relative z-10 w-auto h-auto max-h-[520px] max-w-full object-contain rounded-xl shadow-xs" 
+              />
+            </>
           ) : (
             <div className="w-full h-48 sm:h-64 flex flex-col items-center justify-center text-muted-foreground/40 bg-muted/40 rounded-xl">
               <ImageIcon className="w-16 h-16 mb-2" />
@@ -314,22 +324,30 @@ const EventDetails = () => {
               <div className="space-y-5">
                 <div className="flex items-start gap-4">
                   <div className="bg-secondary/10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
-                    <Calendar className="w-5 h-5 text-secondary" />
+                    {scheduleSummary.isRange ? (
+                      <CalendarRange className="w-5 h-5 text-secondary" />
+                    ) : (
+                      <Calendar className="w-5 h-5 text-secondary" />
+                    )}
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <h3 className="font-bold text-sm text-foreground">When</h3>
-                    {parsedSchedule.length > 0 ? (
-                      <div className="mt-1 space-y-1">
+                    <div className="mt-1">
+                      <div className="font-bold text-xs text-foreground">{scheduleSummary.summary}</div>
+                      {scheduleSummary.subtext && (
+                        <div className="text-[11px] text-muted-foreground font-medium mt-0.5">{scheduleSummary.subtext}</div>
+                      )}
+                    </div>
+                    {parsedSchedule.length > 1 && (
+                      <div className="mt-2.5 pt-2 border-t border-border/60 space-y-1">
+                        <div className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">Daily Schedule</div>
                         {parsedSchedule.map((s, idx) => (
-                           <div key={idx} className="text-muted-foreground text-xs">
-                             <span className="font-bold text-foreground">{new Date(s.date).toLocaleDateString("en-US", { month: 'short', day: 'numeric' })}:</span> {s.startTime} {s.endTime ? `- ${s.endTime}` : ''}
-                           </div>
+                          <div key={idx} className="text-muted-foreground text-xs flex items-center justify-between gap-2">
+                            <span className="font-medium text-foreground">{new Date(s.date).toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                            <span className="font-mono text-[11px] text-muted-foreground">{s.startTime} {s.endTime ? `- ${s.endTime}` : ''}</span>
+                          </div>
                         ))}
                       </div>
-                    ) : (
-                      <p className="text-muted-foreground text-xs mt-1">
-                        {fallbackSchedule || "TBA"}
-                      </p>
                     )}
                   </div>
                 </div>

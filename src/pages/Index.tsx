@@ -448,7 +448,23 @@ const Index = () => {
                       <div className="space-y-1 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5 shrink-0" />
-                          <span>{new Date(event.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                          <span>
+                            {(() => {
+                              const s = new Date(event.date);
+                              if (isNaN(s.getTime())) return "Date TBA";
+                              if (event.end_date) {
+                                const e = new Date(event.end_date);
+                                if (!isNaN(e.getTime()) && e.toDateString() !== s.toDateString()) {
+                                  const m1 = s.toLocaleDateString("en-GB", { month: "short" });
+                                  const m2 = e.toLocaleDateString("en-GB", { month: "short" });
+                                  return m1 === m2
+                                    ? `${s.getDate()} – ${e.getDate()} ${m1} ${s.getFullYear()}`
+                                    : `${s.getDate()} ${m1} – ${e.getDate()} ${m2} ${s.getFullYear()}`;
+                                }
+                              }
+                              return s.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                            })()}
+                          </span>
                         </div>
                         {(event.venue || event.city) && (
                           <div className="flex items-center gap-1.5 truncate">

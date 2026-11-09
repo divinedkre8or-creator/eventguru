@@ -37,6 +37,8 @@ const AcceptableUsePolicy = lazy(() => import("./pages/legal/AcceptableUsePolicy
 const CookiePolicy = lazy(() => import("./pages/legal/CookiePolicy"));
 
 import { CookieBanner } from "@/components/legal/CookieBanner";
+import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
+import { FeatureSuggestionModal } from "@/components/feedback/FeatureSuggestionModal";
 
 const DashboardLayout = lazy(() => import("./layouts/DashboardLayout"));
 const DashboardOverview = lazy(() => import("./pages/dashboard/Overview"));
@@ -171,6 +173,8 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+            <AnalyticsTracker />
+            <FeatureSuggestionModal />
           </ErrorBoundary>
         </AuthProvider>
         </BrowserRouter>

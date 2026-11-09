@@ -97,7 +97,7 @@ const Events = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("events")
-        .select("id, title, status, date, venue, city, image_url, category, ticket_types(id, price, quantity, sold)")
+        .select("id, title, status, date, end_date, venue, city, image_url, category, ticket_types(id, price, quantity, sold)")
         .eq("organiser_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -234,7 +234,23 @@ const Events = () => {
                     <div className="space-y-1 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 shrink-0" />
-                        <span>{new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                        <span>
+                          {(() => {
+                            const s = new Date(event.date);
+                            if (isNaN(s.getTime())) return "Date TBA";
+                            if (event.end_date) {
+                              const e = new Date(event.end_date);
+                              if (!isNaN(e.getTime()) && e.toDateString() !== s.toDateString()) {
+                                const m1 = s.toLocaleDateString("en-US", { month: "short" });
+                                const m2 = e.toLocaleDateString("en-US", { month: "short" });
+                                return m1 === m2
+                                  ? `${m1} ${s.getDate()} – ${e.getDate()}, ${s.getFullYear()}`
+                                  : `${m1} ${s.getDate()} – ${m2} ${e.getDate()}, ${s.getFullYear()}`;
+                              }
+                            }
+                            return s.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+                          })()}
+                        </span>
                       </div>
                       {event.venue && (
                         <div className="flex items-center gap-1.5 truncate">

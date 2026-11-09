@@ -266,3 +266,76 @@ export function serializeEventDescription(metadata: {
 
   return result.trim();
 }
+
+/**
+ * Formats a schedule array into a clean, human-readable date and time summary.
+ * Gracefully handles single days, multi-day date ranges (e.g. Dec 2 – 5, 2026),
+ * and consecutive crusade/conference programs.
+ */
+export function formatScheduleSummary(schedule: ScheduleDay[], fallbackDate?: string): {
+  isRange: boolean;
+  summary: string;
+  subtext?: string;
+} {
+  if (!schedule || schedule.length === 0) {
+    if (!fallbackDate) return { isRange: false, summary: "Date TBA" };
+    const d = new Date(fallbackDate);
+    return {
+      isRange: false,
+      summary: isNaN(d.getTime()) ? fallbackDate : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    };
+  }
+
+  if (schedule.length === 1) {
+    const s = schedule[0];
+    const d = new Date(s.date);
+    const dateStr = isNaN(d.getTime())
+      ? s.date
+      : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    const timeStr = s.startTime ? `${s.startTime}${s.endTime ? ` - ${s.endTime}` : ""}` : "";
+    return {
+      isRange: false,
+      summary: dateStr,
+      subtext: timeStr,
+    };
+  }
+
+  // Multi-day program: sort chronologically
+  const sorted = [...schedule].filter(s => s.date).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  if (sorted.length === 0) {
+    return { isRange: false, summary: "Date TBA" };
+  }
+
+  const first = new Date(sorted[0].date);
+  const last = new Date(sorted[sorted.length - 1].date);
+
+  const firstMonth = first.toLocaleDateString("en-US", { month: "short" });
+  const lastMonth = last.toLocaleDateString("en-US", { month: "short" });
+  const firstYear = first.getFullYear();
+  const lastYear = last.getFullYear();
+
+  let rangeStr = "";
+  if (firstYear === lastYear) {
+    if (firstMonth === lastMonth) {
+      rangeStr = `${firstMonth} ${first.getDate()} – ${last.getDate()}, ${firstYear}`;
+    } else {
+      rangeStr = `${firstMonth} ${first.getDate()} – ${lastMonth} ${last.getDate()}, ${firstYear}`;
+    }
+  } else {
+    rangeStr = `${firstMonth} ${first.getDate()}, ${firstYear} – ${lastMonth} ${last.getDate()}, ${lastYear}`;
+  }
+
+  const commonStart = sorted[0].startTime;
+  const commonEnd = sorted[0].endTime;
+  const isUniformTime = sorted.every(s => s.startTime === commonStart && s.endTime === commonEnd);
+
+  const timeSubtext = isUniformTime && commonStart
+    ? `${commonStart}${commonEnd ? ` - ${commonEnd}` : ""} Daily (${sorted.length} Days)`
+    : `${sorted.length} Days Program`;
+
+  return {
+    isRange: true,
+    summary: rangeStr,
+    subtext: timeSubtext,
+  };
+}

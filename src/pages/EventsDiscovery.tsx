@@ -241,14 +241,35 @@ export const EventsDiscovery: React.FC = () => {
               const isValidDate = !isNaN(eventDate.getTime());
               const isPastEvent = isValidDate && eventDate.getTime() < Date.now();
 
-              const dateFormatted = isValidDate
-                ? eventDate.toLocaleDateString("en-GB", {
+              let dateFormatted = "Date TBA";
+              if (isValidDate) {
+                if (event.end_date) {
+                  const endDateObj = new Date(event.end_date);
+                  if (!isNaN(endDateObj.getTime()) && endDateObj.toDateString() !== eventDate.toDateString()) {
+                    const sameMonth = eventDate.getMonth() === endDateObj.getMonth() && eventDate.getFullYear() === endDateObj.getFullYear();
+                    const monthStr = eventDate.toLocaleDateString("en-GB", { month: "short" });
+                    const endMonthStr = endDateObj.toLocaleDateString("en-GB", { month: "short" });
+                    const yearStr = eventDate.getFullYear();
+                    dateFormatted = sameMonth
+                      ? `${eventDate.getDate()} – ${endDateObj.getDate()} ${monthStr} ${yearStr}`
+                      : `${eventDate.getDate()} ${monthStr} – ${endDateObj.getDate()} ${endMonthStr} ${yearStr}`;
+                  } else {
+                    dateFormatted = eventDate.toLocaleDateString("en-GB", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    });
+                  }
+                } else {
+                  dateFormatted = eventDate.toLocaleDateString("en-GB", {
                     weekday: "short",
                     day: "numeric",
                     month: "short",
                     year: "numeric",
-                  })
-                : "Date TBA";
+                  });
+                }
+              }
 
               const minPrice = (event.ticket_types || []).reduce(
                 (min: number, t: any) => (t.price < min ? t.price : min),
