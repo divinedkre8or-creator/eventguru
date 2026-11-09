@@ -221,38 +221,35 @@ const DashboardLayout = () => {
           )}
         </div>
 
-        {/* Organizer Direct Support Hotline (Organizers Only) */}
+        {/* Organizer Direct Support Hotline (Organizers Only) - Compact Sleek Pill */}
         {isOrganiserMode && (
-          <div className="p-3 border-t border-border bg-card/60">
-            <div className="p-3 rounded-xl bg-muted/60 border border-border/80 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                  ORGANIZER SUPPORT
-                </span>
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="px-3 py-1.5 border-t border-border bg-card/60 shrink-0">
+            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-muted/40 border border-border/60 text-xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <div className="truncate">
+                  <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider block leading-none">Support</span>
+                  <span className="font-mono text-[11px] font-bold text-foreground">09167739775</span>
+                </div>
               </div>
-              <p className="text-[11px] text-foreground/80 leading-snug">
-                Need assistance or quick support? Contact our team directly:
-              </p>
-              <div className="font-mono text-xs font-bold text-foreground tracking-wide">
-                09167739775
-              </div>
-              <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+              <div className="flex items-center gap-1 shrink-0">
                 <a
                   href="tel:09167739775"
-                  className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
+                  title="Call Organizer Support (09167739775)"
+                  className="p-1 rounded-md bg-background hover:bg-muted text-muted-foreground hover:text-primary border border-border/80 transition-colors"
+                  aria-label="Call support"
                 >
-                  <Phone className="w-3.5 h-3.5 text-primary" />
-                  <span>Call</span>
+                  <Phone className="w-3.5 h-3.5" />
                 </a>
                 <a
                   href="https://wa.me/2349167739775"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
+                  title="WhatsApp Organizer Support (09167739775)"
+                  className="p-1 rounded-md bg-background hover:bg-muted text-muted-foreground hover:text-emerald-600 border border-border/80 transition-colors"
+                  aria-label="WhatsApp support"
                 >
-                  <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>WhatsApp</span>
+                  <MessageCircle className="w-3.5 h-3.5" />
                 </a>
               </div>
             </div>
@@ -260,15 +257,15 @@ const DashboardLayout = () => {
         )}
 
         {/* Bottom Plan Widget */}
-        <div className="p-3 border-t border-border">
-          <div className="bg-muted/50 border border-border rounded-xl p-3.5 flex items-center justify-between text-xs">
+        <div className="px-3 py-2 border-t border-border shrink-0">
+          <div className="bg-muted/40 border border-border rounded-xl px-3 py-2 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <Zap className="w-4 h-4" />
+              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <Zap className="w-3.5 h-3.5" />
               </div>
               <div>
-                <div className="font-bold text-sm text-foreground">{isAdmin ? "Super Admin" : isOrganiserMode ? "Pro Organizer" : "Attendee"}</div>
-                <div className="text-xs text-muted-foreground">{isAdmin ? "Full Access" : isOrganiserMode ? "Active Plan" : "Rally Member"}</div>
+                <div className="font-bold text-xs text-foreground leading-tight">{isAdmin ? "Super Admin" : isOrganiserMode ? "Pro Organizer" : "Attendee"}</div>
+                <div className="text-[10px] text-muted-foreground leading-tight">{isAdmin ? "Full Access" : isOrganiserMode ? "Active Plan" : "Rally Member"}</div>
               </div>
             </div>
           </div>
@@ -340,35 +337,35 @@ const DashboardLayout = () => {
                 ))
               )}
 
-              {/* Mobile Drawer Organizer Support Hotline (Organizers Only) */}
+              {/* Mobile Drawer Organizer Support Hotline (Organizers Only) - Compact Sleek Pill */}
               {isOrganiserMode && (
                 <div className="pt-2">
-                  <div className="p-3 rounded-xl bg-muted/60 border border-border/80 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                        ORGANIZER SUPPORT
-                      </span>
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-muted/40 border border-border/60 text-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                      <div className="truncate">
+                        <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider block leading-none">Support</span>
+                        <span className="font-mono text-[11px] font-bold text-foreground">09167739775</span>
+                      </div>
                     </div>
-                    <div className="font-mono text-xs font-bold text-foreground">
-                      09167739775
-                    </div>
-                    <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                    <div className="flex items-center gap-1 shrink-0">
                       <a
                         href="tel:09167739775"
-                        className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
+                        title="Call Organizer Support (09167739775)"
+                        className="p-1 rounded-md bg-background hover:bg-muted text-muted-foreground hover:text-primary border border-border/80 transition-colors"
+                        aria-label="Call support"
                       >
-                        <Phone className="w-3.5 h-3.5 text-primary" />
-                        <span>Call</span>
+                        <Phone className="w-3.5 h-3.5" />
                       </a>
                       <a
                         href="https://wa.me/2349167739775"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1.5 py-1.5 px-2 bg-background hover:bg-muted text-[11px] font-semibold text-foreground rounded-lg border border-border transition-colors"
+                        title="WhatsApp Organizer Support (09167739775)"
+                        className="p-1 rounded-md bg-background hover:bg-muted text-muted-foreground hover:text-emerald-600 border border-border/80 transition-colors"
+                        aria-label="WhatsApp support"
                       >
-                        <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>WhatsApp</span>
+                        <MessageCircle className="w-3.5 h-3.5" />
                       </a>
                     </div>
                   </div>

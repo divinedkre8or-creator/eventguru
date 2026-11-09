@@ -44,3 +44,15 @@ verify_jwt = false
 [functions.fund-wallet]
 verify_jwt = true
 
+# Admin SMS operations and telemetry.
+[functions.admin-sms-ops]
+verify_jwt = false
+
+# Ticket dispatch email sender.
+[functions.send-ticket]
+verify_jwt = true
+
+# Weekly performance digest for organizers.
+[functions.send-organizer-digest]
+verify_jwt = true
+
