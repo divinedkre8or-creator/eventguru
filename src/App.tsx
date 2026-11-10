@@ -19,6 +19,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const EventDetails = lazy(() => import("./pages/EventDetails"));
 const TicketView = lazy(() => import("./pages/TicketView"));
 const EventsDiscovery = lazy(() => import("./pages/EventsDiscovery"));
+const OrganizerReview = lazy(() => import("./pages/OrganizerReview"));
 
 // Feature Landing Pages & Clusters
 const FeaturesHub = lazy(() => import("./pages/features/FeaturesHub"));
@@ -107,6 +108,7 @@ const App = () => (
                 <Route path="/events/:id" element={<EventDetails />} />
                 <Route path="/events/:id/dp" element={<DPAttendeeView />} />
                 <Route path="/tickets/:id" element={<TicketView />} />
+                <Route path="/review" element={<OrganizerReview />} />
 
                 {/* Feature Clusters & Discoverability Landing Pages */}
                 <Route path="/features" element={<FeaturesHub />} />

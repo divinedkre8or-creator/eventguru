@@ -54,5 +54,9 @@ verify_jwt = true
 
 # Weekly performance digest for organizers.
 [functions.send-organizer-digest]
-verify_jwt = true
+verify_jwt = false
+
+# Post-event wrap-up debrief and feedback for organizers.
+[functions.send-post-event-debrief]
+verify_jwt = false
 

@@ -1,9 +1,9 @@
 // supabase/functions/send-organizer-digest/index.ts
 //
-// Weekly Organizer Performance Digest & Growth Playbook Newsletter
-// Sends deterministic metrics (tickets sold this week, revenue, countdown)
-// and curated growth tips to EventGuru event organizers.
-// Strictly NO AI generated content — standard, high-contrast responsive newsletter email.
+// Weekly Organizer Performance Digest & Growth Playbook
+// Automated Monday morning roundup delivering deterministic metrics
+// (weekly tickets, revenue, countdown, attendee velocity) and curated growth tactics.
+// Strictly high-contrast, editorial styling — zero AI slop, zero rainbow gradients.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
@@ -26,44 +26,44 @@ interface GrowthPlaybook {
   headline: string;
   content: string;
   actionText: string;
-  actionLink: string;
+  actionPath: string;
 }
 
 const GROWTH_PLAYBOOKS: Record<string, GrowthPlaybook> = {
   countdown_48h: {
     stage: "48 Hours Out",
     headline: "Send a 48-Hour SMS Countdown Reminder",
-    content: "Direct SMS has a 98% open rate. Send a quick reminder with entrance gate timing, venue parking instructions, and fast-track check-in details to prevent front-gate bottlenecks.",
+    content: "Direct SMS delivers a 98% open rate. Send a quick reminder with entrance gate timing, venue parking instructions, and fast-track check-in details to prevent front-gate bottlenecks.",
     actionText: "Compose SMS Broadcast",
-    actionLink: "https://www.geteventrally.com/dashboard/campaigns?channel=sms",
+    actionPath: "/dashboard/campaigns?channel=sms",
   },
   qr_rapid: {
     stage: "Event Week Prep",
     headline: "Equip Gate Stewards with 1-Second QR Check-In",
     content: "Avoid long entrance queues under the sun or rain. Open the rapid QR scanner on any smartphone or tablet to validate digital passes in under 1 second per attendee.",
     actionText: "Open Rapid QR Check-In",
-    actionLink: "https://www.geteventrally.com/dashboard/checkin",
+    actionPath: "/dashboard/checkin",
   },
   dp_viral: {
     stage: "2-3 Weeks Out",
     headline: "Deploy Your Custom Event DP Generator",
     content: "Attendees love showing off that they are attending. Generate your branded 'I Will Be Attending' picture flyer on EventGuru and distribute the link across WhatsApp groups and Instagram stories for viral attendee reach.",
     actionText: "Configure DP Generator",
-    actionLink: "https://www.geteventrally.com/dashboard/dp",
+    actionPath: "/dashboard/dp",
   },
   early_bird: {
     stage: "Ticket Sales Strategy",
     headline: "Create Scarcity with Tiered Early-Bird Pricing",
     content: "Events with limited-quantity early-bird tiers convert 3x faster than flat-rate events. Reward your early supporters with a temporary discounted tier before releasing regular passes.",
     actionText: "Manage Ticket Tiers",
-    actionLink: "https://www.geteventrally.com/dashboard/tickets",
+    actionPath: "/dashboard/tickets",
   },
   create_first: {
     stage: "Getting Started",
     headline: "Launch Your Next Event Experience",
     content: "Ready to gather your community? EventGuru gives you instant ticketing, Paystack instant payouts, automated branded admission passes, and attendee SMS broadcasting all in one place.",
     actionText: "Create an Event Now",
-    actionLink: "https://www.geteventrally.com/dashboard/events/create",
+    actionPath: "/dashboard/events/create",
   },
 };
 
@@ -84,6 +84,7 @@ function buildDigestEmailHtml({
   weeklyRevenue,
   nearestEvent,
   playbook,
+  appUrl,
 }: {
   organiserName: string;
   totalEvents: number;
@@ -92,9 +93,11 @@ function buildDigestEmailHtml({
   weeklyRevenue: number;
   nearestEvent: { title: string; dateStr: string; daysLeft: number | null; venue: string } | null;
   playbook: GrowthPlaybook;
+  appUrl: string;
 }): string {
   const formattedRevenue = `₦${weeklyRevenue.toLocaleString()}`;
   const greeting = escapeHtml(organiserName || "Organizer");
+  const cleanAppUrl = appUrl.replace(/\/+$/, "");
 
   return `
 <!DOCTYPE html>
@@ -106,7 +109,7 @@ function buildDigestEmailHtml({
 </head>
 <body style="margin: 0; padding: 24px 12px; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0F172A; line-height: 1.5;">
   
-  <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);">
     
     <!-- Top Header Brand Bar -->
     <div style="background-color: #0F172A; padding: 22px 24px; text-align: left; border-bottom: 3px solid #0058BE;">
@@ -121,7 +124,7 @@ function buildDigestEmailHtml({
             </div>
           </td>
           <td style="vertical-align: middle; text-align: right;">
-            <a href="https://www.geteventrally.com/dashboard" style="background-color: #0058BE; color: #FFFFFF; font-size: 11px; font-weight: 800; text-decoration: none; padding: 8px 14px; border-radius: 6px; display: inline-block;">
+            <a href="${cleanAppUrl}/dashboard" style="background-color: #0058BE; color: #FFFFFF; font-size: 11px; font-weight: 800; text-decoration: none; padding: 8px 14px; border-radius: 6px; display: inline-block;">
               Open Studio &rarr;
             </a>
           </td>
@@ -137,13 +140,13 @@ function buildDigestEmailHtml({
         Hi ${greeting}, here is your weekly event roundup.
       </h1>
       <p style="color: #64748B; font-size: 14px; margin: 0 0 24px 0; line-height: 1.5;">
-        Here's a breakdown of your event ticketing activity over the past 7 days, along with your recommended growth action for this week.
+        Here's a breakdown of your ticketing activity over the past 7 days, along with your recommended growth action for this week.
       </p>
 
       <!-- 3 Key Metric Stats Cards -->
       <table style="width: 100%; border-collapse: separate; border-spacing: 8px; margin-left: -8px; margin-right: -8px; margin-bottom: 24px;">
         <tr>
-          <td style="width: 33.33%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px 12px; text-align: center; vertical-align: top;">
+          <td style="width: 33.33%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px 12px; text-align: center; vertical-align: top;">
             <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #0058BE; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
               PAST 7 DAYS
             </div>
@@ -155,7 +158,7 @@ function buildDigestEmailHtml({
             </div>
           </td>
 
-          <td style="width: 33.33%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px 12px; text-align: center; vertical-align: top;">
+          <td style="width: 33.33%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px 12px; text-align: center; vertical-align: top;">
             <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
               WEEKLY REVENUE
             </div>
@@ -163,11 +166,11 @@ function buildDigestEmailHtml({
               ${formattedRevenue}
             </div>
             <div style="font-size: 11px; color: #64748B; margin-top: 4px;">
-              Direct Payouts
+              Gross Sales
             </div>
           </td>
 
-          <td style="width: 33.33%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px 12px; text-align: center; vertical-align: top;">
+          <td style="width: 33.33%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px 12px; text-align: center; vertical-align: top;">
             <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #7C3AED; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
               COMMUNITY
             </div>
@@ -185,7 +188,7 @@ function buildDigestEmailHtml({
         nearestEvent
           ? `
       <!-- Nearest Event Spotlight -->
-      <div style="background-color: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 12px; padding: 18px 20px; margin-bottom: 24px;">
+      <div style="background-color: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 10px; padding: 18px 20px; margin-bottom: 24px;">
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="vertical-align: top;">
@@ -199,7 +202,7 @@ function buildDigestEmailHtml({
                 📅 ${escapeHtml(nearestEvent.dateStr)} &bull; 📍 ${escapeHtml(nearestEvent.venue)}
               </div>
             </td>
-            <td style="vertical-align: middle; text-align: right; width: 100px;">
+            <td style="vertical-align: middle; text-align: right; width: 110px;">
               ${
                 nearestEvent.daysLeft !== null && nearestEvent.daysLeft >= 0
                   ? `<div style="background-color: #EFF6FF; border: 1px solid #BFDBFE; color: #1D4ED8; font-weight: 800; font-size: 11px; font-family: monospace; padding: 6px 10px; border-radius: 6px; display: inline-block;">
@@ -218,18 +221,14 @@ function buildDigestEmailHtml({
       }
 
       <!-- Growth Playbook Feature Card (Curated, Deterministic Tip) -->
-      <div style="background-color: #0F172A; border-radius: 14px; padding: 24px 22px; margin-bottom: 24px; color: #FFFFFF;">
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-          <tr>
-            <td>
-              <span style="background-color: #1E293B; border: 1px solid #334155; color: #38BDF8; font-size: 10px; font-family: monospace; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 999px;">
-                💡 PLAYBOOK: ${escapeHtml(playbook.stage)}
-              </span>
-            </td>
-          </tr>
-        </table>
+      <div style="background-color: #0F172A; border-radius: 10px; padding: 22px 20px; margin-bottom: 24px; color: #FFFFFF;">
+        <div style="margin-bottom: 10px;">
+          <span style="background-color: #1E293B; border: 1px solid #334155; color: #38BDF8; font-size: 10px; font-family: monospace; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px;">
+            GROWTH ACTION: ${escapeHtml(playbook.stage)}
+          </span>
+        </div>
         
-        <h2 style="font-size: 18px; font-weight: 900; color: #FFFFFF; margin: 12px 0 8px 0; line-height: 1.3;">
+        <h2 style="font-size: 17px; font-weight: 900; color: #FFFFFF; margin: 12px 0 8px 0; line-height: 1.3;">
           ${escapeHtml(playbook.headline)}
         </h2>
         <p style="font-size: 13px; color: #94A3B8; margin: 0 0 18px 0; line-height: 1.55;">
@@ -237,7 +236,7 @@ function buildDigestEmailHtml({
         </p>
 
         <div>
-          <a href="${playbook.actionLink}" style="display: inline-block; background-color: #0058BE; color: #FFFFFF; font-weight: 800; font-size: 13px; text-decoration: none; padding: 11px 22px; border-radius: 8px;">
+          <a href="${cleanAppUrl}${playbook.actionPath}" style="display: inline-block; background-color: #0058BE; color: #FFFFFF; font-weight: 800; font-size: 13px; text-decoration: none; padding: 10px 20px; border-radius: 6px;">
             ${escapeHtml(playbook.actionText)} &rarr;
           </a>
         </div>
@@ -251,24 +250,24 @@ function buildDigestEmailHtml({
         <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
           <tr>
             <td style="padding: 6px 0;">
-              <a href="https://www.geteventrally.com/dashboard/campaigns" style="color: #0058BE; font-weight: bold; text-decoration: none;">
+              <a href="${cleanAppUrl}/dashboard/campaigns" style="color: #0058BE; font-weight: bold; text-decoration: none;">
                 &bull; Send Bulk SMS Broadcast &rarr;
               </a>
             </td>
             <td style="padding: 6px 0; text-align: right;">
-              <a href="https://www.geteventrally.com/dashboard/dp" style="color: #0058BE; font-weight: bold; text-decoration: none;">
+              <a href="${cleanAppUrl}/dashboard/dp" style="color: #0058BE; font-weight: bold; text-decoration: none;">
                 &bull; Event DP Generator &rarr;
               </a>
             </td>
           </tr>
           <tr>
             <td style="padding: 6px 0;">
-              <a href="https://www.geteventrally.com/dashboard/tickets" style="color: #0058BE; font-weight: bold; text-decoration: none;">
+              <a href="${cleanAppUrl}/dashboard/tickets" style="color: #0058BE; font-weight: bold; text-decoration: none;">
                 &bull; Manage Ticket Tiers &rarr;
               </a>
             </td>
             <td style="padding: 6px 0; text-align: right;">
-              <a href="https://www.geteventrally.com/dashboard/checkin" style="color: #0058BE; font-weight: bold; text-decoration: none;">
+              <a href="${cleanAppUrl}/dashboard/checkin" style="color: #0058BE; font-weight: bold; text-decoration: none;">
                 &bull; Gate QR Check-In &rarr;
               </a>
             </td>
@@ -281,11 +280,11 @@ function buildDigestEmailHtml({
     <!-- Standard Newsletter Footer -->
     <div style="background-color: #F8FAFC; border-top: 1px solid #E2E8F0; padding: 20px 24px; text-align: center; font-size: 11px; color: #94A3B8; line-height: 1.6;">
       <p style="margin: 0 0 6px 0;">
-        You are receiving this weekly digest because you are a registered event organizer on <strong>EventGuru</strong>.
+        You are receiving this weekly digest because you are an event organizer on <strong>EventGuru</strong>.
       </p>
       <p style="margin: 0;">
         &copy; 2026 EventGuru &bull; Where Events Sell Out. 
-        <a href="https://www.geteventrally.com/dashboard/settings" style="color: #64748B; text-decoration: underline; margin-left: 8px;">Manage Preferences</a>
+        <a href="${cleanAppUrl}/dashboard/settings" style="color: #64748B; text-decoration: underline; margin-left: 8px;">Manage Preferences</a>
       </p>
     </div>
 
@@ -305,6 +304,7 @@ serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
     const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const APP_URL = Deno.env.get("APP_URL") || Deno.env.get("PUBLIC_APP_URL") || "https://eventguru.ng";
 
     if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
       return new Response(JSON.stringify({ error: "Missing Supabase server credentials" }), {
@@ -319,11 +319,12 @@ serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const { testEmail, targetOrganiserId, limit = 50 } = body;
 
-    // Check authorization: must either be an admin user JWT or secret cron key
-    const authHeader = req.headers.get("Authorization");
-    let isCallerAdmin = false;
+    // Check authorization: must either be an admin user JWT, secret service_role key, or test trigger
+    const authHeader = req.headers.get("Authorization") || "";
+    const isServiceRole = authHeader.replace(/^Bearer\s+/i, "") === SERVICE_ROLE_KEY;
+    let isCallerAdmin = isServiceRole;
 
-    if (authHeader && ANON_KEY) {
+    if (!isCallerAdmin && authHeader && ANON_KEY) {
       try {
         const authClient = createClient(SUPABASE_URL, ANON_KEY, {
           global: { headers: { Authorization: authHeader } },
@@ -344,17 +345,16 @@ serve(async (req) => {
       }
     }
 
-    // Allow direct admin invocation or local development trigger
+    // Allow direct admin/service-role invocation or local development preview trigger
     if (!isCallerAdmin && !testEmail) {
-      // If no admin token and not a test email dispatch, check authorization
-      return new Response(JSON.stringify({ error: "Unauthorized: Admin privileges required to dispatch digests" }), {
+      return new Response(JSON.stringify({ error: "Unauthorized: Admin or Service Role required to dispatch digests" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    const FROM_EMAIL = Deno.env.get("TICKETS_FROM_EMAIL") || "EventGuru Digest <digest@send.geteventrally.com>";
+    const FROM_EMAIL = Deno.env.get("DIGEST_FROM_EMAIL") || Deno.env.get("TICKETS_FROM_EMAIL") || "EventGuru Digest <digest@eventguru.ng>";
 
     // Calculate past 7 days timestamp
     const sevenDaysAgo = new Date();
@@ -413,6 +413,7 @@ serve(async (req) => {
           venue: "Landmark Centre, Victoria Island",
         },
         playbook: samplePlaybook,
+        appUrl: APP_URL,
       });
 
       if (!RESEND_API_KEY) {
@@ -479,26 +480,22 @@ serve(async (req) => {
         if (eventIds.length > 0) {
           const { data: recentRegs } = await supabaseAdmin
             .from("registrations")
-            .select("amount_paid, created_at, status")
+            .select("id, amount_paid, created_at")
             .in("event_id", eventIds)
-            .gte("created_at", sevenDaysAgoIso)
-            .in("status", ["completed", "confirmed"]);
+            .gte("created_at", sevenDaysAgoIso);
 
-          (recentRegs || []).forEach((reg) => {
-            weeklyTickets += 1;
-            weeklyRevenue += Number(reg.amount_paid) || 0;
-          });
-
-          // Total tickets sold across all ticket types
-          events.forEach((ev: any) => {
-            ev.ticket_types?.forEach((tt: any) => {
-              totalTickets += Number(tt.sold) || 0;
-            });
-          });
-
-          if (totalTickets === 0 && weeklyTickets > 0) {
-            totalTickets = weeklyTickets;
+          if (recentRegs) {
+            weeklyTickets = recentRegs.length;
+            weeklyRevenue = recentRegs.reduce((sum, r) => sum + (Number(r.amount_paid) || 0), 0);
           }
+
+          // Fetch all-time tickets across their events
+          const { count } = await supabaseAdmin
+            .from("registrations")
+            .select("id", { count: "exact", head: true })
+            .in("event_id", eventIds);
+
+          totalTickets = count ?? 0;
         }
 
         // Find nearest upcoming event
@@ -531,11 +528,27 @@ serve(async (req) => {
           weeklyRevenue,
           nearestEvent: nearestEventData,
           playbook,
+          appUrl: APP_URL,
         });
 
         if (!RESEND_API_KEY) {
           console.log(`[MOCK] Would send digest to ${recipientEmail}`);
           results.push({ organiserId: orgId, email: recipientEmail, status: "mock_sent" });
+
+          // Log to organizer_email_logs
+          await supabaseAdmin.from("organizer_email_logs").insert({
+            organiser_id: orgId,
+            email_type: "weekly_digest",
+            recipient_email: recipientEmail,
+            status: "mock_sent",
+            metadata: {
+              weeklyTickets,
+              weeklyRevenue,
+              totalTickets,
+              nearestEventTitle: nearestEventData?.title,
+            },
+          });
+
           continue;
         }
 
@@ -548,7 +561,7 @@ serve(async (req) => {
           body: JSON.stringify({
             from: FROM_EMAIL,
             to: [recipientEmail],
-            subject: `Your EventGuru Weekly Organizer Digest & Growth Playbook`,
+            subject: `Your EventGuru Weekly Performance Digest & Growth Playbook`,
             html: htmlContent,
           }),
         });
@@ -556,8 +569,30 @@ serve(async (req) => {
         if (!emailRes.ok) {
           const errText = await emailRes.text();
           results.push({ organiserId: orgId, email: recipientEmail, status: "failed", error: errText });
+
+          await supabaseAdmin.from("organizer_email_logs").insert({
+            organiser_id: orgId,
+            email_type: "weekly_digest",
+            recipient_email: recipientEmail,
+            status: "failed",
+            error: errText,
+            metadata: { weeklyTickets, weeklyRevenue },
+          });
         } else {
           results.push({ organiserId: orgId, email: recipientEmail, status: "sent" });
+
+          await supabaseAdmin.from("organizer_email_logs").insert({
+            organiser_id: orgId,
+            email_type: "weekly_digest",
+            recipient_email: recipientEmail,
+            status: "sent",
+            metadata: {
+              weeklyTickets,
+              weeklyRevenue,
+              totalTickets,
+              nearestEventTitle: nearestEventData?.title,
+            },
+          });
         }
       } catch (err: any) {
         results.push({ organiserId: orgId, email: "", status: "error", error: err?.message || String(err) });
