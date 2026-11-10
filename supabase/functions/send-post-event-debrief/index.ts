@@ -1,11 +1,12 @@
 // supabase/functions/send-post-event-debrief/index.ts
 //
-// Post-Event "Host Wrapped & Win-Win Debrief" Automation
+// EventRally — Post-Event Host Summary & Performance Debrief
 // Dispatched the evening of the event (or next morning) after an event concludes.
 // Delivers the official Host Summary Card (Checked-in stats, gate efficiency, gross revenue),
 // invites 1-click feedback/NPS rating, links to the downloadable Host Achievement Flyer,
 // and prompts the organizer to schedule their next experience.
-// Strictly high-contrast, editorial styling — zero AI slop, zero rainbow gradients.
+// Strictly professional editorial styling — stacked for mobile responsiveness.
+// Zero AI slop: no gradients, no pills, no splash emojis, strictly on-brand colors.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
@@ -40,7 +41,7 @@ interface EventSummaryData {
 function buildPostEventEmailHtml(data: EventSummaryData): string {
   const cleanAppUrl = data.appUrl.replace(/\/+$/, "");
   const formattedRevenue = `₦${data.grossRevenue.toLocaleString()}`;
-  const hostName = escapeHtml(data.organiserName || "Host");
+  const hostName = escapeHtml(data.organiserName || "Organizer");
   const eventTitle = escapeHtml(data.eventTitle);
   const venue = escapeHtml(data.venueName);
   const dateStr = escapeHtml(data.eventDateStr);
@@ -51,27 +52,27 @@ function buildPostEventEmailHtml(data: EventSummaryData): string {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Official Host Summary — ${eventTitle}</title>
+  <title>Host Debrief: ${eventTitle} — EventRally</title>
 </head>
-<body style="margin: 0; padding: 24px 12px; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0F172A; line-height: 1.5;">
+<body style="margin: 0; padding: 16px 8px; background-color: #F9FAFB; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #111827; line-height: 1.5;">
   
-  <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);">
+  <div style="max-width: 580px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 4px; overflow: hidden;">
     
     <!-- Top Header Brand Bar -->
-    <div style="background-color: #0F172A; padding: 22px 24px; text-align: left; border-bottom: 3px solid #0058BE;">
+    <div style="background-color: #111827; padding: 20px 24px; text-align: left; border-bottom: 2px solid #0058BE;">
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
           <td style="vertical-align: middle;">
-            <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #FFFFFF; text-transform: uppercase;">
-              EVENTGURU
+            <div style="font-size: 18px; font-weight: 800; letter-spacing: 1px; color: #FFFFFF; text-transform: uppercase;">
+              EVENTRALLY
             </div>
-            <div style="font-size: 10px; font-family: monospace; font-weight: bold; color: #38BDF8; text-transform: uppercase; margin-top: 4px; letter-spacing: 1.5px;">
+            <div style="font-size: 10px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; margin-top: 3px; letter-spacing: 1px;">
               OFFICIAL HOST SUMMARY &amp; DEBRIEF
             </div>
           </td>
           <td style="vertical-align: middle; text-align: right;">
-            <a href="${cleanAppUrl}/dashboard/events/${data.eventId}" style="background-color: #0058BE; color: #FFFFFF; font-size: 11px; font-weight: 800; text-decoration: none; padding: 8px 14px; border-radius: 6px; display: inline-block;">
-              View Event &rarr;
+            <a href="${cleanAppUrl}/dashboard/events" style="background-color: #0058BE; color: #FFFFFF; font-size: 11px; font-weight: 700; text-decoration: none; padding: 8px 14px; border-radius: 3px; display: inline-block;">
+              View Event
             </a>
           </td>
         </tr>
@@ -79,172 +80,169 @@ function buildPostEventEmailHtml(data: EventSummaryData): string {
     </div>
 
     <!-- Main Body Container -->
-    <div style="padding: 28px 24px;">
+    <div style="padding: 24px 20px;">
       
-      <!-- Celebration Hero -->
-      <div style="margin-bottom: 24px;">
-        <span style="background-color: #EFF6FF; border: 1px solid #BFDBFE; color: #1D4ED8; font-size: 10px; font-family: monospace; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 12px;">
-          EVENT CONCLUDED &bull; MISSION ACCOMPLISHED
-        </span>
-        <h1 style="color: #0F172A; font-size: 24px; margin: 0 0 8px 0; font-weight: 900; line-height: 1.25;">
-          You pulled it off, ${hostName}! 🎉
+      <!-- Headline & Context -->
+      <div style="margin-bottom: 20px;">
+        <div style="font-size: 10px; font-weight: 700; color: #0058BE; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+          EVENT CONCLUDED &bull; ADMISSION AUDIT
+        </div>
+        <h1 style="color: #111827; font-size: 20px; margin: 0 0 6px 0; font-weight: 800; line-height: 1.3;">
+          Event debrief for ${hostName}: ${eventTitle}
         </h1>
-        <p style="color: #64748B; font-size: 15px; margin: 0; line-height: 1.5;">
-          Congratulations on successfully hosting <strong>${eventTitle}</strong>. Here is your official performance debrief and gate admissions report.
+        <p style="color: #4B5563; font-size: 13px; margin: 0; line-height: 1.5;">
+          Here is your official gate admissions report and ticketing performance for <strong>${eventTitle}</strong>.
         </p>
       </div>
 
-      <!-- Event Context Snippet -->
-      <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; font-size: 12px; color: #475569;">
-        <strong>Date:</strong> ${dateStr} &nbsp;&bull;&nbsp; <strong>Venue:</strong> ${venue}
+      <!-- Event Context Line -->
+      <div style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px; padding: 12px 14px; margin-bottom: 20px; font-size: 12px; color: #4B5563;">
+        <strong>Date:</strong> ${dateStr} &bull; <strong>Venue:</strong> ${venue}
       </div>
 
-      <!-- 4 Key Performance Metric Boxes -->
-      <table style="width: 100%; border-collapse: separate; border-spacing: 8px; margin-left: -8px; margin-right: -8px; margin-bottom: 24px;">
-        <tr>
-          <td style="width: 50%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px 14px; text-align: left; vertical-align: top;">
-            <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #0058BE; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
-              GATE CHECK-INS
-            </div>
-            <div style="font-size: 26px; font-weight: 900; color: #0F172A; line-height: 1.1;">
-              ${data.checkedInCount} <span style="font-size: 14px; font-weight: 600; color: #64748B;">/ ${data.totalTickets}</span>
-            </div>
-            <div style="font-size: 11px; color: #64748B; margin-top: 4px;">
-              Verified Door Admissions
-            </div>
-          </td>
-
-          <td style="width: 50%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px 14px; text-align: left; vertical-align: top;">
-            <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
-              GATE TURNOUT RATE
-            </div>
-            <div style="font-size: 26px; font-weight: 900; color: #059669; line-height: 1.1;">
-              ${data.checkinPercentage}%
-            </div>
-            <div style="font-size: 11px; color: #64748B; margin-top: 4px;">
-              Attendance Conversion
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="width: 50%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px 14px; text-align: left; vertical-align: top;">
-            <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #7C3AED; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
-              GROSS TICKET SALES
-            </div>
-            <div style="font-size: 22px; font-weight: 900; color: #0F172A; line-height: 1.1;">
-              ${formattedRevenue}
-            </div>
-            <div style="font-size: 11px; color: #64748B; margin-top: 4px;">
-              Platform Gross Revenue
-            </div>
-          </td>
-
-          <td style="width: 50%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px 14px; text-align: left; vertical-align: top;">
-            <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #EA580C; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
-              TOP TIER
-            </div>
-            <div style="font-size: 18px; font-weight: 900; color: #0F172A; line-height: 1.2; word-break: break-word;">
-              ${escapeHtml(data.topTicketTier || "General")}
-            </div>
-            <div style="font-size: 11px; color: #64748B; margin-top: 4px;">
-              Most Popular Admission Pass
-            </div>
-          </td>
-        </tr>
-      </table>
-
-      <!-- Host Achievement Flyer Spotlight -->
-      <div style="background-color: #0F172A; border-radius: 10px; padding: 22px 20px; margin-bottom: 28px; color: #FFFFFF;">
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="vertical-align: middle;">
-              <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #38BDF8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
-                VERIFIED HOST BADGE &amp; FLYER
-              </div>
-              <div style="font-size: 16px; font-weight: 900; color: #FFFFFF; margin-bottom: 6px;">
-                Claim Your Official Host Achievement Flyer
-              </div>
-              <div style="font-size: 12px; color: #94A3B8; line-height: 1.45; margin-bottom: 14px;">
-                A clean, agency-grade social flyer with your event stats is ready for download. Share on WhatsApp Status, Instagram, and LinkedIn to build social proof for your brand.
-              </div>
-              <div>
-                <a href="${cleanAppUrl}/dashboard/events/${data.eventId}?view=host-summary" style="display: inline-block; background-color: #0058BE; color: #FFFFFF; font-weight: 800; font-size: 12px; text-decoration: none; padding: 10px 20px; border-radius: 6px;">
-                  Download Host Flyer &rarr;
-                </a>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      <!-- 1-Click Rating & Feedback (Win-Win Loop) -->
-      <div style="border: 1px solid #CBD5E1; background-color: #F8FAFC; border-radius: 10px; padding: 22px 20px; margin-bottom: 28px; text-align: center;">
-        <div style="font-size: 11px; font-family: monospace; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-          HOW WAS YOUR EVENTGURU EXPERIENCE?
+      <!-- Stacked Metric Cards for 100% Mobile Responsiveness -->
+      <div style="margin-bottom: 20px;">
+        
+        <!-- Metric 1: Gate Check-Ins -->
+        <div style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px; padding: 14px 16px; margin-bottom: 10px;">
+          <div style="font-size: 10px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            GATE ADMISSIONS &bull; VERIFIED CHECK-INS
+          </div>
+          <div style="font-size: 24px; font-weight: 800; color: #111827; line-height: 1.1;">
+            ${data.checkedInCount} <span style="font-size: 14px; font-weight: 500; color: #6B7280;">/ ${data.totalTickets} total</span>
+          </div>
+          <div style="font-size: 12px; color: #6B7280; margin-top: 2px;">
+            Unique tickets scanned and validated at the gate
+          </div>
         </div>
-        <div style="font-size: 16px; font-weight: 900; color: #0F172A; margin-bottom: 12px;">
-          Rate your overall host experience with 1 tap:
+
+        <!-- Metric 2: Turnout Rate -->
+        <div style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px; padding: 14px 16px; margin-bottom: 10px;">
+          <div style="font-size: 10px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            TURNOUT CONVERSION &bull; GATE ATTENDANCE RATE
+          </div>
+          <div style="font-size: 24px; font-weight: 800; color: #0058BE; line-height: 1.1;">
+            ${data.checkinPercentage}%
+          </div>
+          <div style="font-size: 12px; color: #6B7280; margin-top: 2px;">
+            Percentage of registered guests who checked in at the door
+          </div>
+        </div>
+
+        <!-- Metric 3: Gross Revenue -->
+        <div style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px; padding: 14px 16px; margin-bottom: 10px;">
+          <div style="font-size: 10px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            GROSS TICKET SALES &bull; TOTAL REVENUE
+          </div>
+          <div style="font-size: 24px; font-weight: 800; color: #111827; line-height: 1.1;">
+            ${formattedRevenue}
+          </div>
+          <div style="font-size: 12px; color: #6B7280; margin-top: 2px;">
+            Total gross volume processed through platform checkout
+          </div>
+        </div>
+
+        <!-- Metric 4: Top Tier -->
+        <div style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px; padding: 14px 16px;">
+          <div style="font-size: 10px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            TOP ADMISSION TIER
+          </div>
+          <div style="font-size: 18px; font-weight: 800; color: #111827; line-height: 1.2;">
+            ${escapeHtml(data.topTicketTier || "General Admission")}
+          </div>
+          <div style="font-size: 12px; color: #6B7280; margin-top: 2px;">
+            Highest converting ticket category for this event
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Host Flyer Download Card -->
+      <div style="background-color: #111827; border-radius: 4px; padding: 18px; margin-bottom: 24px; color: #FFFFFF;">
+        <div style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+          VERIFIED HOST SUMMARY CARD
+        </div>
+        <div style="font-size: 15px; font-weight: 800; color: #FFFFFF; margin-bottom: 4px;">
+          Export Your Official Host Certificate &amp; Flyer
+        </div>
+        <div style="font-size: 12px; color: #D1D5DB; line-height: 1.45; margin-bottom: 14px;">
+          An agency-grade performance certificate with your verified attendee metrics is ready for download in your dashboard.
+        </div>
+        <div>
+          <a href="${cleanAppUrl}/dashboard/events" style="display: inline-block; background-color: #0058BE; color: #FFFFFF; font-weight: 700; font-size: 12px; text-decoration: none; padding: 9px 18px; border-radius: 3px;">
+            Download Host Flyer &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- 1-Click Rating & Feedback Row -->
+      <div style="border: 1px solid #D1D5DB; background-color: #F9FAFB; border-radius: 4px; padding: 18px; margin-bottom: 24px; text-align: center;">
+        <div style="font-size: 10px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+          PLATFORM HOST EXPERIENCE
+        </div>
+        <div style="font-size: 14px; font-weight: 800; color: #111827; margin-bottom: 12px;">
+          How was your overall experience running this event on EventRally?
         </div>
         
-        <!-- 5-Star Rating Row -->
-        <table style="width: 100%; border-collapse: separate; border-spacing: 6px; max-width: 380px; margin: 0 auto 14px auto;">
+        <!-- 5-Box Rating Grid -->
+        <table style="width: 100%; border-collapse: separate; border-spacing: 6px; margin: 0 auto 12px auto; max-width: 420px;">
           <tr>
-            <td style="width: 20%; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px 4px; text-align: center;">
-              <a href="${cleanAppUrl}/review?event_id=${data.eventId}&rating=1" style="text-decoration: none; display: block; color: #0F172A; font-weight: 800; font-size: 14px;">
-                1<br><span style="font-size: 9px; font-weight: 600; color: #64748B;">Poor</span>
+            <td style="width: 20%; background-color: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 3px; padding: 10px 4px; text-align: center;">
+              <a href="${cleanAppUrl}/review?event_id=${data.eventId}&rating=1" style="text-decoration: none; display: block; color: #111827; font-weight: 800; font-size: 14px;">
+                1<br><span style="font-size: 9px; font-weight: 600; color: #6B7280;">Poor</span>
               </a>
             </td>
-            <td style="width: 20%; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px 4px; text-align: center;">
-              <a href="${cleanAppUrl}/review?event_id=${data.eventId}&rating=2" style="text-decoration: none; display: block; color: #0F172A; font-weight: 800; font-size: 14px;">
-                2<br><span style="font-size: 9px; font-weight: 600; color: #64748B;">Fair</span>
+            <td style="width: 20%; background-color: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 3px; padding: 10px 4px; text-align: center;">
+              <a href="${cleanAppUrl}/review?event_id=${data.eventId}&rating=2" style="text-decoration: none; display: block; color: #111827; font-weight: 800; font-size: 14px;">
+                2<br><span style="font-size: 9px; font-weight: 600; color: #6B7280;">Fair</span>
               </a>
             </td>
-            <td style="width: 20%; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px 4px; text-align: center;">
-              <a href="${cleanAppUrl}/review?event_id=${data.eventId}&rating=3" style="text-decoration: none; display: block; color: #0F172A; font-weight: 800; font-size: 14px;">
-                3<br><span style="font-size: 9px; font-weight: 600; color: #64748B;">Good</span>
+            <td style="width: 20%; background-color: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 3px; padding: 10px 4px; text-align: center;">
+              <a href="${cleanAppUrl}/review?event_id=${data.eventId}&rating=3" style="text-decoration: none; display: block; color: #111827; font-weight: 800; font-size: 14px;">
+                3<br><span style="font-size: 9px; font-weight: 600; color: #6B7280;">Good</span>
               </a>
             </td>
-            <td style="width: 20%; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px 4px; text-align: center;">
-              <a href="${cleanAppUrl}/review?event_id=${data.eventId}&rating=4" style="text-decoration: none; display: block; color: #0F172A; font-weight: 800; font-size: 14px;">
-                4<br><span style="font-size: 9px; font-weight: 600; color: #64748B;">Great</span>
+            <td style="width: 20%; background-color: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 3px; padding: 10px 4px; text-align: center;">
+              <a href="${cleanAppUrl}/review?event_id=${data.eventId}&rating=4" style="text-decoration: none; display: block; color: #111827; font-weight: 800; font-size: 14px;">
+                4<br><span style="font-size: 9px; font-weight: 600; color: #6B7280;">Great</span>
               </a>
             </td>
-            <td style="width: 20%; background-color: #EFF6FF; border: 1px solid #0058BE; border-radius: 6px; padding: 10px 4px; text-align: center;">
+            <td style="width: 20%; background-color: #FFFFFF; border: 1px solid #0058BE; border-radius: 3px; padding: 10px 4px; text-align: center;">
               <a href="${cleanAppUrl}/review?event_id=${data.eventId}&rating=5" style="text-decoration: none; display: block; color: #0058BE; font-weight: 800; font-size: 14px;">
-                5<br><span style="font-size: 9px; font-weight: 800; color: #0058BE;">Superb</span>
+                5<br><span style="font-size: 9px; font-weight: 700; color: #0058BE;">Superb</span>
               </a>
             </td>
           </tr>
         </table>
         
-        <p style="font-size: 12px; color: #64748B; margin: 0;">
-          Your feedback directly shapes our product and door check-in tools.
+        <p style="font-size: 11px; color: #6B7280; margin: 0;">
+          One tap to record your rating and give direct operational feedback.
         </p>
       </div>
 
       <!-- Plan Next Event Prompt -->
-      <div style="border-top: 1px solid #E2E8F0; padding-top: 20px; text-align: left;">
-        <h3 style="font-size: 15px; font-weight: 900; color: #0F172A; margin: 0 0 6px 0;">
-          Keep Your Momentum Going
+      <div style="border-top: 1px solid #E5E7EB; padding-top: 16px;">
+        <h3 style="font-size: 14px; font-weight: 800; color: #111827; margin: 0 0 4px 0;">
+          Plan Your Next Gathering
         </h3>
-        <p style="font-size: 13px; color: #64748B; margin: 0 0 14px 0; line-height: 1.5;">
-          Top event organizers announce their upcoming dates while their community's enthusiasm is at its peak. Ready for your next experience?
+        <p style="font-size: 12px; color: #4B5563; margin: 0 0 12px 0; line-height: 1.5;">
+          Most organizers maintain community engagement by scheduling their next date within 7 days of event completion.
         </p>
-        <a href="${cleanAppUrl}/dashboard/events/create" style="display: inline-block; background-color: #0F172A; color: #FFFFFF; font-weight: 800; font-size: 12px; text-decoration: none; padding: 10px 18px; border-radius: 6px;">
+        <a href="${cleanAppUrl}/dashboard/events/create" style="display: inline-block; background-color: #111827; color: #FFFFFF; font-weight: 700; font-size: 12px; text-decoration: none; padding: 8px 16px; border-radius: 3px;">
           Draft Next Event &rarr;
         </a>
       </div>
 
     </div>
 
-    <!-- Standard Newsletter Footer -->
-    <div style="background-color: #F8FAFC; border-top: 1px solid #E2E8F0; padding: 20px 24px; text-align: center; font-size: 11px; color: #94A3B8; line-height: 1.6;">
-      <p style="margin: 0 0 6px 0;">
-        You are receiving this debrief because you hosted <strong>${eventTitle}</strong> on <strong>EventGuru</strong>.
+    <!-- Footer -->
+    <div style="background-color: #F9FAFB; border-top: 1px solid #E5E7EB; padding: 16px 20px; text-align: center; font-size: 11px; color: #6B7280; line-height: 1.5;">
+      <p style="margin: 0 0 4px 0;">
+        You are receiving this summary because you hosted <strong>${eventTitle}</strong> on <strong>EventRally</strong>.
       </p>
       <p style="margin: 0;">
-        &copy; 2026 EventGuru &bull; The Event Operating System. 
-        <a href="${cleanAppUrl}/dashboard" style="color: #64748B; text-decoration: underline; margin-left: 8px;">Organizer Studio</a>
+        &copy; 2026 EventRally &bull; The Event Operating System. 
+        <a href="${cleanAppUrl}/dashboard" style="color: #4B5563; text-decoration: underline; margin-left: 6px;">Organizer Studio</a>
       </p>
     </div>
 
@@ -264,7 +262,7 @@ serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
     const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-    const APP_URL = Deno.env.get("APP_URL") || Deno.env.get("PUBLIC_APP_URL") || "https://eventguru.ng";
+    const APP_URL = Deno.env.get("APP_URL") || Deno.env.get("PUBLIC_APP_URL") || "https://www.geteventrally.com";
 
     if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
       return new Response(JSON.stringify({ error: "Missing Supabase server credentials" }), {
@@ -313,10 +311,9 @@ serve(async (req) => {
     }
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    const FROM_EMAIL = Deno.env.get("DEBRIEF_FROM_EMAIL") || Deno.env.get("TICKETS_FROM_EMAIL") || "EventGuru Host Wrap-Up <host-recap@eventguru.ng>";
+    const FROM_EMAIL = Deno.env.get("DEBRIEF_FROM_EMAIL") || Deno.env.get("CAMPAIGN_FROM_EMAIL") || "EventRally <news@send.geteventrally.com>";
 
     const now = new Date();
-    // Look back up to 72 hours for concluded events
     const seventyTwoHoursAgo = new Date(now.getTime() - 72 * 3600 * 1000).toISOString();
     const oneHourAgo = new Date(now.getTime() - 1 * 3600 * 1000).toISOString();
 
@@ -337,7 +334,6 @@ serve(async (req) => {
       }
       candidateEvents = [data];
     } else {
-      // Find published events where the end_date (or date) has passed within past 72h
       const { data: events, error } = await supabaseAdmin
         .from("events")
         .select("id, title, date, end_date, venue, city, organiser_id, status")
@@ -356,7 +352,6 @@ serve(async (req) => {
 
     for (const evt of candidateEvents) {
       try {
-        // Check if debrief has already been sent (idempotency check)
         if (!force && !testEmail) {
           const { data: existingLog } = await supabaseAdmin
             .from("organizer_email_logs")
@@ -372,7 +367,6 @@ serve(async (req) => {
           }
         }
 
-        // Get organiser's email
         let recipientEmail = testEmail;
         if (!recipientEmail) {
           const { data: userData } = await supabaseAdmin.auth.admin.getUserById(evt.organiser_id);
@@ -384,7 +378,6 @@ serve(async (req) => {
           continue;
         }
 
-        // Get organiser profile name
         const { data: profile } = await supabaseAdmin
           .from("profiles")
           .select("full_name")
@@ -393,7 +386,6 @@ serve(async (req) => {
 
         const organiserName = profile?.full_name || "Event Organizer";
 
-        // Query event registration metrics
         const { data: regs } = await supabaseAdmin
           .from("registrations")
           .select("id, ticket_type_id, checked_in, amount_paid")
@@ -404,7 +396,6 @@ serve(async (req) => {
         const checkinPercentage = totalTickets > 0 ? Math.round((checkedInCount / totalTickets) * 100) : 0;
         const grossRevenue = regs?.reduce((sum, r) => sum + (Number(r.amount_paid) || 0), 0) ?? 0;
 
-        // Query ticket types to find top selling tier
         const { data: tiers } = await supabaseAdmin
           .from("ticket_types")
           .select("name, sold")
@@ -527,4 +518,3 @@ serve(async (req) => {
     });
   }
 });
-

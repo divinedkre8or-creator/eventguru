@@ -1,9 +1,10 @@
 // supabase/functions/send-organizer-digest/index.ts
 //
-// Weekly Organizer Performance Digest & Growth Playbook
-// Automated Monday morning roundup delivering deterministic metrics
-// (weekly tickets, revenue, countdown, attendee velocity) and curated growth tactics.
-// Strictly high-contrast, editorial styling — zero AI slop, zero rainbow gradients.
+// EventRally — Weekly Organizer Performance Report
+// Automated Monday morning digest delivering deterministic metrics
+// (weekly tickets, revenue, event countdown) and curated operational guidance.
+// Strictly professional editorial styling — stacked for mobile responsiveness.
+// Zero AI slop: no gradients, no pills, no splash emojis, strictly on-brand colors.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
@@ -32,36 +33,36 @@ interface GrowthPlaybook {
 const GROWTH_PLAYBOOKS: Record<string, GrowthPlaybook> = {
   countdown_48h: {
     stage: "48 Hours Out",
-    headline: "Send a 48-Hour SMS Countdown Reminder",
-    content: "Direct SMS delivers a 98% open rate. Send a quick reminder with entrance gate timing, venue parking instructions, and fast-track check-in details to prevent front-gate bottlenecks.",
+    headline: "Send an SMS Reminder to All Attendees",
+    content: "Direct SMS delivers a 98% open rate. Send a concise reminder with entrance gate timing, venue parking instructions, and check-in details to prevent front-gate bottlenecks.",
     actionText: "Compose SMS Broadcast",
     actionPath: "/dashboard/campaigns?channel=sms",
   },
   qr_rapid: {
-    stage: "Event Week Prep",
-    headline: "Equip Gate Stewards with 1-Second QR Check-In",
-    content: "Avoid long entrance queues under the sun or rain. Open the rapid QR scanner on any smartphone or tablet to validate digital passes in under 1 second per attendee.",
-    actionText: "Open Rapid QR Check-In",
+    stage: "Event Week Preparation",
+    headline: "Equip Door Staff with Fast QR Check-In",
+    content: "Avoid entrance delays. Open the rapid QR scanner on any smartphone or tablet to validate digital passes in under 1 second per attendee.",
+    actionText: "Open Door Check-In",
     actionPath: "/dashboard/checkin",
   },
   dp_viral: {
     stage: "2-3 Weeks Out",
     headline: "Deploy Your Custom Event DP Generator",
-    content: "Attendees love showing off that they are attending. Generate your branded 'I Will Be Attending' picture flyer on EventGuru and distribute the link across WhatsApp groups and Instagram stories for viral attendee reach.",
+    content: "Attendees enjoy sharing that they are attending. Generate your branded attendee flyer on EventRally and distribute the link across WhatsApp and social channels.",
     actionText: "Configure DP Generator",
     actionPath: "/dashboard/dp",
   },
   early_bird: {
     stage: "Ticket Sales Strategy",
-    headline: "Create Scarcity with Tiered Early-Bird Pricing",
-    content: "Events with limited-quantity early-bird tiers convert 3x faster than flat-rate events. Reward your early supporters with a temporary discounted tier before releasing regular passes.",
+    headline: "Create Urgency with Tiered Pricing",
+    content: "Events with limited-quantity early tiers sell out faster. Reward early supporters with a temporary discounted tier before releasing regular passes.",
     actionText: "Manage Ticket Tiers",
     actionPath: "/dashboard/tickets",
   },
   create_first: {
     stage: "Getting Started",
-    headline: "Launch Your Next Event Experience",
-    content: "Ready to gather your community? EventGuru gives you instant ticketing, Paystack instant payouts, automated branded admission passes, and attendee SMS broadcasting all in one place.",
+    headline: "Publish Your Next Event Experience",
+    content: "Ready to gather your community? EventRally gives you ticketing, automated payouts, digital admission passes, and attendee broadcasting in one platform.",
     actionText: "Create an Event Now",
     actionPath: "/dashboard/events/create",
   },
@@ -105,186 +106,175 @@ function buildDigestEmailHtml({
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Weekly EventGuru Organizer Digest</title>
+  <title>Your Weekly EventRally Performance Report</title>
 </head>
-<body style="margin: 0; padding: 24px 12px; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0F172A; line-height: 1.5;">
+<body style="margin: 0; padding: 16px 8px; background-color: #F9FAFB; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #111827; line-height: 1.5;">
   
-  <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);">
+  <div style="max-width: 580px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 4px; overflow: hidden;">
     
-    <!-- Top Header Brand Bar -->
-    <div style="background-color: #0F172A; padding: 22px 24px; text-align: left; border-bottom: 3px solid #0058BE;">
+    <!-- Header Brand Bar -->
+    <div style="background-color: #111827; padding: 20px 24px; text-align: left; border-bottom: 2px solid #0058BE;">
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
           <td style="vertical-align: middle;">
-            <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #FFFFFF; text-transform: uppercase;">
-              EVENTGURU
+            <div style="font-size: 18px; font-weight: 800; letter-spacing: 1px; color: #FFFFFF; text-transform: uppercase;">
+              EVENTRALLY
             </div>
-            <div style="font-size: 10px; font-family: monospace; font-weight: bold; color: #38BDF8; text-transform: uppercase; margin-top: 4px; letter-spacing: 1.5px;">
-              ORGANIZER WEEKLY DIGEST &amp; PLAYBOOK
+            <div style="font-size: 10px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; margin-top: 3px; letter-spacing: 1px;">
+              WEEKLY ORGANIZER REPORT
             </div>
           </td>
           <td style="vertical-align: middle; text-align: right;">
-            <a href="${cleanAppUrl}/dashboard" style="background-color: #0058BE; color: #FFFFFF; font-size: 11px; font-weight: 800; text-decoration: none; padding: 8px 14px; border-radius: 6px; display: inline-block;">
-              Open Studio &rarr;
+            <a href="${cleanAppUrl}/dashboard" style="background-color: #0058BE; color: #FFFFFF; font-size: 11px; font-weight: 700; text-decoration: none; padding: 8px 14px; border-radius: 3px; display: inline-block;">
+              Open Dashboard
             </a>
           </td>
         </tr>
       </table>
     </div>
 
-    <!-- Main Body Container -->
-    <div style="padding: 28px 24px;">
+    <!-- Main Content Container -->
+    <div style="padding: 24px 20px;">
       
-      <!-- Greeting & Intro -->
-      <h1 style="color: #0F172A; font-size: 22px; margin: 0 0 8px 0; font-weight: 900; line-height: 1.25;">
-        Hi ${greeting}, here is your weekly event roundup.
+      <!-- Greeting -->
+      <h1 style="color: #111827; font-size: 20px; margin: 0 0 6px 0; font-weight: 800; line-height: 1.3;">
+        Hello ${greeting}, here is your weekly performance summary.
       </h1>
-      <p style="color: #64748B; font-size: 14px; margin: 0 0 24px 0; line-height: 1.5;">
-        Here's a breakdown of your ticketing activity over the past 7 days, along with your recommended growth action for this week.
+      <p style="color: #4B5563; font-size: 13px; margin: 0 0 20px 0; line-height: 1.5;">
+        A deterministic summary of your ticket registrations and revenue over the past 7 days on EventRally.
       </p>
 
-      <!-- 3 Key Metric Stats Cards -->
-      <table style="width: 100%; border-collapse: separate; border-spacing: 8px; margin-left: -8px; margin-right: -8px; margin-bottom: 24px;">
-        <tr>
-          <td style="width: 33.33%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px 12px; text-align: center; vertical-align: top;">
-            <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #0058BE; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-              PAST 7 DAYS
-            </div>
-            <div style="font-size: 24px; font-weight: 900; color: #0F172A; line-height: 1.1;">
-              ${weeklyTickets}
-            </div>
-            <div style="font-size: 11px; color: #64748B; margin-top: 4px;">
-              Tickets Sold
-            </div>
-          </td>
+      <!-- Stacked Metric Cards for 100% Mobile Responsiveness -->
+      <div style="margin-bottom: 20px;">
+        
+        <!-- Card 1: Tickets Sold -->
+        <div style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px; padding: 16px 18px; margin-bottom: 12px;">
+          <div style="font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            PAST 7 DAYS &bull; TICKETS SOLD
+          </div>
+          <div style="font-size: 28px; font-weight: 800; color: #111827; line-height: 1.1;">
+            ${weeklyTickets}
+          </div>
+          <div style="font-size: 12px; color: #6B7280; margin-top: 4px;">
+            Confirmed registrations this past week
+          </div>
+        </div>
 
-          <td style="width: 33.33%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px 12px; text-align: center; vertical-align: top;">
-            <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-              WEEKLY REVENUE
-            </div>
-            <div style="font-size: 20px; font-weight: 900; color: #059669; line-height: 1.1;">
-              ${formattedRevenue}
-            </div>
-            <div style="font-size: 11px; color: #64748B; margin-top: 4px;">
-              Gross Sales
-            </div>
-          </td>
+        <!-- Card 2: Weekly Gross Revenue -->
+        <div style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px; padding: 16px 18px; margin-bottom: 12px;">
+          <div style="font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            PAST 7 DAYS &bull; GROSS REVENUE
+          </div>
+          <div style="font-size: 28px; font-weight: 800; color: #0058BE; line-height: 1.1;">
+            ${formattedRevenue}
+          </div>
+          <div style="font-size: 12px; color: #6B7280; margin-top: 4px;">
+            Direct gross ticket sales
+          </div>
+        </div>
 
-          <td style="width: 33.33%; background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px 12px; text-align: center; vertical-align: top;">
-            <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #7C3AED; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
-              COMMUNITY
-            </div>
-            <div style="font-size: 24px; font-weight: 900; color: #0F172A; line-height: 1.1;">
-              ${totalTickets}
-            </div>
-            <div style="font-size: 11px; color: #64748B; margin-top: 4px;">
-              Total Attendees
-            </div>
-          </td>
-        </tr>
-      </table>
+        <!-- Card 3: Total Community Size -->
+        <div style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px; padding: 16px 18px;">
+          <div style="font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            ALL-TIME &bull; REGISTERED ATTENDEES
+          </div>
+          <div style="font-size: 28px; font-weight: 800; color: #111827; line-height: 1.1;">
+            ${totalTickets}
+          </div>
+          <div style="font-size: 12px; color: #6B7280; margin-top: 4px;">
+            Total registered guests across your active events
+          </div>
+        </div>
+
+      </div>
 
       ${
         nearestEvent
           ? `
       <!-- Nearest Event Spotlight -->
-      <div style="background-color: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 10px; padding: 18px 20px; margin-bottom: 24px;">
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="vertical-align: top;">
-              <div style="font-size: 10px; font-family: monospace; font-weight: bold; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">
-                UPCOMING EVENT SPOTLIGHT
-              </div>
-              <div style="font-size: 16px; font-weight: 900; color: #0F172A; margin-bottom: 4px;">
-                ${escapeHtml(nearestEvent.title)}
-              </div>
-              <div style="font-size: 12px; color: #475569;">
-                📅 ${escapeHtml(nearestEvent.dateStr)} &bull; 📍 ${escapeHtml(nearestEvent.venue)}
-              </div>
-            </td>
-            <td style="vertical-align: middle; text-align: right; width: 110px;">
-              ${
-                nearestEvent.daysLeft !== null && nearestEvent.daysLeft >= 0
-                  ? `<div style="background-color: #EFF6FF; border: 1px solid #BFDBFE; color: #1D4ED8; font-weight: 800; font-size: 11px; font-family: monospace; padding: 6px 10px; border-radius: 6px; display: inline-block;">
-                      ${nearestEvent.daysLeft === 0 ? "TODAY" : `IN ${nearestEvent.daysLeft} DAYS`}
-                    </div>`
-                  : `<div style="background-color: #F1F5F9; color: #64748B; font-weight: 800; font-size: 11px; padding: 6px 10px; border-radius: 6px; display: inline-block;">
-                      LIVE NOW
-                    </div>`
-              }
-            </td>
-          </tr>
-        </table>
+      <div style="background-color: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 4px; padding: 16px 18px; margin-bottom: 20px;">
+        <div style="font-size: 10px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+          NEAREST UPCOMING EVENT
+        </div>
+        <div style="font-size: 16px; font-weight: 800; color: #111827; margin-bottom: 4px;">
+          ${escapeHtml(nearestEvent.title)}
+        </div>
+        <div style="font-size: 12px; color: #4B5563; margin-bottom: 10px;">
+          Date: ${escapeHtml(nearestEvent.dateStr)} &bull; Venue: ${escapeHtml(nearestEvent.venue)}
+        </div>
+        <div>
+          <span style="display: inline-block; border: 1px solid #0058BE; color: #0058BE; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 3px;">
+            ${
+              nearestEvent.daysLeft !== null && nearestEvent.daysLeft >= 0
+                ? nearestEvent.daysLeft === 0
+                  ? "SCHEDULED FOR TODAY"
+                  : `SCHEDULED IN ${nearestEvent.daysLeft} DAYS`
+                : "STATUS: ACTIVE"
+            }
+          </span>
+        </div>
       </div>
       `
           : ""
       }
 
-      <!-- Growth Playbook Feature Card (Curated, Deterministic Tip) -->
-      <div style="background-color: #0F172A; border-radius: 10px; padding: 22px 20px; margin-bottom: 24px; color: #FFFFFF;">
-        <div style="margin-bottom: 10px;">
-          <span style="background-color: #1E293B; border: 1px solid #334155; color: #38BDF8; font-size: 10px; font-family: monospace; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px;">
-            GROWTH ACTION: ${escapeHtml(playbook.stage)}
-          </span>
+      <!-- Operational Recommendation -->
+      <div style="background-color: #111827; border-radius: 4px; padding: 20px 18px; margin-bottom: 20px; color: #FFFFFF;">
+        <div style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+          RECOMMENDED ACTION &bull; ${escapeHtml(playbook.stage)}
         </div>
-        
-        <h2 style="font-size: 17px; font-weight: 900; color: #FFFFFF; margin: 12px 0 8px 0; line-height: 1.3;">
+        <h2 style="font-size: 16px; font-weight: 800; color: #FFFFFF; margin: 0 0 6px 0; line-height: 1.3;">
           ${escapeHtml(playbook.headline)}
         </h2>
-        <p style="font-size: 13px; color: #94A3B8; margin: 0 0 18px 0; line-height: 1.55;">
+        <p style="font-size: 13px; color: #D1D5DB; margin: 0 0 16px 0; line-height: 1.5;">
           ${escapeHtml(playbook.content)}
         </p>
-
         <div>
-          <a href="${cleanAppUrl}${playbook.actionPath}" style="display: inline-block; background-color: #0058BE; color: #FFFFFF; font-weight: 800; font-size: 13px; text-decoration: none; padding: 10px 20px; border-radius: 6px;">
+          <a href="${cleanAppUrl}${playbook.actionPath}" style="display: inline-block; background-color: #0058BE; color: #FFFFFF; font-weight: 700; font-size: 12px; text-decoration: none; padding: 9px 18px; border-radius: 3px;">
             ${escapeHtml(playbook.actionText)} &rarr;
           </a>
         </div>
       </div>
 
-      <!-- Quick Action Grid -->
-      <div style="border-top: 1px solid #E2E8F0; padding-top: 20px; margin-bottom: 8px;">
-        <div style="font-size: 11px; font-family: monospace; font-weight: 800; color: #64748B; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;">
-          QUICK STUDIO ACTIONS
+      <!-- Quick Operational Links -->
+      <div style="border-top: 1px solid #E5E7EB; padding-top: 16px; margin-bottom: 6px;">
+        <div style="font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;">
+          ORGANIZER STUDIO ACTIONS
         </div>
-        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-          <tr>
-            <td style="padding: 6px 0;">
-              <a href="${cleanAppUrl}/dashboard/campaigns" style="color: #0058BE; font-weight: bold; text-decoration: none;">
-                &bull; Send Bulk SMS Broadcast &rarr;
-              </a>
-            </td>
-            <td style="padding: 6px 0; text-align: right;">
-              <a href="${cleanAppUrl}/dashboard/dp" style="color: #0058BE; font-weight: bold; text-decoration: none;">
-                &bull; Event DP Generator &rarr;
-              </a>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 0;">
-              <a href="${cleanAppUrl}/dashboard/tickets" style="color: #0058BE; font-weight: bold; text-decoration: none;">
-                &bull; Manage Ticket Tiers &rarr;
-              </a>
-            </td>
-            <td style="padding: 6px 0; text-align: right;">
-              <a href="${cleanAppUrl}/dashboard/checkin" style="color: #0058BE; font-weight: bold; text-decoration: none;">
-                &bull; Gate QR Check-In &rarr;
-              </a>
-            </td>
-          </tr>
-        </table>
+        <div style="font-size: 13px; line-height: 1.8;">
+          <div>
+            <a href="${cleanAppUrl}/dashboard/campaigns" style="color: #0058BE; font-weight: 600; text-decoration: none;">
+              &bull; Send SMS Broadcast to Guests &rarr;
+            </a>
+          </div>
+          <div>
+            <a href="${cleanAppUrl}/dashboard/dp" style="color: #0058BE; font-weight: 600; text-decoration: none;">
+              &bull; Manage Event DP Frame &rarr;
+            </a>
+          </div>
+          <div>
+            <a href="${cleanAppUrl}/dashboard/tickets" style="color: #0058BE; font-weight: 600; text-decoration: none;">
+              &bull; Adjust Ticket Tiers &amp; Pricing &rarr;
+            </a>
+          </div>
+          <div>
+            <a href="${cleanAppUrl}/dashboard/checkin" style="color: #0058BE; font-weight: 600; text-decoration: none;">
+              &bull; Open Fast Door Check-In &rarr;
+            </a>
+          </div>
+        </div>
       </div>
 
     </div>
 
-    <!-- Standard Newsletter Footer -->
-    <div style="background-color: #F8FAFC; border-top: 1px solid #E2E8F0; padding: 20px 24px; text-align: center; font-size: 11px; color: #94A3B8; line-height: 1.6;">
-      <p style="margin: 0 0 6px 0;">
-        You are receiving this weekly digest because you are an event organizer on <strong>EventGuru</strong>.
+    <!-- Footer -->
+    <div style="background-color: #F9FAFB; border-top: 1px solid #E5E7EB; padding: 16px 20px; text-align: center; font-size: 11px; color: #6B7280; line-height: 1.5;">
+      <p style="margin: 0 0 4px 0;">
+        You are receiving this report because you host events on <strong>EventRally</strong>.
       </p>
       <p style="margin: 0;">
-        &copy; 2026 EventGuru &bull; Where Events Sell Out. 
-        <a href="${cleanAppUrl}/dashboard/settings" style="color: #64748B; text-decoration: underline; margin-left: 8px;">Manage Preferences</a>
+        &copy; 2026 EventRally &bull; The Event Operating System. 
+        <a href="${cleanAppUrl}/dashboard/settings" style="color: #4B5563; text-decoration: underline; margin-left: 6px;">Notification Settings</a>
       </p>
     </div>
 
@@ -304,7 +294,7 @@ serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
     const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-    const APP_URL = Deno.env.get("APP_URL") || Deno.env.get("PUBLIC_APP_URL") || "https://eventguru.ng";
+    const APP_URL = Deno.env.get("APP_URL") || Deno.env.get("PUBLIC_APP_URL") || "https://www.geteventrally.com";
 
     if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
       return new Response(JSON.stringify({ error: "Missing Supabase server credentials" }), {
@@ -354,7 +344,7 @@ serve(async (req) => {
     }
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    const FROM_EMAIL = Deno.env.get("DIGEST_FROM_EMAIL") || Deno.env.get("TICKETS_FROM_EMAIL") || "EventGuru Digest <digest@eventguru.ng>";
+    const FROM_EMAIL = Deno.env.get("DIGEST_FROM_EMAIL") || Deno.env.get("CAMPAIGN_FROM_EMAIL") || "EventRally <news@send.geteventrally.com>";
 
     // Calculate past 7 days timestamp
     const sevenDaysAgo = new Date();
@@ -407,10 +397,10 @@ serve(async (req) => {
         totalTickets: 120,
         weeklyRevenue: 105000,
         nearestEvent: {
-          title: "Tech Summit Lagos 2026",
+          title: "Tech Summit 2026",
           dateStr: "Saturday, 25 October 2026",
           daysLeft: 15,
-          venue: "Landmark Centre, Victoria Island",
+          venue: "Landmark Centre, Lagos",
         },
         playbook: samplePlaybook,
         appUrl: APP_URL,
@@ -436,7 +426,7 @@ serve(async (req) => {
         body: JSON.stringify({
           from: FROM_EMAIL,
           to: [testEmail],
-          subject: "Your Weekly Organizer Performance Digest (Preview)",
+          subject: "Your Weekly EventRally Performance Report (Preview)",
           html: htmlContent,
         }),
       });
@@ -450,7 +440,6 @@ serve(async (req) => {
 
     for (const orgId of targetOrganiserIds) {
       try {
-        // Resolve email:
         let recipientEmail = testEmail;
         if (!recipientEmail) {
           const { data: userData } = await supabaseAdmin.auth.admin.getUserById(orgId);
@@ -472,7 +461,6 @@ serve(async (req) => {
         const events = orgEvents || [];
         const eventIds = events.map((e) => e.id);
 
-        // Fetch registrations in the last 7 days
         let weeklyTickets = 0;
         let weeklyRevenue = 0;
         let totalTickets = 0;
@@ -489,7 +477,6 @@ serve(async (req) => {
             weeklyRevenue = recentRegs.reduce((sum, r) => sum + (Number(r.amount_paid) || 0), 0);
           }
 
-          // Fetch all-time tickets across their events
           const { count } = await supabaseAdmin
             .from("registrations")
             .select("id", { count: "exact", head: true })
@@ -498,7 +485,6 @@ serve(async (req) => {
           totalTickets = count ?? 0;
         }
 
-        // Find nearest upcoming event
         const nowMs = Date.now();
         const upcoming = events.filter((e) => new Date(e.date).getTime() >= nowMs - 24 * 3600 * 1000);
         const nearest = upcoming[0] || null;
@@ -535,7 +521,6 @@ serve(async (req) => {
           console.log(`[MOCK] Would send digest to ${recipientEmail}`);
           results.push({ organiserId: orgId, email: recipientEmail, status: "mock_sent" });
 
-          // Log to organizer_email_logs
           await supabaseAdmin.from("organizer_email_logs").insert({
             organiser_id: orgId,
             email_type: "weekly_digest",
@@ -561,7 +546,7 @@ serve(async (req) => {
           body: JSON.stringify({
             from: FROM_EMAIL,
             to: [recipientEmail],
-            subject: `Your EventGuru Weekly Performance Digest & Growth Playbook`,
+            subject: `Your Weekly EventRally Performance Report`,
             html: htmlContent,
           }),
         });
