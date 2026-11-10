@@ -16,7 +16,6 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { parseEventMetadata, formatScheduleSummary } from "@/lib/eventMetadata";
 import { MarkdownDescription } from "@/components/events/MarkdownDescription";
-import { getEventBannerUrl } from "@/lib/imageUtils";
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -122,7 +121,6 @@ const EventDetails = () => {
 
   const { title, image_url, venue, city, country, category, ticket_types, is_free, organiser_id, date, description } = event;
   const isOrganizer = user?.id === organiser_id;
-  const bannerSrc = getEventBannerUrl(image_url, category);
 
   const eventDateObj = new Date(date);
   const isPastEvent = !isNaN(eventDateObj.getTime()) && eventDateObj.getTime() < Date.now();
@@ -268,24 +266,34 @@ const EventDetails = () => {
 
         {/* Banner Section - Smart Poster Frame with Ambient Aura (Never Crops) */}
         <div className="w-full max-h-[560px] bg-card/60 rounded-2xl border border-border overflow-hidden relative shadow-md flex items-center justify-center p-2 sm:p-3 group">
-          {bannerSrc ? (
+          {image_url ? (
             <>
               {/* Ambient Blurred Aura */}
               <div 
-                className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-25 scale-110 pointer-events-none"
-                style={{ backgroundImage: `url(${bannerSrc})` }}
+                className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-25 scale-110 pointer-events-none flyer-aura"
+                style={{ backgroundImage: `url(${image_url})` }}
                 aria-hidden="true"
               />
               {/* 100% Uncropped Sharp Image */}
               <img 
-                src={bannerSrc} 
+                src={image_url} 
                 alt={title} 
                 className="relative z-10 w-auto h-auto max-h-[520px] max-w-full object-contain rounded-xl shadow-xs" 
                 onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = getEventBannerUrl(null, category);
+                  e.currentTarget.style.display = 'none';
+                  const aura = e.currentTarget.parentElement?.querySelector('.flyer-aura') as HTMLElement;
+                  if (aura) aura.style.display = 'none';
+                  const fallback = e.currentTarget.parentElement?.querySelector('.flyer-fallback') as HTMLElement;
+                  if (fallback) {
+                    fallback.classList.remove('hidden');
+                    fallback.classList.add('flex');
+                  }
                 }}
               />
+              <div className="hidden flyer-fallback w-full h-48 sm:h-64 flex-col items-center justify-center text-muted-foreground/40 bg-muted/40 rounded-xl relative z-10">
+                <ImageIcon className="w-16 h-16 mb-2" />
+                <span className="text-xs font-mono font-bold">Banner Unavailable</span>
+              </div>
             </>
           ) : (
             <div className="w-full h-48 sm:h-64 flex flex-col items-center justify-center text-muted-foreground/40 bg-muted/40 rounded-xl">

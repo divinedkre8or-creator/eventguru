@@ -160,32 +160,3 @@ export const compressImageToBase64 = (
     img.src = objectUrl;
   });
 };
-
-/**
- * Curated, high-fidelity CDN fallback banners tailored by event category.
- * Used when an event flyer is missing, loading slowly, or failing to resolve.
- */
-export const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-  conference: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&auto=format&fit=crop&q=80",
-  church: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=1200&auto=format&fit=crop&q=80",
-  sports: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200&auto=format&fit=crop&q=80",
-  concert: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&auto=format&fit=crop&q=80",
-  workshop: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200&auto=format&fit=crop&q=80",
-  networking: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&auto=format&fit=crop&q=80",
-  festival: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&auto=format&fit=crop&q=80",
-  campus: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&auto=format&fit=crop&q=80",
-  "trade-show": "https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&auto=format&fit=crop&q=80",
-  other: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&auto=format&fit=crop&q=80",
-};
-
-/**
- * Returns a guaranteed valid image URL for any event.
- * Automatically intercepts legacy/frozen storage links or nulls and returns a crisp category theme banner.
- */
-export function getEventBannerUrl(imageUrl: string | null | undefined, category = "other"): string {
-  if (imageUrl && !imageUrl.includes("edpnvsakkudorleqqhxv") && imageUrl.trim() !== "") {
-    return imageUrl;
-  }
-  const cleanCat = (category || "other").toLowerCase().trim();
-  return CATEGORY_FALLBACK_IMAGES[cleanCat] || CATEGORY_FALLBACK_IMAGES.other;
-}

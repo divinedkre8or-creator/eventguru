@@ -15,7 +15,6 @@ import { SiteHeader } from "@/components/navigation/SiteHeader";
 import { SiteFooter } from "@/components/navigation/SiteFooter";
 import { useAuth } from "@/contexts/AuthContext";
 import { GUIDES_DATA } from "@/data/guidesData";
-import { getEventBannerUrl } from "@/lib/imageUtils";
 
 const FAQ_ITEMS = [
   {
@@ -433,16 +432,21 @@ const Index = () => {
                 >
                   <div>
                     <div className="relative aspect-[16/9] bg-muted overflow-hidden">
-                      <img 
-                        src={getEventBannerUrl(event.image_url, event.category)} 
-                        alt={event.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                        loading="lazy"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = getEventBannerUrl(null, event.category);
-                        }}
-                      />
+                      {event.image_url ? (
+                        <img 
+                          src={event.image_url} 
+                          alt={event.title} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <div className={`w-full h-full flex items-center justify-center bg-muted ${event.image_url ? 'hidden' : ''}`}>
+                        <CalendarDays className="w-10 h-10 text-muted-foreground/40" />
+                      </div>
                       <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
                         {event.category}
                       </div>

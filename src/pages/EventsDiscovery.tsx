@@ -12,7 +12,6 @@ import { getEventUrl } from "@/lib/slugUtils";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { SiteHeader } from "@/components/navigation/SiteHeader";
 import { SiteFooter } from "@/components/navigation/SiteFooter";
-import { getEventBannerUrl } from "@/lib/imageUtils";
 
 const CATEGORIES = [
   { id: "all", label: "All Events" },
@@ -290,16 +289,21 @@ export const EventsDiscovery: React.FC = () => {
                   <div>
                     {/* Event Banner */}
                     <div className="relative aspect-[16/9] bg-muted overflow-hidden">
-                      <img
-                        src={getEventBannerUrl(event.image_url, event.category)}
-                        alt={event.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = getEventBannerUrl(null, event.category);
-                        }}
-                      />
+                      {event.image_url ? (
+                        <img
+                          src={event.image_url}
+                          alt={event.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <div className={`w-full h-full flex items-center justify-center bg-muted text-muted-foreground ${event.image_url ? 'hidden' : ''}`}>
+                        <Ticket className="w-10 h-10 opacity-40" />
+                      </div>
                       
                       {/* Category & Expired Badge */}
                       <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
