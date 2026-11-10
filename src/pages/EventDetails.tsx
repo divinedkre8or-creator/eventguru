@@ -16,6 +16,7 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { parseEventMetadata, formatScheduleSummary } from "@/lib/eventMetadata";
 import { MarkdownDescription } from "@/components/events/MarkdownDescription";
+import { getEventBannerUrl } from "@/lib/imageUtils";
 
 const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -121,6 +122,7 @@ const EventDetails = () => {
 
   const { title, image_url, venue, city, country, category, ticket_types, is_free, organiser_id, date, description } = event;
   const isOrganizer = user?.id === organiser_id;
+  const bannerSrc = getEventBannerUrl(image_url, category);
 
   const eventDateObj = new Date(date);
   const isPastEvent = !isNaN(eventDateObj.getTime()) && eventDateObj.getTime() < Date.now();
@@ -266,19 +268,23 @@ const EventDetails = () => {
 
         {/* Banner Section - Smart Poster Frame with Ambient Aura (Never Crops) */}
         <div className="w-full max-h-[560px] bg-card/60 rounded-2xl border border-border overflow-hidden relative shadow-md flex items-center justify-center p-2 sm:p-3 group">
-          {image_url ? (
+          {bannerSrc ? (
             <>
               {/* Ambient Blurred Aura */}
               <div 
                 className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-25 scale-110 pointer-events-none"
-                style={{ backgroundImage: `url(${image_url})` }}
+                style={{ backgroundImage: `url(${bannerSrc})` }}
                 aria-hidden="true"
               />
               {/* 100% Uncropped Sharp Image */}
               <img 
-                src={image_url} 
+                src={bannerSrc} 
                 alt={title} 
                 className="relative z-10 w-auto h-auto max-h-[520px] max-w-full object-contain rounded-xl shadow-xs" 
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = getEventBannerUrl(null, category);
+                }}
               />
             </>
           ) : (

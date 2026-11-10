@@ -178,6 +178,11 @@ export const PrivacyPolicy: React.FC = () => {
                 <td className="p-3">Direct SMS ticket confirmation & gate reminder delivery</td>
                 <td className="p-3">Nigeria</td>
               </tr>
+              <tr>
+                <td className="p-3 font-semibold text-foreground">PostHog, Inc.</td>
+                <td className="p-3">Privacy-safe product telemetry, funnel diagnostics, and technical performance monitoring (EU Cloud; sensitive inputs strictly masked)</td>
+                <td className="p-3">European Union / USA</td>
+              </tr>
             </tbody>
           </table>
         </div>

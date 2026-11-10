@@ -1,6 +1,6 @@
 import React from "react";
 import { LegalLayout } from "@/components/legal/LegalLayout";
-import { Cookie, ShieldCheck, Settings, CheckCircle2 } from "lucide-react";
+import { Cookie, ShieldCheck, Settings, CheckCircle2, BarChart3 } from "lucide-react";
 
 export const CookiePolicy: React.FC = () => {
   const tableOfContents = [
@@ -71,6 +71,16 @@ export const CookiePolicy: React.FC = () => {
               cached tickets for offline door validation, and language preferences.
             </p>
           </div>
+
+          <div className="p-4 rounded-xl border border-border bg-card space-y-1.5 not-prose">
+            <div className="flex items-center gap-2 font-bold text-foreground">
+              <BarChart3 className="w-4 h-4 text-primary" />
+              <span>3. Product Performance & Telemetry (PostHog EU)</span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              We collect privacy-safe telemetry and user journey statistics to understand platform usage, optimize page speeds, and troubleshoot errors. All form inputs, passwords, and payment card details are strictly masked and never recorded.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -104,6 +114,11 @@ export const CookiePolicy: React.FC = () => {
                 <td className="p-3">Local Storage</td>
                 <td className="p-3">Remembers your acknowledgment of our legal and cookie policies. 1 Year.</td>
               </tr>
+              <tr>
+                <td className="p-3 font-semibold text-foreground">ph_*_posthog</td>
+                <td className="p-3">First-Party Cookie</td>
+                <td className="p-3">Maintains anonymous session continuity and feature telemetry. 1 Year. Hosted in the European Union (EU Cloud).</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -117,6 +132,7 @@ export const CookiePolicy: React.FC = () => {
         <p>
           When you execute a payment on EventRally, our payment partner <strong>Paystack</strong> may initialize temporary security tokens 
           necessary to verify fraud prevention protocols (such as 3D Secure card authentication mandated by the Central Bank of Nigeria).
+          For technical telemetry and crash diagnostics, we use <strong>PostHog EU</strong> with full client-side masking of passwords, credit cards, and sensitive inputs.
         </p>
       </section>
 
