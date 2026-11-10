@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { 
   Download, Calendar, Share2, Image as ImageIcon, Check, 
-  Copy, Loader2, ExternalLink, ChevronDown
+  Copy, Loader2, ExternalLink, ChevronDown, MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { sendTicketViaWhatsApp, getDirectWhatsAppTicketUrl } from "@/lib/whatsappService";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,6 +53,7 @@ export const TicketActions: React.FC<TicketActionsProps> = ({
   className = "",
 }) => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSendingWhatsApp, setIsSendingWhatsApp] = useState(false);
   const ticketCode = formatTicketCode(registration.id);
 
   const exportData: TicketExportData = {
@@ -83,6 +86,28 @@ export const TicketActions: React.FC<TicketActionsProps> = ({
 
   const handleDownloadIcs = () => {
     downloadIcsCalendarFile(exportData);
+  };
+
+  const handleSendToWhatsApp = async () => {
+    setIsSendingWhatsApp(true);
+    try {
+      // 1. Open WhatsApp deep link immediately for instant tactile feedback
+      const waUrl = getDirectWhatsAppTicketUrl(event.title, ticketTierName, canonicalUrl);
+      window.open(waUrl, "_blank", "noopener,noreferrer");
+
+      // 2. Trigger background edge function dispatch
+      const res = await sendTicketViaWhatsApp({
+        registrationId: registration.id,
+      });
+
+      if (res.ok) {
+        toast.success("Ticket pass prepared for WhatsApp delivery!");
+      }
+    } catch {
+      toast.error("Failed to prepare WhatsApp dispatch");
+    } finally {
+      setIsSendingWhatsApp(false);
+    }
   };
 
   return (
@@ -133,6 +158,20 @@ export const TicketActions: React.FC<TicketActionsProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Save Pass to WhatsApp */}
+      <Button
+        onClick={handleSendToWhatsApp}
+        disabled={isSendingWhatsApp}
+        className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs h-10 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
+      >
+        {isSendingWhatsApp ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <MessageSquare className="w-4 h-4" />
+        )}
+        <span>Send Pass to WhatsApp</span>
+      </Button>
 
       {/* Secondary Row: Share & Event DP Flier */}
       <div className="grid grid-cols-2 gap-2.5">
