@@ -108,10 +108,10 @@ export default function OrganizerReview() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-4 group">
             <div className="w-8 h-8 rounded bg-[#0058BE] text-white flex items-center justify-center font-black text-sm">
-              EG
+              ER
             </div>
             <span className="font-extrabold text-xl tracking-wider uppercase text-foreground">
-              EVENTGURU
+              EVENTRALLY
             </span>
           </Link>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0058BE]/10 text-[#0058BE] text-xs font-mono font-bold uppercase tracking-wider">
@@ -178,7 +178,7 @@ export default function OrganizerReview() {
                   Host Platform Experience
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  How was your experience running your event on EventGuru?
+                  How was your experience running your event on EventRally?
                 </p>
               </div>
             )}
@@ -236,7 +236,7 @@ export default function OrganizerReview() {
               {/* Platform Feedback Field */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-foreground block">
-                  How can EventGuru serve you even better for your next event?
+                  How can EventRally serve you even better for your next event?
                 </label>
                 <textarea
                   value={feedback}
@@ -257,7 +257,7 @@ export default function OrganizerReview() {
                   className="mt-0.5 rounded border-border text-[#0058BE] focus:ring-[#0058BE]"
                 />
                 <label htmlFor="testimonial-check" className="text-xs text-muted-foreground leading-normal cursor-pointer">
-                  You may feature this review and event name as an authenticated host testimonial on EventGuru.
+                  You may feature this review and event name as an authenticated host testimonial on EventRally.
                 </label>
               </div>
 
@@ -281,7 +281,7 @@ export default function OrganizerReview() {
 
         {/* Footer */}
         <div className="text-center text-xs text-muted-foreground mt-8">
-          &copy; 2026 EventGuru &bull; Where Events Live. Built for African Creators.
+          &copy; 2026 EventRally &bull; Where Events Live. Built for African Creators.
         </div>
 
       </div>

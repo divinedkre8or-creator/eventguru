@@ -157,94 +157,84 @@ serve(async (req) => {
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             <title>Your Ticket for ${eventTitle}</title>
           </head>
-          <body style="margin: 0; padding: 24px; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0F172A;">
+          <body style="margin: 0; padding: 16px 8px; background-color: #F9FAFB; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #111827; line-height: 1.5;">
             
-            <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+            <div style="max-width: 580px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 4px; overflow: hidden;">
               
-              <!-- Top Accent Brand Bar -->
-              <div style="background-color: #000000; padding: 20px 24px; text-align: center; border-bottom: 3px solid #0058BE;">
-                <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #FFFFFF; text-transform: uppercase;">
+              <!-- Top Brand Bar -->
+              <div style="background-color: #111827; padding: 20px 24px; text-align: left; border-bottom: 2px solid #0058BE;">
+                <div style="font-size: 18px; font-weight: 800; letter-spacing: 1px; color: #FFFFFF; text-transform: uppercase;">
                   EVENTRALLY
                 </div>
-                <div style="font-size: 10px; font-family: monospace; font-weight: bold; color: #94A3B8; text-transform: uppercase; margin-top: 4px; letter-spacing: 1.5px;">
-                  OFFICIAL ADMISSION PASS & RECEIPT
+                <div style="font-size: 10px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; margin-top: 3px; letter-spacing: 1px;">
+                  OFFICIAL ADMISSION PASS &amp; RECEIPT
                 </div>
               </div>
 
               <!-- Main Content -->
-              <div style="padding: 32px 24px;">
+              <div style="padding: 24px 20px;">
                 
-                <h1 style="color: #0F172A; font-size: 22px; margin: 0 0 8px 0; font-weight: 900; line-height: 1.2;">
-                  You're going to ${escapeHtml(eventTitle)}!
+                <h1 style="color: #111827; font-size: 20px; margin: 0 0 6px 0; font-weight: 800; line-height: 1.3;">
+                  You are registered for ${escapeHtml(eventTitle)}
                 </h1>
-                <p style="color: #64748B; font-size: 14px; margin: 0 0 24px 0; line-height: 1.5;">
-                  Hi <strong>${escapeHtml(registration.full_name || 'there')}</strong>, your registration has been successfully confirmed. Present your digital pass at the entrance on event day.
+                <p style="color: #4B5563; font-size: 13px; margin: 0 0 20px 0; line-height: 1.5;">
+                  Hello <strong>${escapeHtml(registration.full_name || 'there')}</strong>, your admission has been verified. Present your digital pass or QR code at the entrance on event day.
                 </p>
 
-                <!-- Ticket Pass Box -->
-                <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                  <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: #0058BE; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px;">
+                <!-- Stacked Ticket Pass Box -->
+                <div style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px; padding: 18px; margin-bottom: 20px;">
+                  <div style="font-size: 10px; font-weight: 700; color: #0058BE; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;">
                     ADMISSION DETAILS
                   </div>
 
-                  <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                    <tr>
-                      <td style="padding: 6px 0; color: #64748B; width: 35%;">Pass Type:</td>
-                      <td style="padding: 6px 0; color: #0F172A; font-weight: bold;">${escapeHtml(ticketName)}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px 0; color: #64748B;">Date & Time:</td>
-                      <td style="padding: 6px 0; color: #0F172A; font-weight: bold;">${escapeHtml(eventDate)}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px 0; color: #64748B;">Venue:</td>
-                      <td style="padding: 6px 0; color: #0F172A; font-weight: bold;">${escapeHtml(venueName)}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px 0; color: #64748B;">Reference ID:</td>
-                      <td style="padding: 6px 0; font-family: monospace; font-weight: bold; color: #0058BE;">${escapeHtml(orderRef)}</td>
-                    </tr>
-                  </table>
+                  <div style="font-size: 13px; color: #111827; line-height: 1.8;">
+                    <div><span style="color: #6B7280; font-weight: 600;">Pass Tier:</span> <strong>${escapeHtml(ticketName)}</strong></div>
+                    <div><span style="color: #6B7280; font-weight: 600;">Date:</span> <strong>${escapeHtml(eventDate)}</strong></div>
+                    <div><span style="color: #6B7280; font-weight: 600;">Venue:</span> <strong>${escapeHtml(venueName)}</strong></div>
+                    <div><span style="color: #6B7280; font-weight: 600;">Reference ID:</span> <span style="font-family: monospace; font-weight: 700; color: #0058BE;">${escapeHtml(orderRef)}</span></div>
+                  </div>
 
-                  <div style="margin-top: 18px; pt-4; border-top: 1px dashed #CBD5E1; text-align: center;">
-                    <a href="${ticketUrl}" style="display: block; background-color: #0058BE; color: #FFFFFF; font-weight: 800; font-size: 13px; text-decoration: none; padding: 12px 20px; border-radius: 8px; text-align: center; margin-top: 14px;">
-                      Open My Digital Pass & QR Code &rarr;
+                  <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #E5E7EB;">
+                    <a href="${ticketUrl}" style="display: block; background-color: #0058BE; color: #FFFFFF; font-weight: 700; font-size: 13px; text-decoration: none; padding: 11px 18px; border-radius: 3px; text-align: center;">
+                      Open Digital Pass &amp; QR Code &rarr;
                     </a>
                   </div>
                 </div>
 
-                <!-- Signature DP Generator Callout (Growth Loop) -->
-                <div style="background-color: #0F172A; border-radius: 12px; padding: 22px; text-align: center; margin-bottom: 24px; color: #FFFFFF;">
-                  <div style="font-size: 10px; font-family: monospace; font-weight: bold; color: #38BDF8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
-                    VIRAL EVENT FLYER
+                <!-- Attendee DP Generator Callout -->
+                <div style="background-color: #111827; border-radius: 4px; padding: 18px; margin-bottom: 20px; color: #FFFFFF;">
+                  <div style="font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+                    ATTENDEE EVENT FLYER
                   </div>
-                  <h3 style="font-size: 16px; font-weight: 900; color: #FFFFFF; margin: 0 0 6px 0;">
-                    Generate Your "I Will Be Attending" Flyer
-                  </h3>
-                  <p style="font-size: 12px; color: #94A3B8; margin: 0 0 16px 0; line-height: 1.4;">
-                    Let your friends and network know you are attending! Create your custom branded picture flyer in 1 click for WhatsApp Status, Instagram & X.
+                  <div style="font-size: 15px; font-weight: 800; color: #FFFFFF; margin-bottom: 4px;">
+                    Create Your Personalized Attendee Flyer
+                  </div>
+                  <p style="font-size: 12px; color: #D1D5DB; margin: 0 0 14px 0; line-height: 1.5;">
+                    Add your photo and name to the official event graphic to share on WhatsApp Status and social channels.
                   </p>
-                  <a href="${dpUrl}" style="display: inline-block; background-color: #FFFFFF; color: #0F172A; font-weight: 800; font-size: 12px; text-decoration: none; padding: 10px 22px; border-radius: 8px;">
-                    Create My Event DP &rarr;
-                  </a>
+                  <div>
+                    <a href="${dpUrl}" style="display: inline-block; background-color: #FFFFFF; color: #111827; font-weight: 700; font-size: 12px; text-decoration: none; padding: 9px 18px; border-radius: 3px;">
+                      Create My Event Flyer &rarr;
+                    </a>
+                  </div>
                 </div>
 
                 <!-- Offline Note -->
-                <div style="padding: 12px 16px; background-color: #F1F5F9; border-radius: 8px; font-size: 11px; color: #64748B; line-height: 1.5; text-align: center;">
-                  <strong>Pro Tip:</strong> EventRally stores your admission pass offline. Save your ticket link on your phone before arriving at the venue for instant gate entry even with weak internet.
+                <div style="padding: 12px 14px; background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px; font-size: 11px; color: #6B7280; line-height: 1.5;">
+                  <strong>Offline Access:</strong> EventRally passes can be viewed offline. Open and bookmark your pass before arriving at the venue.
                 </div>
 
-                <div style="text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid #E2E8F0;">
-                  <a href="${eventUrl}" style="color: #0058BE; text-decoration: underline; font-size: 12px; font-weight: bold;">
-                    View Event Details & Schedule &rarr;
+                <div style="text-align: center; margin-top: 20px; padding-top: 14px; border-top: 1px solid #E5E7EB;">
+                  <a href="${eventUrl}" style="color: #0058BE; text-decoration: underline; font-size: 12px; font-weight: 600;">
+                    View Event Details &amp; Schedule &rarr;
                   </a>
                 </div>
 
               </div>
 
               <!-- Footer -->
-              <div style="background-color: #F8FAFC; border-top: 1px solid #E2E8F0; padding: 18px 24px; text-align: center; font-size: 11px; color: #94A3B8;">
-                &copy; 2026 EventRally (geteventrally.com) &bull; Where Everyone's Going.
+              <div style="background-color: #F9FAFB; border-top: 1px solid #E5E7EB; padding: 16px 20px; text-align: center; font-size: 11px; color: #6B7280; line-height: 1.5;">
+                &copy; 2026 EventRally &bull; The Event Operating System.
               </div>
 
             </div>

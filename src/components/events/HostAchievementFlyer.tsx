@@ -55,13 +55,13 @@ export const HostAchievementFlyer = React.forwardRef<HTMLDivElement, HostAchieve
           <div className="flex items-center justify-between border-b border-slate-800 pb-4">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded bg-[#0058BE] flex items-center justify-center font-black text-xs text-white tracking-tighter">
-                EG
+                ER
               </div>
               <div>
                 <span className="font-extrabold text-sm tracking-wider uppercase text-white block">
-                  EVENTGURU
+                  EVENTRALLY
                 </span>
-                <span className="text-[9px] font-mono font-semibold tracking-widest uppercase text-sky-400 block -mt-0.5">
+                <span className="text-[9px] font-mono font-semibold tracking-widest uppercase text-slate-300 block -mt-0.5">
                   EVENT OPERATING SYSTEM
                 </span>
               </div>
@@ -156,22 +156,22 @@ export const HostAchievementFlyer = React.forwardRef<HTMLDivElement, HostAchieve
           {/* Official Verification Seal & Platform Attribution Footer */}
           <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full border border-sky-400/40 flex items-center justify-center bg-sky-950/30">
-                <Award className="w-3.5 h-3.5 text-sky-400" />
+              <div className="w-7 h-7 rounded-full border border-[#0058BE]/40 flex items-center justify-center bg-blue-950/30">
+                <Award className="w-3.5 h-3.5 text-[#0058BE]" />
               </div>
               <div>
                 <div className="text-[10px] font-mono font-bold tracking-wider uppercase text-slate-200">
                   VERIFIED HOST COMPLIANCE
                 </div>
                 <div className="text-[9px] text-slate-400 font-mono">
-                  AUTHENTICATED BY EVENTGURU PROTOCOL
+                  AUTHENTICATED BY EVENTRALLY PROTOCOL
                 </div>
               </div>
             </div>
 
             <div className="text-right">
-              <div className="text-[10px] font-mono font-bold text-slate-400">
-                EVENTGURU.NG
+              <div className="text-[10px] font-mono font-bold text-slate-300">
+                GETEVENTRALLY.COM
               </div>
               <div className="text-[9px] text-slate-400 font-mono">
                 WHERE EVENTS LIVE

@@ -334,3 +334,4 @@ TIPS FOR THE VIDEO CREATOR / EDITOR:
   4. Always overlay readable high-contrast captions (Inter / Montserrat / JetBrains font).
   5. Show real UI screen recordings on mobile mockups rather than generic stock footage.
 ================================================================================
+

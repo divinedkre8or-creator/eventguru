@@ -87,7 +87,7 @@ export const EventHostSummaryModal = ({
       const link = document.createElement("a");
       const cleanTitle = event.title.toLowerCase().replace(/[^a-z0-9]/g, "-").slice(0, 30);
       link.href = image;
-      link.download = `eventguru-host-${cleanTitle}.png`;
+      link.download = `eventrally-host-${cleanTitle}.png`;
       link.click();
 
       toast.success("Host Achievement Flyer downloaded! Share it on WhatsApp & Instagram.", { id: toastId });
@@ -100,7 +100,7 @@ export const EventHostSummaryModal = ({
   };
 
   const handleCopyShareText = () => {
-    const text = `I just concluded hosting "${event.title}" on EventGuru with ${metrics?.checkedIn || 0} checked-in guests! 🚀 Powered by @EventGuruNG`;
+    const text = `I just concluded hosting "${event.title}" on EventRally with ${metrics?.checkedIn || 0} checked-in guests! Powered by EventRally`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     toast.success("Share text copied to clipboard!");
@@ -108,7 +108,7 @@ export const EventHostSummaryModal = ({
   };
 
   const handleWhatsAppShare = () => {
-    const text = `I just concluded hosting "${event.title}" on EventGuru with ${metrics?.checkedIn || 0} checked-in guests! 🚀\n\nExperience link: ${window.location.origin}/events/${event.id}`;
+    const text = `I just concluded hosting "${event.title}" on EventRally with ${metrics?.checkedIn || 0} checked-in guests!\n\nEvent link: ${window.location.origin}/events/${event.id}`;
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
   };
@@ -135,7 +135,7 @@ export const EventHostSummaryModal = ({
       if (error) throw error;
 
       setReviewSubmitted(true);
-      toast.success("Thank you! Your feedback directly empowers EventGuru.");
+      toast.success("Thank you! Your feedback directly empowers EventRally.");
     } catch (err: any) {
       toast.error(err.message || "Could not save review.");
     } finally {
@@ -237,10 +237,10 @@ export const EventHostSummaryModal = ({
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-bold text-sm text-foreground">
-                    How was your experience hosting with EventGuru?
+                    How was your experience hosting with EventRally?
                   </h4>
                   <p className="text-xs text-muted-foreground">
-                    Help us build the best event operating system for Nigerian creators.
+                    Help us build the premier event operating system.
                   </p>
                 </div>
               </div>
