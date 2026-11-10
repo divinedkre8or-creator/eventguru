@@ -670,42 +670,48 @@ const CreateEvent = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <Label className="font-heading text-sm font-bold text-foreground">Event Schedule *</Label>
               {/* Mode Selector */}
-              <div className="flex items-center gap-1 p-1 bg-muted/60 rounded-lg border border-border/70 text-xs">
+              <div className="grid grid-cols-3 gap-1 p-1 bg-muted/60 rounded-lg border border-border/70 text-xs w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={switchToSingleDay}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
+                  className={`flex items-center justify-center gap-1 sm:gap-1.5 px-2 py-1.5 rounded-md font-medium transition-all text-[11px] sm:text-xs truncate ${
                     scheduleMode === "single"
-                      ? "bg-card text-foreground shadow-xs border border-border"
+                      ? "bg-card text-foreground shadow-xs border border-border font-bold"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>Single Day</span>
+                  <Calendar className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Single Day</span>
                 </button>
                 <button
                   type="button"
                   onClick={switchToRangeMode}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
+                  className={`flex items-center justify-center gap-1 sm:gap-1.5 px-2 py-1.5 rounded-md font-medium transition-all text-[11px] sm:text-xs truncate ${
                     scheduleMode === "range"
-                      ? "bg-card text-foreground shadow-xs border border-border"
+                      ? "bg-card text-foreground shadow-xs border border-border font-bold text-primary"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <CalendarRange className="w-3.5 h-3.5 text-primary" />
-                  <span>Date Range (Multi-Day)</span>
+                  <CalendarRange className="w-3.5 h-3.5 shrink-0 text-primary" />
+                  <span className="truncate">
+                    <span className="sm:hidden">Range</span>
+                    <span className="hidden sm:inline">Date Range</span>
+                  </span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setScheduleMode("custom")}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
+                  className={`flex items-center justify-center gap-1 sm:gap-1.5 px-2 py-1.5 rounded-md font-medium transition-all text-[11px] sm:text-xs truncate ${
                     scheduleMode === "custom"
-                      ? "bg-card text-foreground shadow-xs border border-border"
+                      ? "bg-card text-foreground shadow-xs border border-border font-bold text-secondary"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <Clock className="w-3.5 h-3.5 text-secondary" />
-                  <span>Custom Days</span>
+                  <Clock className="w-3.5 h-3.5 shrink-0 text-secondary" />
+                  <span className="truncate">
+                    <span className="sm:hidden">Custom</span>
+                    <span className="hidden sm:inline">Custom Days</span>
+                  </span>
                 </button>
               </div>
             </div>

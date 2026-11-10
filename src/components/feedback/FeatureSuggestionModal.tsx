@@ -103,11 +103,11 @@ export const FeatureSuggestionModal = () => {
   return (
     <>
       {/* Floating Trigger Pill */}
-      <aside aria-label="Feature Feedback" className="fixed bottom-4 right-4 z-40 select-none">
+      <aside aria-label="Feature Feedback" className="fixed bottom-20 right-3.5 md:bottom-5 md:right-5 z-40 select-none">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 px-3 py-2 rounded-full bg-card/90 backdrop-blur-md border border-border/80 shadow-md hover:border-primary/60 hover:shadow-lg transition-all text-xs font-semibold text-foreground group"
+          className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 rounded-full bg-card/90 backdrop-blur-md border border-border/80 shadow-md hover:border-primary/60 hover:shadow-lg transition-all text-xs font-semibold text-foreground group"
           title="Suggest a Feature or Improvement"
         >
           <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
@@ -119,7 +119,7 @@ export const FeatureSuggestionModal = () => {
 
       {/* Suggestion Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[480px] bg-card border border-border p-5 sm:p-6 rounded-2xl shadow-xl">
+        <DialogContent className="w-[94vw] max-w-[480px] bg-card border border-border p-4 sm:p-6 rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader className="space-y-1.5 text-left">
             <DialogTitle className="font-heading text-lg font-bold text-foreground flex items-center gap-2">
               <MessageSquarePlus className="w-5 h-5 text-primary" />

@@ -116,3 +116,4 @@ export function resetAnalytics(): void {
 }
 
 export { posthog };
+

@@ -9,7 +9,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { WorkspaceModeSwitcher } from "@/components/navigation/WorkspaceModeSwitcher";
@@ -478,8 +477,6 @@ const DashboardLayout = () => {
           ))}
         </div>
       </nav>
-
-      <FeedbackWidget />
     </div>
   );
 };
