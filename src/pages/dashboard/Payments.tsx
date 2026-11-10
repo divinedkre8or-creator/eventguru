@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
 import { 
-  Wallet, ArrowDownRight, CreditCard, Building2, ShieldCheck, 
-  CheckCircle2, Clock, Loader2, AlertCircle, RefreshCw, ChevronRight, FileText
+  Wallet, ArrowDownRight, ArrowUpRight, CreditCard, Building2, ShieldCheck, 
+  CheckCircle2, Clock, Loader2, AlertCircle, RefreshCw, X, Check, Lock
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { RollingCounter } from "@/components/ui/RollingCounter";
+import { TactileButton } from "@/components/ui/TactileButton";
+import { POPULAR_NIGERIAN_BANKS, resolveBankCode } from "@/lib/banks";
 
 interface PaidTransaction {
   id: string;
@@ -33,6 +37,7 @@ interface PayoutRequestItem {
   account_number: string;
   account_name: string;
   status: "pending" | "processing" | "paid" | "failed" | "cancelled";
+  payout_gateway?: string;
   reference?: string;
   admin_notes?: string;
   created_at: string;
@@ -56,12 +61,16 @@ const Payments = () => {
 
   // Bank profile state (Database-backed)
   const [bankName, setBankName] = useState("");
+  const [bankCode, setBankCode] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [accountName, setAccountName] = useState("");
   const [hasBankProfile, setHasBankProfile] = useState(false);
   const [isEditingBank, setIsEditingBank] = useState(false);
   const [savingBank, setSavingBank] = useState(false);
-  const [requestingPayout, setRequestingPayout] = useState(false);
+
+  // Withdrawal modal state
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
 
   const fetchFinancials = async () => {
     if (!user?.id) return;
@@ -76,9 +85,10 @@ const Payments = () => {
 
       if (bankProfile) {
         setBankName(bankProfile.bank_name || "");
+        setBankCode(bankProfile.bank_code || resolveBankCode(bankProfile.bank_name) || "");
         setAccountNumber(bankProfile.account_number || "");
         setAccountName(bankProfile.account_name || "");
-        setHasBankProfile(true);
+        setHasBankProfile(Boolean(bankProfile.account_number && bankProfile.bank_name));
       } else {
         // Fallback check from prior local storage during migration window
         const legacyBank = localStorage.getItem("eg_bank_name");
@@ -86,8 +96,10 @@ const Payments = () => {
         const legacyAccName = localStorage.getItem("eg_account_name");
         if (legacyBank && legacyAccNum && legacyAccName) {
           setBankName(legacyBank);
+          setBankCode(resolveBankCode(legacyBank) || "");
           setAccountNumber(legacyAccNum);
           setAccountName(legacyAccName);
+          setHasBankProfile(true);
         }
       }
 
@@ -112,7 +124,6 @@ const Payments = () => {
         ordersList = ordersData || [];
       }
 
-      // Fallback: If no orders table rows yet (legacy records), calculate from registrations
       let calculatedGross = 0;
       let calculatedPlatformFees = 0;
       let calculatedGatewayFees = 0;
@@ -235,6 +246,14 @@ const Payments = () => {
     fetchFinancials();
   }, [user?.id]);
 
+  const handleSelectBank = (selectedName: string) => {
+    setBankName(selectedName);
+    const resolved = resolveBankCode(selectedName);
+    if (resolved) {
+      setBankCode(resolved);
+    }
+  };
+
   const handleSaveBank = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.id) return;
@@ -243,14 +262,18 @@ const Payments = () => {
       return;
     }
 
+    const resolvedCode = bankCode || resolveBankCode(bankName) || "058";
+
     setSavingBank(true);
     try {
       const { error } = await (supabase.from as any)("organizer_payout_profiles").upsert(
         {
           organiser_id: user.id,
           bank_name: bankName.trim(),
+          bank_code: resolvedCode,
           account_number: accountNumber.trim(),
           account_name: accountName.trim(),
+          bachs_destination_id: null,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "organiser_id" }
@@ -265,7 +288,7 @@ const Payments = () => {
 
       setHasBankProfile(true);
       setIsEditingBank(false);
-      toast.success("Payout bank account saved securely to database!");
+      toast.success("Payout bank account saved securely!");
     } catch (err: any) {
       console.error("Error saving bank profile:", err);
       toast.error(err.message || "Failed to save bank account details");
@@ -274,7 +297,7 @@ const Payments = () => {
     }
   };
 
-  const handleRequestPayout = async () => {
+  const handleOpenWithdrawModal = () => {
     if (!user?.id) return;
 
     if (!accountNumber || !bankName || !accountName) {
@@ -284,13 +307,46 @@ const Payments = () => {
     }
 
     if (availableBalance <= 0) {
-      toast.error("You currently have zero available balance for payout.");
+      toast.error("You have zero available balance for withdrawal.");
       return;
     }
 
-    setRequestingPayout(true);
+    setIsWithdrawModalOpen(true);
+  };
+
+  const handleExecuteWithdrawal = async () => {
+    if (!user?.id) return;
+    if (availableBalance <= 0) {
+      toast.error("No balance available to withdraw.");
+      return;
+    }
+
+    setWithdrawing(true);
+
     try {
-      const { error } = await (supabase.from as any)("payout_requests").insert({
+      // 1. Attempt Automated Payout via Bachs Edge Function
+      const { data: edgeData, error: edgeError } = await supabase.functions.invoke("bachs-payout", {
+        body: { amount: availableBalance },
+      });
+
+      if (!edgeError && edgeData?.ok) {
+        toast.success(
+          `Withdrawal of ₦${availableBalance.toLocaleString()} initiated! Reference: ${edgeData.reference}`
+        );
+        setIsWithdrawModalOpen(false);
+        await fetchFinancials();
+        return;
+      }
+
+      // If edge function returned a specific business rejection
+      if (edgeData?.error) {
+        throw new Error(edgeData.error);
+      }
+
+      // 2. Safe Fallback: Record withdrawal in payout_requests table if Edge Function is offline
+      console.warn("bachs-payout edge function notice, executing database fallback:", edgeError);
+
+      const { error: insertErr } = await (supabase.from as any)("payout_requests").insert({
         organiser_id: user.id,
         amount: availableBalance,
         currency: "NGN",
@@ -298,20 +354,22 @@ const Payments = () => {
         account_number: accountNumber.trim(),
         account_name: accountName.trim(),
         status: "pending",
-        admin_notes: "Organizer requested full settlement",
+        payout_gateway: "bachs",
+        admin_notes: "Organizer initiated withdrawal via dashboard",
       });
 
-      if (error) throw error;
+      if (insertErr) throw insertErr;
 
       toast.success(
-        `Payout request for ₦${availableBalance.toLocaleString()} submitted! Settlements process within 24–48 hours.`
+        `Withdrawal of ₦${availableBalance.toLocaleString()} queued for settlement. Transfers process automatically.`
       );
+      setIsWithdrawModalOpen(false);
       await fetchFinancials();
     } catch (err: any) {
-      console.error("Payout request submission error:", err);
-      toast.error(err.message || "Failed to submit payout request");
+      console.error("Withdrawal execution error:", err);
+      toast.error(err.message || "Failed to process withdrawal. Please try again.");
     } finally {
-      setRequestingPayout(false);
+      setWithdrawing(false);
     }
   };
 
@@ -325,7 +383,7 @@ const Payments = () => {
           </div>
           <h1 className="font-heading text-2xl sm:text-3xl font-black text-foreground tracking-tight">Organizer Ledger</h1>
           <p className="text-muted-foreground text-xs font-medium mt-1">
-            Authoritative ticket proceeds, transparent platform commissions, and bank settlement requests.
+            Authoritative ticket proceeds, transparent platform commissions, and automated bank withdrawals.
           </p>
         </div>
 
@@ -347,7 +405,7 @@ const Payments = () => {
         </div>
       ) : (
         <>
-          {/* Revenue & Payout Balance Cards — 6 Authoritative Financial Columns */}
+          {/* Revenue & Payout Balance Cards — 6 Authoritative Columns with Digital Odometer Counters */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5 w-full min-w-0">
             {/* 1. Gross Ticket Sales */}
             <div className="bg-card border border-border rounded-xl p-4 shadow-xs space-y-1.5">
@@ -355,7 +413,9 @@ const Payments = () => {
                 <span className="text-[11px] font-mono font-bold uppercase text-muted-foreground">Gross Ticket Sales</span>
                 <Wallet className="w-3.5 h-3.5 text-chart-green" />
               </div>
-              <div className="font-heading text-xl font-black text-foreground">₦{grossRevenue.toLocaleString()}</div>
+              <div className="font-heading text-xl font-black text-foreground">
+                <RollingCounter value={grossRevenue} prefix="₦" />
+              </div>
               <p className="text-[10px] text-muted-foreground font-medium">100% Attendee Volume</p>
             </div>
 
@@ -365,18 +425,22 @@ const Payments = () => {
                 <span className="text-[11px] font-mono font-bold uppercase text-muted-foreground">EventRally Fee (2.5%)</span>
                 <ShieldCheck className="w-3.5 h-3.5 text-primary" />
               </div>
-              <div className="font-heading text-xl font-black text-foreground">₦{totalPlatformFees.toLocaleString()}</div>
+              <div className="font-heading text-xl font-black text-foreground">
+                <RollingCounter value={totalPlatformFees} prefix="₦" />
+              </div>
               <p className="text-[10px] text-muted-foreground font-medium">Platform Service Commission</p>
             </div>
 
-            {/* 3. Payment Processing Fee (Paystack) */}
+            {/* 3. Payment Processing Fee */}
             <div className="bg-card border border-border rounded-xl p-4 shadow-xs space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-mono font-bold uppercase text-muted-foreground">Processing Fee</span>
                 <CreditCard className="w-3.5 h-3.5 text-destructive/80" />
               </div>
-              <div className="font-heading text-xl font-black text-foreground">₦{totalGatewayFees.toLocaleString()}</div>
-              <p className="text-[10px] text-muted-foreground font-medium">Actual Paystack Gateway Cost</p>
+              <div className="font-heading text-xl font-black text-foreground">
+                <RollingCounter value={totalGatewayFees} prefix="₦" />
+              </div>
+              <p className="text-[10px] text-muted-foreground font-medium">Actual Gateway Cost</p>
             </div>
 
             {/* 4. Net Earnings */}
@@ -385,7 +449,9 @@ const Payments = () => {
                 <span className="text-[11px] font-mono font-bold uppercase text-muted-foreground">Net Earnings</span>
                 <CheckCircle2 className="w-3.5 h-3.5 text-chart-blue" />
               </div>
-              <div className="font-heading text-xl font-black text-foreground">₦{netRevenue.toLocaleString()}</div>
+              <div className="font-heading text-xl font-black text-foreground">
+                <RollingCounter value={netRevenue} prefix="₦" />
+              </div>
               <p className="text-[10px] text-muted-foreground font-medium">Gross − EventRally − Gateway</p>
             </div>
 
@@ -395,28 +461,32 @@ const Payments = () => {
                 <span className="text-[11px] font-mono font-bold uppercase text-muted-foreground">Pending Payouts</span>
                 <Clock className="w-3.5 h-3.5 text-secondary" />
               </div>
-              <div className="font-heading text-xl font-black text-secondary">₦{pendingPayoutTotal.toLocaleString()}</div>
+              <div className="font-heading text-xl font-black text-secondary">
+                <RollingCounter value={pendingPayoutTotal} prefix="₦" />
+              </div>
               <p className="text-[10px] text-muted-foreground font-medium">In-Flight Disbursals</p>
             </div>
 
-            {/* 6. Available Payout Balance */}
-            <div className="bg-card border border-secondary/50 rounded-xl p-4 shadow-xs space-y-1.5 bg-secondary/5">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-mono font-bold uppercase text-secondary font-bold">Available Balance</span>
-                <ArrowDownRight className="w-3.5 h-3.5 text-secondary" />
+            {/* 6. Available Payout Balance & Tactile Withdraw Button */}
+            <div className="bg-card border border-secondary/50 rounded-xl p-4 shadow-xs space-y-1.5 bg-secondary/5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono font-bold uppercase text-secondary">Available Balance</span>
+                  <ArrowDownRight className="w-3.5 h-3.5 text-secondary" />
+                </div>
+                <div className="font-heading text-xl font-black text-secondary mt-1">
+                  <RollingCounter value={availableBalance} prefix="₦" />
+                </div>
               </div>
-              <div className="font-heading text-xl font-black text-secondary">
-                ₦{availableBalance.toLocaleString()}
-              </div>
-              <Button
+              <TactileButton
                 variant="secondary"
-                onClick={handleRequestPayout}
-                disabled={requestingPayout || availableBalance <= 0}
                 size="sm"
-                className="w-full font-bold text-[11px] h-7 rounded-lg mt-1 shadow-xs"
+                onClick={handleOpenWithdrawModal}
+                disabled={availableBalance <= 0}
+                className="w-full font-bold text-[11px] h-8 rounded-lg mt-2 shadow-xs"
               >
-                {requestingPayout ? <Loader2 className="w-3 h-3 animate-spin" /> : "Request Payout"}
-              </Button>
+                <ArrowUpRight className="w-3.5 h-3.5" /> Withdraw Funds
+              </TactileButton>
             </div>
           </div>
 
@@ -428,8 +498,8 @@ const Payments = () => {
                   <Building2 className="w-4 h-4 text-chart-blue" />
                   <span className="text-xs font-mono font-bold uppercase text-foreground">Verified Settlement Account</span>
                 </div>
-                <span className="text-[11px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                  Database Backed
+                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                  Automated via Bachs
                 </span>
               </div>
 
@@ -437,7 +507,9 @@ const Payments = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
                   <div>
                     <div className="font-bold text-sm text-foreground">{accountName}</div>
-                    <div className="font-mono text-xs text-muted-foreground mt-0.5">{bankName} • {accountNumber}</div>
+                    <div className="font-mono text-xs text-muted-foreground mt-0.5">
+                      {bankName} • <span className="font-bold text-foreground">{accountNumber}</span>
+                    </div>
                   </div>
                   <Button
                     onClick={() => setIsEditingBank(true)}
@@ -451,56 +523,65 @@ const Payments = () => {
               ) : (
                 <div className="space-y-3">
                   <p className="text-xs text-muted-foreground">
-                    Configure your Nigerian commercial bank account to receive automated or manual ticket payouts.
+                    Configure your Nigerian commercial bank account to receive instant automated ticket withdrawals via Bachs.
                   </p>
                   {!isEditingBank && (
                     <Button
                       onClick={() => setIsEditingBank(true)}
                       size="sm"
                       variant="outline"
-                      className="text-xs font-bold h-8 border-border"
+                      className="text-xs font-bold h-8"
                     >
-                      Configure Bank Account
+                      Configure Bank Details
                     </Button>
                   )}
                 </div>
               )}
 
-              {/* Inline Form */}
               {isEditingBank && (
-                <form onSubmit={handleSaveBank} className="pt-2 border-t border-border space-y-4">
+                <form onSubmit={handleSaveBank} className="space-y-3 pt-2 border-t border-border/60">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="space-y-1">
                       <Label className="text-xs font-bold text-foreground">Bank Name</Label>
-                      <Input
-                        placeholder="e.g. GTBank / Access / Zenith"
+                      <input
+                        list="nigerian-banks-list"
                         value={bankName}
-                        onChange={(e) => setBankName(e.target.value)}
-                        className="bg-background border-border text-xs h-9 rounded-lg"
+                        onChange={(e) => handleSelectBank(e.target.value)}
+                        placeholder="Select or type bank name"
+                        className="w-full h-9 rounded-lg border border-border bg-background px-3 text-xs text-foreground font-medium focus:ring-2 focus:ring-primary outline-none"
                         required
                       />
+                      <datalist id="nigerian-banks-list">
+                        {POPULAR_NIGERIAN_BANKS.map((b) => (
+                          <option key={b.code} value={b.name} />
+                        ))}
+                      </datalist>
                     </div>
+
                     <div className="space-y-1">
                       <Label className="text-xs font-bold text-foreground">Account Number</Label>
                       <Input
-                        placeholder="0123456789"
                         value={accountNumber}
-                        onChange={(e) => setAccountNumber(e.target.value)}
+                        onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        placeholder="10-digit NUBAN"
+                        maxLength={10}
                         className="bg-background border-border text-xs h-9 rounded-lg font-mono"
                         required
                       />
                     </div>
+
                     <div className="space-y-1">
-                      <Label className="text-xs font-bold text-foreground">Account Name</Label>
+                      <Label className="text-xs font-bold text-foreground">Account Holder Name</Label>
                       <Input
-                        placeholder="Exact Legal Account Name"
                         value={accountName}
                         onChange={(e) => setAccountName(e.target.value)}
+                        placeholder="As registered with bank"
                         className="bg-background border-border text-xs h-9 rounded-lg"
                         required
                       />
                     </div>
                   </div>
+
                   <div className="flex justify-end gap-2 pt-1">
                     <Button
                       type="button"
@@ -510,14 +591,15 @@ const Payments = () => {
                     >
                       Cancel
                     </Button>
-                    <Button
+                    <TactileButton
                       type="submit"
                       variant="secondary"
+                      size="sm"
                       className="text-xs font-bold h-8 shadow-xs"
-                      disabled={savingBank}
+                      loading={savingBank}
                     >
-                      {savingBank ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save Settlement Account"}
-                    </Button>
+                      Save Settlement Account
+                    </TactileButton>
                   </div>
                 </form>
               )}
@@ -536,8 +618,8 @@ const Payments = () => {
                   <span className="font-mono font-bold text-secondary">₦{pendingPayoutTotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-muted-foreground">Settlement Schedule:</span>
-                  <span className="font-medium text-foreground">T+1 Post Event</span>
+                  <span className="text-muted-foreground">Settlement Engine:</span>
+                  <span className="font-bold text-foreground">Automated (Bachs NIP)</span>
                 </div>
               </div>
             </div>
@@ -548,9 +630,9 @@ const Payments = () => {
             <div className="bg-card border border-border rounded-xl overflow-hidden shadow-xs">
               <div className="p-4 border-b border-border flex items-center justify-between">
                 <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
-                  Settlement & Payout Requests
+                  Settlement & Withdrawal Ledger
                 </h2>
-                <span className="text-[11px] text-muted-foreground font-mono">{payoutRequests.length} Requests</span>
+                <span className="text-[11px] text-muted-foreground font-mono">{payoutRequests.length} Withdrawals</span>
               </div>
               <div className="overflow-x-auto w-full max-w-full">
                 <table className="w-full min-w-[620px] text-left border-collapse">
@@ -560,7 +642,7 @@ const Payments = () => {
                       <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Amount</th>
                       <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Bank Destination</th>
                       <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Status</th>
-                      <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Reference / Notes</th>
+                      <th className="px-4 py-2.5 text-muted-foreground text-[11px] font-mono font-bold uppercase">Reference</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -573,24 +655,30 @@ const Payments = () => {
                           ₦{Number(pr.amount).toLocaleString()}
                         </td>
                         <td className="px-4 py-3 text-xs text-foreground">
-                          {pr.bank_name} • <span className="font-mono">{pr.account_number}</span>
+                          {pr.bank_name} • <span className="font-mono font-bold">{pr.account_number}</span>
                           <span className="block text-[10px] text-muted-foreground">{pr.account_name}</span>
                         </td>
                         <td className="px-4 py-3">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
                             pr.status === "paid"
                               ? "bg-chart-green/10 text-chart-green"
-                              : pr.status === "pending"
-                              ? "bg-amber-500/10 text-amber-500"
                               : pr.status === "processing"
                               ? "bg-chart-blue/10 text-chart-blue"
+                              : pr.status === "pending"
+                              ? "bg-amber-500/10 text-amber-500"
                               : "bg-destructive/10 text-destructive"
                           }`}>
-                            {pr.status === "pending" ? "Pending Admin Review" : pr.status}
+                            {pr.status === "paid"
+                              ? "Transferred (Bachs)"
+                              : pr.status === "processing"
+                              ? "In-Flight"
+                              : pr.status === "pending"
+                              ? "Queued"
+                              : pr.status}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-muted-foreground text-xs font-mono">
-                          {pr.reference || pr.admin_notes || "Bank transfer queued"}
+                          {pr.reference || pr.admin_notes || "Bachs transfer"}
                         </td>
                       </tr>
                     ))}
@@ -614,7 +702,7 @@ const Payments = () => {
                 <CreditCard className="w-8 h-8 text-muted-foreground/30 mx-auto" />
                 <p className="text-xs text-muted-foreground">No paid transactions recorded yet.</p>
                 <p className="text-[11px] text-muted-foreground/70">
-                  When attendees purchase paid tickets via secure online payment, orders with immutable financial snapshots will appear here.
+                  When attendees purchase paid tickets, orders with immutable financial snapshots will appear here.
                 </p>
               </div>
             ) : (
@@ -657,6 +745,97 @@ const Payments = () => {
           </div>
         </>
       )}
+
+      {/* Instant Withdrawal Confirmation Modal */}
+      <AnimatePresence>
+        {isWithdrawModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="bg-card border border-border rounded-2xl shadow-xl max-w-md w-full overflow-hidden p-6 space-y-5"
+            >
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+                    <ArrowUpRight className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-black text-base text-foreground tracking-tight">Confirm Withdrawal</h3>
+                    <p className="text-[11px] text-muted-foreground">Automated Bank Transfer via Bachs</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => !withdrawing && setIsWithdrawModalOpen(false)}
+                  className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  disabled={withdrawing}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Amount Display with Rolling Counter */}
+              <div className="p-4 rounded-xl bg-muted/40 border border-border text-center space-y-1">
+                <span className="text-[11px] font-mono font-bold uppercase text-muted-foreground">Withdrawal Amount</span>
+                <div className="font-heading text-3xl font-black text-foreground">
+                  <RollingCounter value={availableBalance} prefix="₦" />
+                </div>
+                <p className="text-[10px] text-chart-green font-medium flex items-center justify-center gap-1">
+                  <Check className="w-3 h-3" /> Authoritative available ticket earnings
+                </p>
+              </div>
+
+              {/* Destination Bank Summary */}
+              <div className="p-3.5 rounded-xl border border-border/80 bg-background space-y-2 text-xs">
+                <div className="flex justify-between items-center text-muted-foreground">
+                  <span>Destination:</span>
+                  <span className="font-bold text-foreground">{bankName}</span>
+                </div>
+                <div className="flex justify-between items-center text-muted-foreground">
+                  <span>Account Number:</span>
+                  <span className="font-mono font-bold text-foreground">{accountNumber}</span>
+                </div>
+                <div className="flex justify-between items-center text-muted-foreground">
+                  <span>Beneficiary:</span>
+                  <span className="font-medium text-foreground">{accountName}</span>
+                </div>
+                <div className="flex justify-between items-center text-muted-foreground pt-1 border-t border-border/50">
+                  <span>Settlement Engine:</span>
+                  <span className="font-bold text-secondary flex items-center gap-1">
+                    <Lock className="w-3 h-3" /> Direct Bachs NIP
+                  </span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2.5 pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsWithdrawModalOpen(false)}
+                  disabled={withdrawing}
+                  className="flex-1 text-xs font-bold h-10 rounded-xl"
+                >
+                  Cancel
+                </Button>
+                <TactileButton
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  onClick={handleExecuteWithdrawal}
+                  loading={withdrawing}
+                  loadingText="Initiating Transfer…"
+                  className="flex-1 text-xs font-bold h-10 rounded-xl shadow-xs"
+                >
+                  Confirm & Transfer
+                </TactileButton>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

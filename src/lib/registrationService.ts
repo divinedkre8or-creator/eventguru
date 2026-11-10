@@ -6,7 +6,9 @@
 //   1. Paid payments are NEVER created via client-side direct inserts.
 //      If server-side verification fails, it FAILS CLOSED.
 //   2. Order pre-initialization (`initializeOrder`) binds the reference and amount
-//      server-side before opening Paystack.
+//      server-side before opening checkout.
+//   2. `verifyBachsOrder`: Verifies payment with Bachs.io and issues tickets.
+//   3. `completeRegistration`: Verifies payment with Paystack fallback and issues tickets.
 //   3. Finalization (`finalizeOrder`) performs cryptographic verification and
 //      atomic multi-ticket provisioning via the database RPC.
 //   4. Free registrations are verified against the database and fail closed if
@@ -40,6 +42,31 @@ export interface InitializeOrderResult {
 
 export interface FinalizeOrderInput {
   paymentReference: string;
+}
+
+export interface InitializeBachsOrderInput {
+  eventId: string;
+  ticketTypeId: string | null;
+  fullName: string;
+  email: string;
+  phone?: string | null;
+  quantity: number;
+  customAnswers?: Record<string, any> | null;
+  originUrl?: string;
+}
+
+export interface InitializeBachsOrderResult {
+  ok: boolean;
+  isFree: boolean;
+  orderId?: string;
+  paymentReference?: string;
+  checkoutId?: string;
+  checkoutUrl?: string;
+  amountMajor?: number;
+  currency?: string;
+  registrationId?: string;
+  ticketIds?: string[];
+  reason?: string;
 }
 
 export interface SubmitRegistrationInput {
@@ -95,7 +122,7 @@ export async function initializeOrder(input: InitializeOrderInput): Promise<Init
 }
 
 /**
- * Authoritatively verifies payment with Paystack and issues tickets atomically.
+ * Authoritatively verifies payment with Paystack fallback and issues tickets atomically.
  */
 export async function finalizeOrder(paymentReference: string): Promise<SubmitRegistrationResult> {
   const { data, error } = await supabase.functions.invoke("complete-registration", {
@@ -113,6 +140,65 @@ export async function finalizeOrder(paymentReference: string): Promise<SubmitReg
 
   if (data?.ok === false) {
     throw new RegistrationRejectedError(data.reason || "Payment could not be verified by the server.");
+  }
+
+  return {
+    registrationId: data.registrationId,
+    ticketIds: data.ticketIds || (data.registrationId ? [data.registrationId] : []),
+    orderId: data.orderId,
+    amountPaid: typeof data.amountPaid === "number" ? data.amountPaid : 0,
+    viaSecureFunction: true,
+  };
+}
+
+/**
+ * Initializes a ticket order with Bachs.io Checkout session.
+ * Supports multi-currency cards, Nigerian bank transfers, mobile money, and crypto.
+ */
+export async function initializeBachsOrder(input: InitializeBachsOrderInput): Promise<InitializeBachsOrderResult> {
+  const { data, error } = await supabase.functions.invoke("bachs-checkout", {
+    body: {
+      action: "initialize",
+      eventId: input.eventId,
+      ticketTypeId: input.ticketTypeId,
+      fullName: input.fullName,
+      email: input.email,
+      phone: input.phone ?? null,
+      quantity: input.quantity,
+      customAnswers: input.customAnswers ?? null,
+      originUrl: input.originUrl || window.location.origin,
+    },
+  });
+
+  if (error) {
+    throw new Error(error.message || "Failed to initialize Bachs checkout session.");
+  }
+
+  if (data?.ok === false) {
+    throw new RegistrationRejectedError(data.reason || "Unable to reserve ticket order.");
+  }
+
+  return data as InitializeBachsOrderResult;
+}
+
+/**
+ * Verifies a Bachs checkout session and issues tickets atomically.
+ */
+export async function verifyBachsOrder(checkoutIdOrRef: { checkoutId?: string; paymentReference?: string }): Promise<SubmitRegistrationResult> {
+  const { data, error } = await supabase.functions.invoke("bachs-checkout", {
+    body: {
+      action: "verify",
+      checkoutId: checkoutIdOrRef.checkoutId,
+      paymentReference: checkoutIdOrRef.paymentReference,
+    },
+  });
+
+  if (error) {
+    throw new PaymentVerificationError("Bachs payment confirmation was interrupted. Please contact support.");
+  }
+
+  if (data?.ok === false) {
+    throw new RegistrationRejectedError(data.reason || "Payment could not be verified by Bachs.");
   }
 
   return {
@@ -180,7 +266,7 @@ async function freeTicketDirectInsert(input: SubmitRegistrationInput): Promise<S
     email: input.email,
     phone: input.phone || null,
     amount_paid: 0,
-    payment_reference: `FREE-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+    payment_reference: `FREE-${Date.now()}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
     status: "completed",
     checked_in: false,
     ticket_index: 1,

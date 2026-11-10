@@ -183,7 +183,7 @@ const AdminDisputes = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Enter Paystack Payment Reference (e.g. EVR-...) or Attendee Email..."
+              placeholder="Enter Payment Reference (e.g. EVR-...) or Attendee Email..."
               value={lookupQuery}
               onChange={(e) => setLookupQuery(e.target.value)}
               className="pl-9 bg-background border-border text-xs h-10 rounded-lg font-mono"

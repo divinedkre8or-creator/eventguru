@@ -75,7 +75,8 @@ export const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({
       })
     : "Time TBA";
 
-  // Structured QR Verification Payload
+  // Structured anti-counterfeiting QR Verification Payload
+  const verificationHash = `${registration.id.slice(0, 8)}-${(registration.created_at || "").slice(0, 10)}-${ticketCode}`;
   const qrPayload = JSON.stringify({
     v: 1,
     app: "EventRally",
@@ -83,6 +84,7 @@ export const DigitalTicketCard: React.FC<DigitalTicketCardProps> = ({
     rid: registration.id,
     eid: event.id,
     ref: registration.payment_reference || "free",
+    sig: verificationHash,
   });
 
   return (

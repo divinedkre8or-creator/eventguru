@@ -1,0 +1,200 @@
+================================================================================
+EVENTRALLY — CORE PLATFORM FEATURES & SELLING POINTS TO PROMOTE
+================================================================================
+PURPOSE: Master list of all unique features, tools, and offerings across EventRally.
+USE: Hand off to content creators, copywriters, and video producers to build campaigns around.
+
+================================================================================
+1. THE VIRAL DP GENERATOR (ATTENDEE PICTURE FLYER)
+================================================================================
+• WHAT IT IS:
+  A built-in tool that lets attendees upload their photo and instantly generate a branded "I Am Attending [Event Name]" flyer in one click.
+
+• WHY IT IS IMPORTANT:
+  Event marketing is usually expensive. Organizers spend days begging graphic designers to make 100+ individual flyers for speakers, VIPs, and guests.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  Zero graphic designer needed. It turns every single attendee into an unpaid marketing agent on WhatsApp Status, Instagram Stories, and X. The growth loop is viral and automatic.
+
+
+================================================================================
+2. 20-SECOND MOBILE CHECKOUT (CARDS, TRANSFERS & USSD)
+================================================================================
+• WHAT IT IS:
+  A clean, ultra-fast checkout flow that lets buyers purchase event tickets in under 20 seconds using debit cards, direct bank transfer, or USSD via Paystack.
+
+• WHY IT IS IMPORTANT:
+  Over 40% of online ticket buyers drop out when forced to create an account, fill out long 15-field forms, or wait for sluggish page reloads on mobile networks.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  Zero account creation required for buyers. 2 quick taps and payment is confirmed. Maximizes impulse buys and sales conversion on mobile phones.
+
+
+================================================================================
+3. AUTOMATED BANK PAYOUTS & IN-APP ORGANIZER WALLET
+================================================================================
+• WHAT IT IS:
+  Direct, automated settlement of ticket revenues straight into the organizer's Nigerian bank account (GTB, Access, Zenith, etc.) with a live financial ledger.
+
+• WHY IT IS IMPORTANT:
+  Organizers need cash flow to pay venue balances, sound engineers, caterers, and bouncers BEFORE the event takes place, not weeks later.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  Traditional platforms hold ticket money hostage for 7 to 14 days post-event. EventRally gives organizers direct, predictable access to their funds with full accounting transparency.
+
+
+================================================================================
+4. SMART POSTER FRAME (ZERO FLYER CROPPING GUARANTEE)
+================================================================================
+• WHAT IT IS:
+  An intelligent display frame for event flyers that renders any aspect ratio (portrait 9:16, vertical 4:5, square 1:1, or wide 16:9) at 100% full scale backed by a soft ambient blurred aura.
+
+• WHY IT IS IMPORTANT:
+  Organizers and designers hate it when an event platform forcibly crops their artwork—cutting off guest speakers' heads, church themes, dates, or sponsor logos.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  EventRally never crops or stretches flyers. It gives every poster a premium cinema-style presentation across both mobile and desktop screens.
+
+
+================================================================================
+5. MULTI-DAY CONSECUTIVE DATE RANGE SCHEDULER
+================================================================================
+• WHAT IT IS:
+  A date engine that allows organizers to pick a date range (e.g., Dec 2nd to Dec 5th) and automatically generates each consecutive day with its own customizable start and end times.
+
+• WHY IT IS IMPORTANT:
+  Many events (church crusades, tech hackathons, religious retreats, 3-day festivals) run across multiple consecutive days.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  Organizers don't need to manually create 3 or 4 separate events or clutter their attendees with different links. One single ticket and event page covers the entire multi-day itinerary.
+
+
+================================================================================
+6. IN-APP CAMERA QR CODE DOOR SCANNER
+================================================================================
+• WHAT IT IS:
+  A high-speed QR ticket scanner that works directly through the smartphone's browser camera without downloading any heavy native app or renting laser scanners.
+
+• WHY IT IS IMPORTANT:
+  Entrance bottlenecks cause frustrated crowds, gate fights, and delayed event start times. Printed paper guest lists are slow, error-prone, and impossible to read in dim event lighting.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  Any usher or bouncer can open the scanner URL on their own phone, point the camera, and verify passes in 1.2 seconds. Real-time green/red visual and haptic feedback.
+
+
+================================================================================
+7. FRAUD-PROOF CRYPTOGRAPHIC TICKETING (ANTI-SCREENSHOT PROTECTION)
+================================================================================
+• WHAT IT IS:
+  Secure digital admission passes with cryptographic QR codes that lock immediately once scanned at the gate.
+
+• WHY IT IS IMPORTANT:
+  Unscrupulous attendees often share a single ticket screenshot or forwarded PDF with 5 different friends to enter paid concerts and raves for free.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  The moment a ticket is scanned once, any subsequent attempt triggers an instant RED screen and alert: "Pass already checked in at 6:42 PM". Gate leaks and touting are eliminated.
+
+
+================================================================================
+8. 100% FREE FOREVER FOR FREE & COMMUNITY EVENTS
+================================================================================
+• WHAT IT IS:
+  Complete, unrestricted access to EventRally's ticketing, registration, and QR check-in features for events that don't charge admission fees.
+
+• WHY IT IS IMPORTANT:
+  Most global ticketing platforms lock features behind expensive monthly subscriptions or cap free event registrations at 25–50 attendees.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  ₦0 platform fees, ₦0 setup fees, and unlimited registrations for churches, student hangouts, tech meetups, and community gatherings.
+
+
+================================================================================
+9. DIRECT ATTENDEE SMS & EMAIL BROADCAST ENGINE
+================================================================================
+• WHAT IT IS:
+  A centralized communication tool that allows organizers to send direct SMS and email broadcasts to all registered attendees or specific ticket tiers with one click.
+
+• WHY IT IS IMPORTANT:
+  When an urgent update happens on event day (venue hall change, rain delay, parking advisory), social media algorithms only reach 5% of followers.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  Guaranteed 98% open rates directly to attendees' phone SMS inboxes and email. Organizers don't need to export numbers to third-party bulk SMS portals.
+
+
+================================================================================
+10. CUSTOM REGISTRATION FORMS & ATTENDEE QUESTION BUILDER
+================================================================================
+• WHAT IT IS:
+  The ability to add custom qualifying questions during checkout (e.g., T-shirt size, dietary requirements, organization name, job title, VIP seating preferences).
+
+• WHY IT IS IMPORTANT:
+  Conferences, corporate seminars, and workshops need more than just names and emails to plan logistics, catering, and badge printing.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  Organizers get the exact operational data they need at the moment of registration without having to send a separate Google Form afterward.
+
+
+================================================================================
+11. MULTI-TIER TICKETING & EARLY-BIRD FLASH COUPONS
+================================================================================
+• WHAT IT IS:
+  Comprehensive ticket tier management supporting Early Bird discounts, Regular passes, VIP, VVIP, Corporate Tables, and custom promo discount codes.
+
+• WHY IT IS IMPORTANT:
+  A single ticket price leaves money on the table. High-net-worth guests want VIP tables, while students need budget passes.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  Real-time inventory countdowns trigger psychological FOMO ("Only 12 Early Bird tickets left!"). Dynamic discount promo codes can be created in 30 seconds.
+
+
+================================================================================
+12. POST-EVENT "HOST WRAPPED" & VERIFIED ACHIEVEMENT CERTIFICATE
+================================================================================
+• WHAT IT IS:
+  An automated post-event performance summary that generates an editorial, high-contrast digital Host Achievement Flyer with verified attendee metrics.
+
+• WHY IT IS IMPORTANT:
+  After pulling off a successful event with 400 attendees, organizers need tangible social proof to attract corporate sponsors, brand partnerships, and future ticket buyers.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  No other African ticketing platform turns host metrics into a ready-to-share digital credential for LinkedIn, Instagram, and sponsor pitch decks.
+
+
+================================================================================
+13. ONLINE & HYBRID EVENT SUPPORT (WHATSAPP COMMUNITY GATEWAY)
+================================================================================
+• WHAT IT IS:
+  Dedicated online event functionality that automatically routes paid attendees directly into private Zoom webinars, Google Meets, or exclusive WhatsApp communities.
+
+• WHY IT IS IMPORTANT:
+  Online masterclasses and paid webinars suffer from payment verification chaos—coaches spend hours manually confirming bank alerts before sending WhatsApp group links.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  Instant automated redirection upon successful payment. Attendees pay and are instantly added to the private class or group without organizer intervention.
+
+
+================================================================================
+14. REAL-TIME SALES & GATE COMMAND CENTER (MOBILE OPTIMIZED)
+================================================================================
+• WHAT IT IS:
+  A live organizer dashboard that displays ticket sales velocity, revenue breakdown, and gate check-in percentages in real time.
+
+• WHY IT IS IMPORTANT:
+  Organizers are constantly on the move on event day. They cannot be stuck behind a computer monitor in an office.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  Fully responsive on any mobile browser. Monitor ticket revenue and entrance gate flow in real time from anywhere—even while stuck in traffic.
+
+
+================================================================================
+15. COMPLETE ATTENDEE DATA OWNERSHIP & ONE-CLICK EXPORT
+================================================================================
+• WHAT IT IS:
+  Unrestricted access to download your entire attendee database (names, phone numbers, emails, answers, ticket types, check-in timestamps) in CSV/Excel format.
+
+• WHY IT IS IMPORTANT:
+  Your attendees are your long-term business asset. Platforms that withhold customer emails or lock contact lists take away organizer ownership.
+
+• WHY IT IS UNIQUE / SELLING POINT:
+  EventRally never gates your audience data. Download your clean, structured attendee roster anytime with one click.
+================================================================================

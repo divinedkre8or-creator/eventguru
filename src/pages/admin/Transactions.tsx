@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { 
-  CreditCard, Search, Download, CheckCircle2, Loader2, ArrowDownRight, 
+  CreditCard, Search, Download, CheckCircle2, Loader2, ArrowDownRight, ArrowUpRight,
   Building2, ShieldCheck, RefreshCw, Check, X, AlertCircle, FileText
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -50,6 +50,7 @@ const AdminTransactions = () => {
 
   // Payout action modal / dialog state
   const [processingPayoutId, setProcessingPayoutId] = useState<string | null>(null);
+  const [disbursingBachsId, setDisbursingBachsId] = useState<string | null>(null);
   const [settlementRef, setSettlementRef] = useState("");
 
   const fetchAdminData = async () => {
@@ -199,6 +200,27 @@ const AdminTransactions = () => {
     } catch (err: any) {
       console.error("Payout settlement error:", err);
       toast.error(err.message || "Failed to update payout status");
+    }
+  };
+
+  const handleExecuteBachsPayout = async (payoutId: string) => {
+    setDisbursingBachsId(payoutId);
+    try {
+      const { data, error } = await supabase.functions.invoke("bachs-payout", {
+        body: { payoutRequestId: payoutId },
+      });
+
+      if (error || !data?.ok) {
+        throw new Error(data?.error || error?.message || "Failed to disburse payout via Bachs");
+      }
+
+      toast.success(`Payout disbursed via Bachs! Reference: ${data.reference}`);
+      await fetchAdminData();
+    } catch (err: any) {
+      console.error("Admin Bachs payout error:", err);
+      toast.error(err.message || "Failed to disburse payout via Bachs");
+    } finally {
+      setDisbursingBachsId(null);
     }
   };
 
@@ -474,7 +496,7 @@ const AdminTransactions = () => {
           <div className="bg-muted/40 border border-border p-4 rounded-xl text-xs space-y-1">
             <span className="font-bold text-foreground font-mono uppercase">Administrative Settlement Guidelines:</span>
             <p className="text-muted-foreground">
-              Review verified commercial bank account information below. Disburse payouts via commercial bank transfer (or Paystack Transfer), enter the transfer session reference, and mark as Paid.
+              Review verified commercial bank account information below. Disburse payouts instantly via automated Bachs transfer, or enter manual transfer reference and mark as Paid.
             </p>
           </div>
 
@@ -547,11 +569,24 @@ const AdminTransactions = () => {
                                 <div className="flex items-center gap-2">
                                   <Button
                                     size="sm"
+                                    onClick={() => handleExecuteBachsPayout(pr.id)}
+                                    disabled={disbursingBachsId === pr.id}
+                                    className="h-7 text-xs font-bold bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-xs gap-1"
+                                  >
+                                    {disbursingBachsId === pr.id ? (
+                                      <Loader2 className="w-3 h-3 animate-spin" />
+                                    ) : (
+                                      <ArrowUpRight className="w-3 h-3" />
+                                    )}
+                                    Disburse via Bachs
+                                  </Button>
+                                  <Button
+                                    size="sm"
                                     variant="outline"
                                     onClick={() => setProcessingPayoutId(pr.id)}
-                                    className="h-7 text-xs font-bold text-chart-green border-chart-green/40 hover:bg-chart-green/10"
+                                    className="h-7 text-xs font-medium text-muted-foreground border-border hover:bg-muted"
                                   >
-                                    Mark Disbursed
+                                    Manual Settle
                                   </Button>
                                   <Button
                                     size="sm"
@@ -633,23 +668,38 @@ const AdminTransactions = () => {
                             </div>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2 pt-1">
+                          <div className="flex flex-col gap-2 pt-1">
                             <Button
                               size="sm"
-                              variant="outline"
-                              onClick={() => setProcessingPayoutId(pr.id)}
-                              className="h-8 text-xs font-bold text-chart-green border-chart-green/40 hover:bg-chart-green/10 flex-1"
+                              onClick={() => handleExecuteBachsPayout(pr.id)}
+                              disabled={disbursingBachsId === pr.id}
+                              className="h-8 text-xs font-bold bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-xs gap-1.5 w-full"
                             >
-                              Mark Disbursed
+                              {disbursingBachsId === pr.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <ArrowUpRight className="w-3.5 h-3.5" />
+                              )}
+                              Disburse via Bachs
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleSettlePayout(pr.id, "cancelled")}
-                              className="h-8 text-xs text-destructive hover:bg-destructive/10"
-                            >
-                              Decline
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setProcessingPayoutId(pr.id)}
+                                className="h-7 text-xs font-medium text-muted-foreground border-border hover:bg-muted flex-1"
+                              >
+                                Manual Settle
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleSettlePayout(pr.id, "cancelled")}
+                                className="h-7 text-xs text-destructive hover:bg-destructive/10"
+                              >
+                                Decline
+                              </Button>
+                            </div>
                           </div>
                         )
                       ) : (

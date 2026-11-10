@@ -130,7 +130,7 @@ export const CookiePolicy: React.FC = () => {
           4. Third-Party Integrations
         </h2>
         <p>
-          When you execute a payment on EventRally, our payment partner <strong>Paystack</strong> may initialize temporary security tokens 
+          When you execute a payment on EventRally, our payment partners <strong>Bachs.io</strong> and <strong>Paystack</strong> may initialize temporary security tokens 
           necessary to verify fraud prevention protocols (such as 3D Secure card authentication mandated by the Central Bank of Nigeria).
           For technical telemetry and crash diagnostics, we use <strong>PostHog EU</strong> with full client-side masking of passwords, credit cards, and sensitive inputs.
         </p>

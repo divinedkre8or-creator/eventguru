@@ -97,7 +97,7 @@ export const PrivacyPolicy: React.FC = () => {
             <strong>Registration & Event Details:</strong> Ticket tier selected, registration timestamps, admission status, gate check-in records, and responses provided to custom organizer checkout questions.
           </li>
           <li>
-            <strong>Financial & Payout Information:</strong> Transaction amounts, currency (e.g. NGN), payment references, and organizer bank settlement account details (bank name, account number, and verified account name). <em>Note: EventRally never stores full credit/debit card numbers or CVV codes; all card processing is tokenized directly by PCI-DSS certified gateway Paystack.</em>
+            <strong>Financial & Payout Information:</strong> Transaction amounts, currency (e.g. NGN), payment references, and organizer bank settlement account details (bank name, account number, and verified account name). <em>Note: EventRally never stores full credit/debit card numbers or CVV codes; all card processing is tokenized directly by PCI-DSS certified payment processors Bachs.io and Paystack.</em>
           </li>
           <li>
             <strong>User-Generated Media & Photos:</strong> Photographs and headshots uploaded to our Viral DP Studio to generate event badges and fliers.
@@ -159,8 +159,13 @@ export const PrivacyPolicy: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-border">
               <tr>
+                <td className="p-3 font-semibold text-foreground">Bachs.io Technologies Limited</td>
+                <td className="p-3">Primary payment checkout, card/transfer collections, automated organizer payouts</td>
+                <td className="p-3">Nigeria / Global Cloud</td>
+              </tr>
+              <tr>
                 <td className="p-3 font-semibold text-foreground">Paystack Payments Limited</td>
-                <td className="p-3">Payment processing, card tokenization, bank settlements</td>
+                <td className="p-3">Secondary payment processing & card tokenization fallback</td>
                 <td className="p-3">Nigeria / USA</td>
               </tr>
               <tr>

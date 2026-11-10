@@ -264,7 +264,7 @@ export function SmsOverviewTab({
             {formatNaira(totalSmsSoldNgn)}
           </div>
           <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
-            Paystack top-ups
+            Bachs / In-App top-ups
           </p>
         </div>
 

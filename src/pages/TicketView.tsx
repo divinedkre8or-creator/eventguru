@@ -76,6 +76,31 @@ export const TicketView: React.FC = () => {
           data = qData;
         }
 
+        // 3. Just returned from Bachs checkout? Auto-verify session if order not yet finalized
+        if (!data) {
+          const searchParams = new URLSearchParams(window.location.search);
+          const sessionId = searchParams.get("session_id");
+          if (sessionId || (id && id.startsWith("EVR-ORD-"))) {
+            try {
+              const { data: verifyData } = await supabase.functions.invoke("bachs-checkout", {
+                body: { action: "verify", checkoutId: sessionId || undefined, paymentReference: id },
+              });
+              if (verifyData?.ok) {
+                // Re-fetch now that order is finalized
+                const lookupCol = UUID_RE.test(id ?? "") ? "id" : "payment_reference";
+                const { data: verifiedReg } = await supabase
+                  .from("registrations")
+                  .select("*, events(*), ticket_types(*)")
+                  .eq(lookupCol, id ?? "")
+                  .maybeSingle();
+                data = verifiedReg;
+              }
+            } catch (vErr) {
+              console.warn("Bachs auto-verify notice:", vErr);
+            }
+          }
+        }
+
         if (!data && !cached) throw new Error("Ticket not found");
 
         if (data) {

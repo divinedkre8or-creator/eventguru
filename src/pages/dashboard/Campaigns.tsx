@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Mail, Send, MessageSquare, Users, Loader2, AlertCircle,
   Wallet, Gauge, Crown, ShieldCheck, Plus, Smartphone, Sparkles,
@@ -68,12 +68,60 @@ const STATUS_STYLES: Record<string, string> = {
 const Campaigns = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const period = getCurrentUsagePeriod();
   const [searchParams] = useSearchParams();
 
   const paramEventId = searchParams.get("event_id");
   const paramChannel = searchParams.get("channel");
   const paramTemplate = searchParams.get("template");
+
+  // Handle return from Bachs checkout session for wallet top-up
+  const sessionId = searchParams.get("session_id");
+  const walletRef = searchParams.get("wallet_ref");
+  const isWalletTopup = searchParams.get("wallet_topup") === "true";
+
+  useEffect(() => {
+    if (sessionId && isWalletTopup && user?.id) {
+      let isCancelled = false;
+      const verifyWalletTopup = async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke("bachs-checkout", {
+            body: {
+              action: "verify_wallet",
+              checkoutId: sessionId,
+              paymentReference: walletRef,
+              organiserId: user.id,
+            },
+          });
+
+          if (isCancelled) return;
+
+          if (error || !data?.ok) {
+            console.error("Wallet verify returned error:", error || data);
+            toast.error(data?.reason || "Could not confirm wallet payment. If debited, your wallet will credit automatically via webhook.");
+          } else {
+            toast.success(
+              `Wallet successfully credited with ₦${(data.amountPaid || 0).toLocaleString()} (${(data.unitsAdded || 0).toLocaleString()} SMS Credits)!`
+            );
+            queryClient.invalidateQueries({ queryKey: ["campaign-wallet-v2", user.id] });
+          }
+        } catch (err: any) {
+          if (!isCancelled) {
+            console.error("Wallet auto-verify error:", err);
+            toast.error("Error verifying payment with Bachs.");
+          }
+        } finally {
+          navigate("/dashboard/campaigns", { replace: true });
+        }
+      };
+
+      verifyWalletTopup();
+      return () => {
+        isCancelled = true;
+      };
+    }
+  }, [sessionId, isWalletTopup, walletRef, user?.id, navigate, queryClient]);
 
   const [selectedEventId, setSelectedEventId] = useState<string>(paramEventId || "all");
   const [audienceSource, setAudienceSource] = useState<"event" | "custom">("event");
@@ -725,7 +773,7 @@ const Campaigns = () => {
               </Button>
             </div>
             <p className="text-[11px] text-muted-foreground/70 leading-relaxed">
-              Credits never expire. Pay as you go at ₦10/SMS standard rate, with automatic volume discounts to ₦9 (&gt;100 units) and ₦8 (&gt;500 units) via Paystack.
+              Credits never expire. Pay as you go at ₦10/SMS standard rate, with automatic volume discounts to ₦9 (&gt;100 units) and ₦8 (&gt;500 units) via Bachs.
             </p>
           </div>
 

@@ -43,7 +43,7 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   currency: "NGN",
   
   gateway_public_key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || FALLBACK_PAYSTACK_PUBLIC_KEY,
-  gateway_provider: "paystack",
+  gateway_provider: "bachs",
   gateway_environment: "live",
   platform_fee_percent: 2.5,
   

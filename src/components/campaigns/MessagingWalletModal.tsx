@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { usePaystackPayment } from "react-paystack";
 import { supabase } from "@/integrations/supabase/client";
 import { getActiveGatewayPublicKey } from "@/lib/platformSettings";
+import { TactileButton } from "@/components/ui/TactileButton";
 import { 
   calculateSmsOrderPrice, 
   SMS_PRICING_TIERS 
@@ -118,6 +119,44 @@ export const MessagingWalletModal = ({
   const handlePaymentClose = () => {
     setIsProcessing(false);
     toast.info("Payment window was closed.");
+  };
+
+  const handleBachsPayment = async () => {
+    if (totalUnits <= 0) {
+      toast.error("Please enter a valid number of SMS units.");
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("bachs-checkout", {
+        body: {
+          action: "initialize_wallet",
+          organiserId,
+          units: totalUnits,
+          amount: totalPriceNgn,
+          customerName: userName,
+          customerEmail: activeEmail,
+          originUrl: window.location.origin,
+        },
+      });
+
+      if (error || !data?.checkoutUrl) {
+        throw new Error(data?.reason || data?.error || error?.message || "Failed to initialize Bachs checkout session");
+      }
+
+      toast.info("Opening Bachs checkout...");
+      window.location.href = data.checkoutUrl;
+    } catch (err: any) {
+      console.warn("Bachs wallet init failed, falling back to backup gateway:", err);
+      if (publicKey && (publicKey.startsWith("pk_live_") || publicKey.startsWith("pk_test_"))) {
+        toast.info("Connecting through secondary checkout gateway...");
+        handlePaystackPayment();
+      } else {
+        setIsProcessing(false);
+        toast.error(err.message || "Failed to launch payment checkout.");
+      }
+    }
   };
 
   const handlePaystackPayment = () => {
@@ -319,9 +358,10 @@ export const MessagingWalletModal = ({
                 </div>
 
                 {calculation.nextTierHint && (
-                  <p className="text-[11px] text-secondary font-medium bg-secondary/10 border border-secondary/20 p-2 rounded-lg mt-1">
-                    💡 {calculation.nextTierHint}
-                  </p>
+                  <div className="text-[11px] text-secondary font-medium bg-secondary/10 border border-secondary/20 p-2 rounded-lg mt-1 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-secondary shrink-0" />
+                    <span>{calculation.nextTierHint}</span>
+                  </div>
                 )}
               </div>
             )}
@@ -346,22 +386,17 @@ export const MessagingWalletModal = ({
           >
             Cancel
           </Button>
-          <Button
+          <TactileButton
             type="button"
-            onClick={handlePaystackPayment}
+            variant="primary"
+            onClick={handleBachsPayment}
             disabled={isProcessing || totalPriceNgn <= 0}
-            className="flex-1 sm:flex-initial bg-primary text-primary-foreground font-bold text-xs h-11 px-6 rounded-xl flex items-center justify-center gap-2 shadow-sm hover:opacity-90 cursor-pointer"
+            loading={isProcessing}
+            icon={CreditCard}
+            className="flex-1 sm:flex-initial text-xs h-11 px-6 rounded-xl"
           >
-            {isProcessing ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" /> Launching Paystack...
-              </>
-            ) : (
-              <>
-                <CreditCard className="w-4 h-4" /> Fund ₦{totalPriceNgn.toLocaleString()} ({totalUnits.toLocaleString()} SMS)
-              </>
-            )}
-          </Button>
+            Fund ₦{totalPriceNgn.toLocaleString()} ({totalUnits.toLocaleString()} SMS)
+          </TactileButton>
         </div>
       </div>
     </div>

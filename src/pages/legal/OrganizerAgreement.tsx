@@ -74,7 +74,7 @@ export const OrganizerAgreement: React.FC = () => {
           3. Ticket Settlements, Banking & Payout Escrow Policy
         </h2>
         <p>
-          All ticket revenues paid via debit card, bank transfer, or USSD are collected via our licensed gateway partner, Paystack, 
+          All ticket revenues paid via debit card, bank transfer, or USSD are collected via our licensed gateway partner, Bachs.io (with Paystack as secondary payment channel), 
           and processed according to the following settlement rules:
         </p>
         <div className="space-y-2 text-xs sm:text-sm">
@@ -104,7 +104,7 @@ export const OrganizerAgreement: React.FC = () => {
           <strong>EventRally Platform Fee:</strong> For paid events, EventRally charges a platform service commission of 2.5% on gross ticket sales. Free events incur zero platform fees.
         </p>
         <p>
-          <strong>Payment Gateway Processing Fees:</strong> Payment collection is processed securely via our licensed payment gateway partner, Paystack. The Organizer expressly acknowledges and agrees that the Organizer absorbs actual payment gateway processing fees incurred on ticket purchases. Such processing fees are deducted at the time of transaction settlement based on the actual verified fee charged by the payment gateway.
+          <strong>Payment Gateway Processing Fees:</strong> Payment collection is processed securely via our licensed payment gateway partners (Bachs.io and Paystack). The Organizer expressly acknowledges and agrees that the Organizer absorbs actual payment gateway processing fees incurred on ticket purchases. Such processing fees are deducted at the time of transaction settlement based on the actual verified fee charged by the payment gateway.
         </p>
         <p>
           <strong>Authoritative Net Settlement Formula:</strong> The Organizer&apos;s net earnings for each completed paid order are calculated strictly as:

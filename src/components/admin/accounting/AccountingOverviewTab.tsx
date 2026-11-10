@@ -186,9 +186,9 @@ export const AccountingOverviewTab = ({
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-muted/40 border border-border/50">
               <div>
-                <div className="font-bold text-foreground">Gateway Processing Costs (Paystack)</div>
+                <div className="font-bold text-foreground">Gateway Processing Costs (Bachs / Paystack)</div>
                 <div className="text-[11px] text-muted-foreground mt-0.5">
-                  Standard 1.5% + ₦100 per transaction
+                  Standard processor fee per collection
                 </div>
               </div>
               <div className="text-right">
@@ -248,7 +248,7 @@ export const AccountingOverviewTab = ({
               <div>
                 <div className="font-bold text-foreground">Pending Payout Queue</div>
                 <div className="text-[11px] text-muted-foreground mt-0.5">
-                  Requested withdrawals awaiting admin review or Paystack transfer
+                  Requested withdrawals awaiting automated Bachs transfer or review
                 </div>
               </div>
               <div className="text-right">

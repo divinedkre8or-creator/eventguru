@@ -16,7 +16,7 @@ import { getEventDpUrl, getEventUrl } from "@/lib/slugUtils";
 import { DigitalTicketCard } from "@/components/tickets/DigitalTicketCard";
 import { TicketActions } from "@/components/tickets/TicketActions";
 import { getActiveGatewayPublicKey, calculatePaymentBreakdown } from "@/lib/platformSettings";
-import { submitRegistration, initializeOrder, RegistrationRejectedError } from "@/lib/registrationService";
+import { submitRegistration, initializeOrder, initializeBachsOrder, RegistrationRejectedError } from "@/lib/registrationService";
 import { parseEventMetadata, CustomQuestion } from "@/lib/eventMetadata";
 
 interface CheckoutModalProps {
@@ -223,14 +223,8 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
     if (isFree) {
       completeRegistration(null);
     } else {
-      if (!gatewayPublicKey || (!gatewayPublicKey.startsWith("pk_live_") && !gatewayPublicKey.startsWith("pk_test_"))) {
-        toast.error("Online payments are not configured yet. Please contact the event organiser.");
-        setProcessing(false);
-        return;
-      }
-
-      // Authoritatively initialize the order on the server BEFORE opening Paystack modal
-      initializeOrder({
+      // 1. Authoritative Bachs Checkout Session
+      initializeBachsOrder({
         eventId: event.id,
         ticketTypeId: ticket?.id || null,
         fullName: name,
@@ -238,33 +232,61 @@ export const CheckoutModal = ({ isOpen, onClose, event, ticket, discountPercenta
         phone: phone || null,
         quantity,
         customAnswers: Object.keys(customAnswers).length > 0 ? customAnswers : null,
+        originUrl: window.location.origin,
       })
-        .then((initRes) => {
-          if (initRes.isFree) {
+        .then((bachsRes) => {
+          if (bachsRes.isFree) {
             completeRegistration(null);
             return;
           }
 
-          initializePayment({
-            onSuccess: (response: any) => {
-              const verifiedRef = response?.reference || initRes.paymentReference;
-              completeRegistration(verifiedRef);
-            },
-            onClose: onClosePayment,
-            config: {
-              reference: initRes.paymentReference,
-              email: email,
-              amount: initRes.amountKobo || breakdown.amountInMinorUnits,
-              currency: "NGN",
-              channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'] as any,
-              metadata: (initRes as any).metadata,
-            },
-          });
+          if (bachsRes.checkoutUrl) {
+            toast.info("Opening secure Bachs Checkout...");
+            // Redirect to Bachs Checkout (supporting Cards, Bank Transfers, USSD, Mobile Money, and Crypto)
+            window.location.href = bachsRes.checkoutUrl;
+            return;
+          }
+
+          throw new Error("No checkout URL returned from payment server");
         })
-        .catch((initErr: any) => {
-          setProcessing(false);
-          console.error("Order reservation error:", initErr);
-          toast.error(initErr.message || "Failed to initialize payment with server");
+        .catch((bachsErr) => {
+          console.warn("Bachs checkout notice, falling back to backup gateway:", bachsErr);
+          // Fallback to Paystack if Bachs session initialization encounters network issues
+          if (gatewayPublicKey && (gatewayPublicKey.startsWith("pk_live_") || gatewayPublicKey.startsWith("pk_test_"))) {
+            initializeOrder({
+              eventId: event.id,
+              ticketTypeId: ticket?.id || null,
+              fullName: name,
+              email: email,
+              phone: phone || null,
+              quantity,
+              customAnswers: Object.keys(customAnswers).length > 0 ? customAnswers : null,
+            })
+              .then((initRes) => {
+                initializePayment({
+                  onSuccess: (response: any) => {
+                    const verifiedRef = response?.reference || initRes.paymentReference;
+                    completeRegistration(verifiedRef);
+                  },
+                  onClose: onClosePayment,
+                  config: {
+                    reference: initRes.paymentReference,
+                    email: email,
+                    amount: initRes.amountKobo || breakdown.amountInMinorUnits,
+                    currency: "NGN",
+                    channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'] as any,
+                    metadata: (initRes as any).metadata,
+                  },
+                });
+              })
+              .catch((fallbackErr: any) => {
+                setProcessing(false);
+                toast.error(fallbackErr.message || "Failed to initialize payment gateway");
+              });
+          } else {
+            setProcessing(false);
+            toast.error(bachsErr.message || "Failed to initialize payment session");
+          }
         });
     }
   };

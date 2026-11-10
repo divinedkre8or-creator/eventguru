@@ -132,8 +132,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else if (metaRole) {
         resolvedRoles = [metaRole];
       } else {
-        const cached = getCachedRoles();
-        resolvedRoles = cached.length > 0 ? cached : ["attendee"];
+        // Authoritative fallback: Default to attendee if no roles in database
+        resolvedRoles = ["attendee"];
       }
       setRoles(resolvedRoles);
       try { localStorage.setItem(CACHED_ROLES_KEY, JSON.stringify(resolvedRoles)); } catch {}

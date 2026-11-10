@@ -212,18 +212,23 @@ const AdminSettings = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-3.5 rounded-xl bg-muted/40 border border-border/80 space-y-1 sm:col-span-2">
+            <div className="p-3.5 rounded-xl bg-muted/40 border border-border/80 space-y-1.5 sm:col-span-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-chart-green" /> Paystack Gateway Provider
+                  <CheckCircle2 className="w-3.5 h-3.5 text-chart-green" /> Primary Engine: Bachs.io
                 </span>
                 <span className="text-[10px] font-mono font-bold text-chart-green uppercase bg-chart-green/10 px-2 py-0.5 rounded">
-                  System Configured
+                  Active & Connected
                 </span>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Payment keys are loaded authoritatively from environment configuration. Attendee checkouts route securely through this provider.
+                All attendee collections, automated organizer bank withdrawals, and virtual deposit accounts route through Bachs.io infrastructure.
               </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-mono text-[10px] text-muted-foreground border-t border-border/40">
+                <div>Merchant: <span className="text-foreground font-bold">Sleekedge Tech Solutions</span></div>
+                <div>Deposit Bank: <span className="text-foreground font-bold">Globus Bank (3330191436)</span></div>
+                <div>Automated Payouts: <span className="text-chart-green font-bold">Enabled</span></div>
+              </div>
             </div>
 
             <div className="space-y-1.5 min-w-0">
@@ -255,9 +260,9 @@ const AdminSettings = () => {
 
             <div className="space-y-1.5 min-w-0 sm:col-span-2">
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-bold text-foreground">Paystack Public Key</Label>
+                <Label className="text-xs font-bold text-foreground">Paystack Backup Key (Secondary Gateway)</Label>
                 <span className="text-[10px] font-mono font-bold text-muted-foreground">
-                  {settings.gateway_public_key?.startsWith("pk_live_") ? "🟢 Live Production Key" : "🟡 Test Key"}
+                  {settings.gateway_public_key?.startsWith("pk_live_") ? "Live Fallback Key" : "Test Key"}
                 </span>
               </div>
               <Input
@@ -268,7 +273,7 @@ const AdminSettings = () => {
                 className="bg-background border-border text-xs h-10 rounded-lg font-mono"
               />
               <p className="text-[10px] text-muted-foreground">
-                Public key used for Paystack checkout popups (ticket purchases and organizer SMS wallet top-ups).
+                Backup public key preserved for backward-compatible fallback checkout.
               </p>
             </div>
           </div>

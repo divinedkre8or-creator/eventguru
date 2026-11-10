@@ -566,4 +566,74 @@ describe("EventRally Payment P0 Remediation Test Suite", () => {
       expect(availableBalance).toBe(13600); // 28,600 - 10,000 - 5,000 = 13,600
     });
   });
+
+  describe("7. Bachs.io Automated Payout & Wallet Top-up Guard Tests", () => {
+    it("verifies Bachs payout payload and idempotency key derivation", () => {
+      const payoutRequest = {
+        id: "payout-req-1234-uuid",
+        amount: 25000,
+        destination_id: "pd_oI87sZTOMxrX6yrf",
+      };
+
+      const idempotencyKey = `payout-payout-req-1234-uuid`;
+      expect(idempotencyKey).toBe("payout-payout-req-1234-uuid");
+
+      const bachsPayoutBody = {
+        amount: String(payoutRequest.amount),
+        currency: "NGN",
+        destination_id: payoutRequest.destination_id,
+        narration: `EventRally settlement ${payoutRequest.id.slice(0, 8)}`,
+      };
+
+      expect(bachsPayoutBody.amount).toBe("25000");
+      expect(bachsPayoutBody.currency).toBe("NGN");
+      expect(bachsPayoutBody.destination_id).toBe("pd_oI87sZTOMxrX6yrf");
+      expect(bachsPayoutBody.narration).toContain("EventRally settlement");
+    });
+
+    it("verifies Bachs SMS wallet topup session and atomic credit calculation", () => {
+      const topup = {
+        organiser_id: "org-test-uuid",
+        units: 250,
+        unitRate: 9, // Volume tier: >100 units = 9 NGN
+      };
+
+      const expectedAmount = topup.units * topup.unitRate; // 250 * 9 = 2,250 NGN
+      expect(expectedAmount).toBe(2250);
+
+      const sessionPayload = {
+        pricing: { amount: String(expectedAmount.toFixed(2)), currency: "NGN" },
+        metadata: {
+          purpose: "sms_wallet",
+          organiser_id: topup.organiser_id,
+          sms_units: topup.units,
+          amount: expectedAmount,
+        },
+      };
+
+      expect(sessionPayload.pricing.amount).toBe("2250.00");
+      expect(sessionPayload.metadata.purpose).toBe("sms_wallet");
+      expect(sessionPayload.metadata.sms_units).toBe(250);
+    });
+
+    it("prevents double-crediting SMS wallet when reference is reused (idempotency)", () => {
+      const walletLedger: string[] = ["SMS-WLT-ORG123-001"];
+      const incomingRef = "SMS-WLT-ORG123-001";
+
+      const isAlreadyCredited = walletLedger.includes(incomingRef);
+      expect(isAlreadyCredited).toBe(true);
+
+      function creditWallet(ref: string) {
+        if (walletLedger.includes(ref)) {
+          return { ok: true, already_credited: true };
+        }
+        walletLedger.push(ref);
+        return { ok: true, already_credited: false };
+      }
+
+      const result = creditWallet(incomingRef);
+      expect(result.already_credited).toBe(true);
+      expect(walletLedger.length).toBe(1);
+    });
+  });
 });

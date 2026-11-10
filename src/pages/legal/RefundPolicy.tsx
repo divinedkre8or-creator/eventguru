@@ -112,7 +112,7 @@ export const RefundPolicy: React.FC = () => {
           5. Handling of Platform Service & Payment Processing Fees
         </h2>
         <p>
-          When refunds are issued for cancelled events, the face value of the ticket will be returned to the buyer. Non-refundable third-party payment gateway transaction fees (such as direct card processing and bank gateway charges deducted by Paystack) may be deducted from the refund total unless the cancellation was directly caused by an operational failure of EventRally.
+          When refunds are issued for cancelled events, the face value of the ticket will be returned to the buyer. Non-refundable third-party payment gateway transaction fees (such as direct card processing and bank gateway charges deducted by Bachs.io or Paystack) may be deducted from the refund total unless the cancellation was directly caused by an operational failure of EventRally.
         </p>
       </section>
 

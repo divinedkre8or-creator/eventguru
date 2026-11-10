@@ -11,16 +11,16 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const { session, roles, loading } = useAuth();
   const location = useLocation();
 
-  if (loading && !session && roles.length === 0) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-7 h-7 text-primary animate-spin" />
-        <span className="text-xs font-mono font-medium text-muted-foreground">Loading workspace...</span>
+        <span className="text-xs font-mono font-medium text-muted-foreground">Verifying permissions...</span>
       </div>
     );
   }
 
-  if (!session && !loading) {
+  if (!session) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
