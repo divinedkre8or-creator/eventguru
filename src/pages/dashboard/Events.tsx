@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { 
   PlusCircle, Calendar, MapPin, Users, Search, Edit3, Copy, 
   ExternalLink, Image, Zap, MoreVertical, Trash2, Ban, CheckCircle2,
-  Loader2, MessageSquare
+  Loader2, MessageSquare, Award, AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getEventUrl } from "@/lib/slugUtils";
+import { EventHostSummaryModal } from "@/components/events/EventHostSummaryModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +44,7 @@ const Events = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [eventToDelete, setEventToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [selectedSummaryEvent, setSelectedSummaryEvent] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
 
@@ -212,18 +214,37 @@ const Events = () => {
                 <div>
                   <div className="relative aspect-[16/9] bg-muted overflow-hidden">
                     {event.image_url ? (
-                      <img src={event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs font-mono">
-                        No Banner
-                      </div>
-                    )}
+                      <img 
+                        src={event.image_url} 
+                        alt={event.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <div className={`w-full h-full flex flex-col items-center justify-center text-muted-foreground text-xs font-mono bg-muted ${event.image_url ? 'hidden' : ''}`}>
+                      <Image className="w-6 h-6 mb-1 opacity-40" />
+                      <span>No Banner</span>
+                    </div>
                     <div className={`absolute top-3 right-3 px-2 py-0.5 rounded text-[10px] font-mono font-bold border uppercase tracking-wider ${statusBadgeStyle[event.status] || statusBadgeStyle.draft}`}>
                       {event.status}
                     </div>
                   </div>
 
                   <div className="p-4 space-y-3">
+                    {(!event.image_url || event.image_url.includes('edpnvsakkudorleqqhxv')) && event.status === 'published' && (
+                      <Link 
+                        to={`/dashboard/events/${event.id}/edit`}
+                        className="bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 rounded px-2.5 py-1.5 flex items-center gap-1.5 text-xs font-semibold hover:bg-amber-500/20 transition-colors"
+                      >
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                        <span>Re-upload flyer to display on homepage</span>
+                      </Link>
+                    )}
+
                     <div>
                       <span className="text-[10px] font-mono font-bold uppercase text-muted-foreground tracking-wider">
                         {event.category?.replace("-", " ")}
@@ -282,6 +303,16 @@ const Events = () => {
                     </Link>
                   </div>
 
+                  {/* Host Summary & Achievement Flyer Shortcut */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedSummaryEvent(event)}
+                    className="w-full text-xs font-bold h-8 border-[#0058BE]/30 text-[#0058BE] hover:bg-[#0058BE]/10 transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <Award className="w-3.5 h-3.5 text-[#0058BE]" /> Host Summary &amp; Certificate
+                  </Button>
+
                   <div className="flex items-center gap-2 w-full min-w-0">
                     <Link to={`/dashboard/events/${event.id}/edit`} className="flex-1 min-w-0">
                       <Button variant="outline" size="sm" className="w-full text-xs font-bold h-9 border-border justify-center">
@@ -328,6 +359,14 @@ const Events = () => {
                             <MessageSquare className="w-3.5 h-3.5 mr-2 text-primary" />
                             Broadcast to Guests
                           </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                          onClick={() => setSelectedSummaryEvent(event)}
+                          className="text-xs font-medium cursor-pointer text-[#0058BE] hover:text-[#0058BE]"
+                        >
+                          <Award className="w-3.5 h-3.5 mr-2 text-[#0058BE]" />
+                          Host Summary &amp; Certificate
                         </DropdownMenuItem>
 
                         <DropdownMenuSeparator className="bg-border" />
@@ -398,6 +437,16 @@ const Events = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Host Summary & Achievement Flyer Modal */}
+      {selectedSummaryEvent && (
+        <EventHostSummaryModal
+          isOpen={!!selectedSummaryEvent}
+          onClose={() => setSelectedSummaryEvent(null)}
+          event={selectedSummaryEvent}
+          organiserName={user?.user_metadata?.full_name || "Event Organizer"}
+        />
+      )}
     </div>
   );
 };
